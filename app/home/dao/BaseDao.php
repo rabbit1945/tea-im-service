@@ -1,0 +1,113 @@
+<?php
+
+
+namespace app\home\dao;
+
+
+abstract class BaseDao
+{
+
+    /**
+     * 设置模型
+     * @return string
+     */
+    abstract public function setModel():string;
+
+    /**
+     * 获取模型
+     * @return mixed|object
+     */
+    public function getModel() {
+        return app()->make($this->setModel());
+    }
+
+    /**
+     * 获取主键
+     * @return array|string
+     */
+    protected function getPk()
+    {
+        return $this->getModel()->getPk();
+    }
+
+    /**
+     * @param array $where
+     * @param string $field
+     * @param string $order
+     * @return array
+     */
+    public function find(array $where,string $field = "*",string $order = ""): array
+    {
+        if (empty($where)) return [];
+        return $this->getModel()::where($where)->when($order,function ($query) use ($order) {
+            $query->order($order);
+
+        })->field($field)->find()->toArray();
+
+    }
+
+    /**
+     * 获取列表
+     * @param array $where
+     *
+     */
+    public function list(array $where)
+    {
+        if (empty($where)) return [];
+        return $this->getModel()::where($where)->select()->toArray();
+    }
+
+    /**
+     * 添加数据
+     * @param array $data
+     * @return mixed
+     */
+    public function create(array $data){
+        if (empty($data)) return false;
+        $add = $this->getModel()::create($data);
+        echo $this->getModel()->getLastSql();
+        return  $add;
+    }
+
+    /**
+     * 批量更新
+     * @param array $data
+     * @return mixed
+     */
+    public function saveAll(array $data)
+    {
+        if (empty($data)) return false;
+        $save = $this->getModel()->saveAll($data);
+        echo $this->getModel()->getLastSql();
+        return $save;
+    }
+
+    /**
+     * 更新数据
+     * @param $id
+     * @param array $data
+     * @param string|null $key
+     * @return mixed
+     */
+    public function update($id, array $data, ?string $key = null)
+    {
+
+        if (is_array($id)) {
+            $where = $id;
+        } else {
+            $where = [is_null($key) ? $this->getPk() : $key => $id];
+        }
+        return $this->getModel()::update($data, $where);
+
+
+    }
+
+    public function count(array $where)
+    {
+
+        return $this->getModel()::where($where)->count();
+
+    }
+
+
+}
