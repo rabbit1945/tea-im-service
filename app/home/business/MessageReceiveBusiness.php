@@ -74,7 +74,7 @@ class MessageReceiveBusiness
      * @param $msg_id
      *
      */
-    public function getOnlineMessage($room_id, $user_id, $seq)
+    public function getOnlineMessage($room_id, $user_id, $page =1,$limit =20)
     {
         $where = [
             ['room_id','=',$room_id],
@@ -82,7 +82,7 @@ class MessageReceiveBusiness
             ['delivered','=',1]
 
         ];
-        $list = $this->dao->historyMessageList($where,$user_id,$seq);
+        $list = $this->dao->historyMessageList($where,$user_id,$page,$limit);
         $userDo = $this->app->make(UserDao::class);
         foreach ($list as $key=>$val) {
            $user_info =  $userDo->userInfo($val['msg_form']);

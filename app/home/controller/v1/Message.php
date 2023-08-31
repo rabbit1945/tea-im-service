@@ -45,12 +45,11 @@ class Message extends BaseController
     {
         $user_id =static::$user_id;
         $room_id = Request::post('room_id');
-//        $page = Request::post('page') ? (int)Request::post('page') :1;
-//        $limit = Request::post('limit')?(int)Request::post('limit'):2;
-        $seq = Request::post('seq');
+        $page = Request::post('page');
+        $limit = Request::post('limit');
         validate(MessageValidate::class)->check(['room_id' => $room_id]);
 
-        $list = $this->business->getOnlineMessage($room_id,$user_id,$seq);
+        $list = $this->business->getOnlineMessage($room_id,$user_id,$page,$limit);
         if (empty($list))  ImJson::output('20006');
         $total = $this->business->receiveCount($room_id,$user_id,1);
         $data = [

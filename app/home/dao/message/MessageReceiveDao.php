@@ -36,17 +36,17 @@ class MessageReceiveDao extends BaseDao
      * 历史消息
      * @param array $where
      * @param $user_id
-     * @param  $seq
+     * @param  $page
      * @param  $limit
      */
-    public function historyMessageList(array $where, $user_id,  $seq = 0,  $limit =10)
+    public function historyMessageList(array $where, $user_id,  $page = 1,  $limit =  20)
     {
 
 
         if (empty($where) || empty($user_id)) return false;
         return $this->getModel()::where($where)
-            ->when($seq,function ($query) use ($seq,$limit) {
-                $query->where("seq",'<',$seq);
+            ->when($page && $limit ,function ($query) use ($page,$limit) {
+                $query->page($page,$limit);
             })
             ->limit($limit)
             ->order('seq desc')
