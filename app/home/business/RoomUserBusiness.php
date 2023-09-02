@@ -3,18 +3,15 @@
 
 namespace app\home\business;
 use app\home\dao\user\RoomUserDao;
-use app\model\UserModel;
+use app\home\dao\room\RoomDao;
 use think\App;
-use app\model\RoomModel;
-use app\model\RoomUserModel;
-use think\facade\Request;
 class RoomUserBusiness
 {
     protected $app;
-    protected static $model;
+    protected $dao;
 
-    public function __construct(App $app,RoomUserModel $model) {
-        static::$model = $model;
+    public function __construct(App $app,RoomUserDao $dao) {
+        $this->dao = $dao;
         $this->app = $app;
     }
 
@@ -25,14 +22,23 @@ class RoomUserBusiness
      */
     public function find($uid): array
     {
-        $info = static::$model->where('user_id','=',$uid)->find();
+        $info = $this->dao->find([
+            [
+             "user_id",'=',$uid
+            ]
+        ],'room_id');
         $data = [];
         if ($info) {
-            $roomModel =  $this->app->make(RoomModel::class);
-            $roomName = $roomModel->where('id','=',$info->room_id)->value('name');
+            $roomDao =  $this->app->make(RoomDao::class);
+            $roomList = $roomDao->find([
+                [
+                    'id','=',$info['room_id']
+                ]
+            ]);
             $data = [
-                'room_id' => $info->room_id,
-                'roomName' => $roomName
+                'room_id' => $info['room_id'],
+                'roomName' => $roomList['name'],
+
             ];
         }
 
@@ -49,14 +55,23 @@ class RoomUserBusiness
     public function list($room_id,$pages= 1,$size = 20)
     {
 
-        $list =$this->app->make(RoomUserDao::class)->roomUserList($room_id,$pages,$size);
+        $list =$this->dao->roomUserList($room_id,$pages,$size);
+        $isOnlineNum = 0;
         foreach ($list as $key => $val) {
 
             $list[$key]['photo']     = $val['photo']?$val['photo']:'/static/images/微信头像.jpeg';
             $list[$key]['is_online'] = !empty($val['is_online']) ?$val['is_online']:"offline";
+            if ($val['is_online'] == 'online') {
+                $isOnlineNum ++;
+            }
+
 
         }
-        return $list;
+
+        return [
+            "list" => $list,
+            "isOnlineNum" => $isOnlineNum
+        ];
 
     }
 
@@ -67,17 +82,12 @@ class RoomUserBusiness
      */
     public function count($room_id)
     {
+        $where = [];
+        $where[]= ['room_id','=',$room_id];
 
-        return static::$model->field('id,user_id,is_on_line,is_master,types')
-                             ->where('room_id','=',$room_id)
-                             ->count();
+        return $this->dao->count($where);
+
+
 
     }
-
-
-
-
-
-
-
 }

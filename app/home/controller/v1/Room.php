@@ -27,8 +27,8 @@ class Room extends BaseController
         // 用户信息
         $user = static::$business->find($user_id);
         $groupUserBusiness = $this->app->make(RoomUserBusiness::class);
-
         $groupUser = $groupUserBusiness->find($user_id);
+
 
         if (!$user) ImJson::output(20006);
 
@@ -63,7 +63,8 @@ class Room extends BaseController
         $count = $groupUserBusiness->count($room_id);
         if (!$list) ImJson::output(20006);
         ImJson::output(10000, '成功',[
-           'userList' => $list,
+           'userList' => $list['list'],
+           'isOnlineNum' =>  $list['isOnlineNum'],
            'total'    => $count
 
          ]);
