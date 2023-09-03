@@ -9,7 +9,8 @@ return [
         'HttpRun'  => [],
         'HttpEnd'  => [],
         'LogLevel' => [],
-        'LogWrite' => []
+        'LogWrite' => [],
+        'UserLogin' =>  ['app\home\listener\UserLogin'],
 
     ],
 

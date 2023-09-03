@@ -138,7 +138,7 @@ class MessageReceiveBusiness
             $receiveData[] = [
                 "room_id" => $room_id,
                 "msg_form" => $data['msg_form'],
-                "msg_to"   => $val['id'],
+                "msg_to"   => $val['user_id'],
                 "nick_name" => $val['nick_name'],
                 "msg_content" => $data['msg_content'],
                 "send_time" => $data['send_time'],
