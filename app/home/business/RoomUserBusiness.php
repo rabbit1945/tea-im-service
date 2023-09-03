@@ -56,36 +56,28 @@ class RoomUserBusiness
     {
 
         $list =$this->dao->roomUserList($room_id,$pages,$size);
-        $isOnlineNum = 0;
         foreach ($list as $key => $val) {
 
             $list[$key]['photo']     = $val['photo']?$val['photo']:'/static/images/微信头像.jpeg';
             $list[$key]['is_online'] = !empty($val['is_online']) ?$val['is_online']:"offline";
-            if ($val['is_online'] == 'online') {
-                $isOnlineNum ++;
-            }
-
-
         }
 
         return [
-            "list" => $list,
-            "isOnlineNum" => $isOnlineNum
+            "list" => $list
         ];
 
     }
 
     /**
-     * 用户列表总数
+     * 获取房间内的用户是否在线
      * @param $room_id
      * @return mixed
      */
-    public function count($room_id)
+    public function getRoomUserIsOnlineCount($room_id)
     {
-        $where = [];
-        $where[]= ['room_id','=',$room_id];
 
-        return $this->dao->count($where);
+
+        return $this->dao->getRoomUserIsOnlineCount($room_id);
 
 
 

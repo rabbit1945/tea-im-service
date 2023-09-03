@@ -27,8 +27,10 @@ class Room extends BaseController
         // 用户信息
         $user = static::$business->find($user_id);
         $groupUserBusiness = $this->app->make(RoomUserBusiness::class);
+        // 房间信息
         $groupUser = $groupUserBusiness->find($user_id);
-
+        $countOnline = $groupUserBusiness->getRoomUserIsOnlineCount($groupUser['room_id']);
+        $groupUser['countOnline'] = $countOnline;
 
         if (!$user) ImJson::output(20006);
 
@@ -40,7 +42,6 @@ class Room extends BaseController
                 'is_online' => $user->is_online,
             ],
             'roomInfo' => $groupUser,
-            // 'userList' => $list,
         ]);
 
     }
@@ -53,20 +54,15 @@ class Room extends BaseController
         $user_id =static::$user_id;
         $pages = Request::post('pages') ? Request::post('pages') : 1;
         $size = Request::post('size') ? Request::post('size') : 20;
-
         // 聊天室名称
         $groupUserBusiness = $this->app->make(RoomUserBusiness::class);
         $groupUser = $groupUserBusiness->find($user_id);
         // 用户列表
         $room_id = $groupUser['room_id'];
         $list = $groupUserBusiness->list($room_id,$pages,$size);
-        $count = $groupUserBusiness->count($room_id);
         if (!$list) ImJson::output(20006);
         ImJson::output(10000, '成功',[
-           'userList' => $list['list'],
-           'isOnlineNum' =>  $list['isOnlineNum'],
-           'total'    => $count
-
+           'userList' => $list['list']
          ]);
 
     }

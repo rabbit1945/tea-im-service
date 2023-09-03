@@ -5,6 +5,7 @@ namespace app\home\dao\user;
 use app\model\RoomUserModel;
 use app\model\UserModel;
 use app\home\dao\BaseDao;
+use PhpParser\Node\Stmt\Echo_;
 
 class RoomUserDao extends BaseDao
 {
@@ -24,15 +25,28 @@ class RoomUserDao extends BaseDao
      */
     public function roomUserList($room_id, int $pages= 1, int $size = 20)
     {
-        $userModel = app()->make(UserModel::class);
-        $userList = $userModel
-            ->hasWhere('roomUser',['room_id'=>$room_id],'id,nick_name,photo,is_online')
+        $roomUserModel = $this->getModel();
+        return $roomUserModel
+            ->field('nick_name,photo,is_online')
+            ->hasWhere('user')
             ->where('status','=',1)
+            ->where('room_id','=',$room_id)
             ->order('is_online desc')
             ->page($pages,$size)
             ->select();
+    }
 
-        return  $userList;
+
+    public function getRoomUserIsOnlineCount($room_id)
+    {
+        $roomUserModel = $this->getModel();
+        return $roomUserModel
+            ->hasWhere('user')
+            ->where('status','=',1)
+            ->where('room_id','=',$room_id)
+            ->where('is_online','=','online')
+            ->count();
+
     }
 
     /**

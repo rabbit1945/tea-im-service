@@ -205,4 +205,11 @@ class UserBusiness
         return Cache::set($key, $val,$exp);
 
     }
+
+    public function count(array $where)
+    {
+        if (empty($where)) return false; 
+        return app()->make(UserDao::class)->count($where);
+
+    }
 }
