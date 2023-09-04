@@ -35,10 +35,13 @@ class UserLogin
     {
 
         try {
+
             // 获取token
-            $user_id = (string)$data->id;
+            $user_id = (string)$data['id'];
+
             $getToken = JwToken::getAccessToken($user_id,time()+86400*64);
             if (empty($getToken))  return false;
+
             // 设置缓存
             if (!$this->setCache($user_id,$data)) return false;
             // 缓存token

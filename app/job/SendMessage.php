@@ -28,12 +28,12 @@ class SendMessage
                 "msg_form" => $data['user_id'],
                 "msg_content" => $data['msg'],
                 "send_time" => $data['send_timestamp'],
+                "content_type" => $data['content_type'],
                 "msg_type" => 2,
             ],256
         );
         // 4.将该任务推送到消息队列，等待对应的消费者去执行
         $isPushed = Queue::push( $jobHandlerClassName ,$sendData, $jobQueueName);
-        dump("status",$isPushed,$sendData);
         // database 驱动时，返回值为 1|false  ;   redis 驱动时，返回值为 随机字符串|false
         if( $isPushed !== false ) {
             Log::write(date('Y-m-d H:i:s').'_发布成功','info');

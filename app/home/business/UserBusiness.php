@@ -105,14 +105,17 @@ class UserBusiness
             ->where('login_name', '=', $login_name)
             ->where('password','=',md5($password))
             ->where('status','=',1)
-            ->find();
+            ->find()->toArray();
 
         if (!$find) return false;
+        
+
         // 登录之后一系列动作
         $result = $this->event->trigger("UserLogin",$find);
+        
         if (!$result) return false;
-
-        $find->token = $result[0]['token'] ?? "";
+        
+        $find['token'] = $result[0]['token'] ?? "";
         return $find;
     }
 

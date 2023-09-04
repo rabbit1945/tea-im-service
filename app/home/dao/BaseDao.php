@@ -65,7 +65,7 @@ abstract class BaseDao
     public function create(array $data){
         if (empty($data)) return false;
         $add = $this->getModel()::create($data);
-        echo $this->getModel()->getLastSql();
+        // echo $this->getModel()->getLastSql();
         return  $add;
     }
 
@@ -78,7 +78,7 @@ abstract class BaseDao
     {
         if (empty($data)) return false;
         $save = $this->getModel()->saveAll($data);
-        echo $this->getModel()->getLastSql();
+        // echo $this->getModel()->getLastSql();
         return $save;
     }
 

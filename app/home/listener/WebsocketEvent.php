@@ -39,6 +39,7 @@ class WebsocketEvent
      */
     public function room($event)
     {
+        var_dump($event);
         $idGenerator =  app()->make(IdRedisGenerator::class);
         $idGenerator->generator('1',strtotime('2023-08-25')*1000);
         $seq = $idGenerator->getSequence();
@@ -52,9 +53,12 @@ class WebsocketEvent
             'userLogo' => $event['data'][0]['userLogo'], // img
             'sender' => $this->websocket->getSender(), //客户端
             'msg' => trim($event['data'][0]['msg']), // 消息
+            'content_type' => $event['data'][0]['content_type'],
             'send_timestamp'=> $time,
             'send_time' => date("Y-m-d H:i:s",time())   // 发送时间
         ];
+
+       
 
         $send = $this->websocket->to($room)->emit('roomCallback',
             $data

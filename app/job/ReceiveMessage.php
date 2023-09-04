@@ -20,22 +20,26 @@ class ReceiveMessage
      * @param mixed $data 发布任务时自定义的数据
      */
     public function fire(Job $job,$data) {
-
+        
+       
         // 有些消息在到达消费者时,可能已经不再需要执行了
         $isJobStillNeedToBeDone = $this->checkDatabaseToSeeIfJobNeedToBeDone($data);
         if(!$isJobStillNeedToBeDone){
+            
             $job->delete();
             return;
         }
-
+        
         $data = json_decode($data,true);
-
+       
         $isJobDone = $this->receiveMsg($data);
+        var_dump("--",$data);
         if ($isJobDone === true) {
             // 如果任务执行成功， 记得删除任务
             $job->delete();
 
         } else {
+            
             //通过这个方法可以检查这个任务已经重试了几次了
             if ($job->attempts() > 3) {
                 // 如果任务执行成功， 记得删除任务
@@ -68,20 +72,23 @@ class ReceiveMessage
     {
 
         // 启动事务
-        Db::startTrans();
+        $userSendModel = app()->make(UserSendModel::class);
+        $userSendModel::startTrans();
         try {
-            var_dump($data);
+           
             app()->make(MessageSendBusiness::class)->addSend($data);
+            
             app()->make(MessageReceiveBusiness::class)->addReceive($data);
-
+            echo "--------";
             // 提交事务
-            Db::commit();
+            $userSendModel::commit();
+           
             return true;
 
         } catch (\Exception $e) {
-            echo $e;
+            var_dump($e) ;
             // 回滚事务
-            Db::rollback();
+            $userSendModel::rollback();
             return false;
         }
 
