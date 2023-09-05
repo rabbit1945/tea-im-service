@@ -3,6 +3,7 @@ declare (strict_types = 1);
 
 namespace app\home\listener;
 use app\common\utils\IdRedisGenerator;
+use app\home\business\MessageReceiveBusiness;
 use app\job\SendMessage;
 use think\Container;
 use think\facade\App;
@@ -39,7 +40,6 @@ class WebsocketEvent
      */
     public function room($event)
     {
-        var_dump($event);
         $idGenerator =  app()->make(IdRedisGenerator::class);
         $idGenerator->generator('1',strtotime('2023-08-25')*1000);
         $seq = $idGenerator->getSequence();
@@ -58,7 +58,7 @@ class WebsocketEvent
             'send_time' => date("Y-m-d H:i:s",time())   // 发送时间
         ];
 
-       
+
 
         $send = $this->websocket->to($room)->emit('roomCallback',
             $data

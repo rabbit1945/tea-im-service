@@ -71,7 +71,7 @@ class Message extends BaseController
 
         $dir = 'audio';
         $time = time();
-        $name = "audio"."_$user_id"."_$time".".wav";
+        $name = "audio"."_$user_id"."_$time".".mp3";
         $uploadAudio = $this->business->uploadAudio($dir,$file,$name);
         if (!$uploadAudio) {
             if (empty($list))  ImJson::output('20001');
