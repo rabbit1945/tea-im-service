@@ -27,6 +27,8 @@ Route::post(':v/log/out',':v.User/logOut');
 Route::post(':v/user/offline/msg',':v.Message/getOffLineMessageList');
 // 用户历史消息
 Route::post(':v/user/history/msg',':v.Message/getHistoryMessageList');
+//uploadAudio
+Route::post(':v/upload/audio',':v.Message/uploadAudio');
 
 
 

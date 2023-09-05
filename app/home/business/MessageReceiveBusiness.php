@@ -2,6 +2,7 @@
 
 
 namespace app\home\business;
+use app\common\utils\Upload;
 use app\home\dao\message\MessageReceiveDao;
 use app\home\dao\user\RoomUserDao;
 use app\home\dao\user\UserDao;
@@ -131,7 +132,7 @@ class MessageReceiveBusiness
             if (empty($userList)) return false;
             $redis = $this->app->make(RedisService::class);
             $json = $this->app->make(JsonService::class);
-    
+
             $receiveData = [];
             foreach ($userList as $val) {
                 $isOnline = $val['is_online'];
@@ -147,33 +148,33 @@ class MessageReceiveBusiness
                     "seq" => $data['seq'],
                     "content_type" => $data['content_type'],
                 ];
-    
+
             }
-            
-    
+
+
             $list = $this->dao->saveAll($receiveData)->toArray();
-            
+
             if ($list) {
                 // 用户维度进行有序集合
                 foreach ($list as $val) {
                     // redis 存离线消息
                     if  ($val['delivered'] === 0) {
-                        
+
                         $key = "room_$room_id"."_".$val['msg_to'];
                         $jsonEncode = $json->jsonEncode($val);
                         $redis->zadd($key,$val['id'],$jsonEncode);
                     }
-    
+
                 }
-    
+
             }
-            
+
             return $list;
         } catch (\Exception $e) {
             echo $e;
         }
 
-        
+
     }
 
     /**
@@ -191,6 +192,14 @@ class MessageReceiveBusiness
         }
 
         return false;
+
+    }
+
+
+    public function uploadAudio($dir,$file,$name)
+    {
+        $upload = $this->app->make(Upload::class);
+        return $upload->fileUpload($dir,$file,$name);
 
     }
 

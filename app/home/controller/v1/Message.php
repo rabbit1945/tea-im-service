@@ -61,5 +61,24 @@ class Message extends BaseController
 
     }
 
+    /**
+     * 上传音频
+     */
+    public function uploadAudio()
+    {
+        $user_id =static::$user_id;
+        $file = Request::file('file');
+
+        $dir = 'audio';
+        $time = time();
+        $name = "audio"."_$user_id"."_$time".".wav";
+        $uploadAudio = $this->business->uploadAudio($dir,$file,$name);
+        if (!$uploadAudio) {
+            if (empty($list))  ImJson::output('20001');
+
+        }
+        ImJson::output('10000','成功',['file' => $uploadAudio]);
+    }
+
 
 }

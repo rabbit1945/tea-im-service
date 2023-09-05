@@ -105,16 +105,16 @@ class UserBusiness
             ->where('login_name', '=', $login_name)
             ->where('password','=',md5($password))
             ->where('status','=',1)
-            ->find()->toArray();
+            ->find();
 
         if (!$find) return false;
-        
+        $find  = $find->toArray();
 
         // 登录之后一系列动作
         $result = $this->event->trigger("UserLogin",$find);
-        
+
         if (!$result) return false;
-        
+
         $find['token'] = $result[0]['token'] ?? "";
         return $find;
     }
@@ -211,7 +211,7 @@ class UserBusiness
 
     public function count(array $where)
     {
-        if (empty($where)) return false; 
+        if (empty($where)) return false;
         return app()->make(UserDao::class)->count($where);
 
     }
