@@ -65,8 +65,7 @@ class WebsocketEvent
         );
 
         if ($send) {
-
-           app()->make(SendMessage::class)->send($data);
+            app()->make(SendMessage::class)->send($data);
         }
     }
 

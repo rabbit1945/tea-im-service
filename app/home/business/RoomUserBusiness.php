@@ -24,7 +24,7 @@ class RoomUserBusiness
     {
         $info = $this->dao->find([
             [
-             "user_id",'=',$uid
+                "user_id",'=',$uid
             ]
         ],'room_id');
         $data = [];
@@ -75,11 +75,6 @@ class RoomUserBusiness
      */
     public function getRoomUserIsOnlineCount($room_id)
     {
-
-
         return $this->dao->getRoomUserIsOnlineCount($room_id);
-
-
-
     }
 }

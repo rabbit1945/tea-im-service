@@ -33,13 +33,13 @@ class WebsocketOpen extends WebSocketService
     public function handle($request)
     {
         $data = $request->param();
-         // 鉴权
-         if ($this->checkToken($data)){
-             // 检测用户状态
-             $this->getUserState($data);
-             // 加入房间
-             $this->join($data);
-         }
+        // 鉴权
+        if ($this->checkToken($data)){
+            // 检测用户状态
+            $this->getUserState($data);
+            // 加入房间
+            $this->join($data);
+        }
 
 
     }
