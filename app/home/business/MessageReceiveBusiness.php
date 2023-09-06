@@ -9,6 +9,7 @@ use app\home\dao\user\UserDao;
 use app\service\JsonService;
 use app\service\RedisService;
 use think\App;
+use think\facade\Config;
 
 class MessageReceiveBusiness
 {
@@ -93,8 +94,8 @@ class MessageReceiveBusiness
 
 
         }
-        $array_msg_id = array_column($list,'msg_id');
-        array_multisort($array_msg_id,SORT_ASC,$list);
+//        $array_msg_id = array_column($list,'msg_id');
+//        array_multisort($array_msg_id,SORT_ASC,$list);
 
         return $list;
 
@@ -196,10 +197,15 @@ class MessageReceiveBusiness
     }
 
 
+    /**
+     * 上传音频
+     */
     public function uploadAudio($dir,$file,$name)
     {
         $upload = $this->app->make(Upload::class);
-        return $upload->fileUpload($dir,$file,$name);
+        $path = $upload->fileUpload($dir,$file,$name);
+
+        return $path;
 
     }
 
