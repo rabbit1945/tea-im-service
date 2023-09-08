@@ -39,9 +39,9 @@ class Message extends BaseController
     }
 
     /**
-     * 获取所有已收到的消息记录
+     * 获取所有消息记录
      */
-    public function getHistoryMessageList()
+    public function getMessageList()
     {
         $user_id =static::$user_id;
         $room_id = Request::post('room_id');
@@ -49,7 +49,7 @@ class Message extends BaseController
         $limit = Request::post('limit');
         validate(MessageValidate::class)->check(['room_id' => $room_id]);
 
-        $list = $this->business->getOnlineMessage($room_id,$user_id,$page,$limit);
+        $list = $this->business->getMessage($room_id,$user_id,$page,$limit);
         if (empty($list))  ImJson::output('20006');
         $total = $this->business->receiveCount($room_id,$user_id,1);
         $data = [

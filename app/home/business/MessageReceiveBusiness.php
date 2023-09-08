@@ -70,19 +70,17 @@ class MessageReceiveBusiness
     }
 
     /**
-     * 获取收到的消息或在线消息
+     * 获取消息
      * @param $room_id
      * @param $user_id
      * @param $msg_id
      *
      */
-    public function getOnlineMessage($room_id, $user_id, $page =1,$limit =20)
+    public function getMessage($room_id, $user_id, $page =1,$limit =20)
     {
         $where = [
             ['room_id','=',$room_id],
-            ['msg_to','=',$user_id],
-            ['delivered','=',1]
-
+            ['msg_to','=',$user_id]
         ];
         $list = $this->dao->historyMessageList($where,$user_id,$page,$limit);
         $userDo = $this->app->make(UserDao::class);
@@ -94,9 +92,6 @@ class MessageReceiveBusiness
 
 
         }
-//        $array_msg_id = array_column($list,'msg_id');
-//        array_multisort($array_msg_id,SORT_ASC,$list);
-
         return $list;
 
     }
