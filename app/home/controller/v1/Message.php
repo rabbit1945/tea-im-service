@@ -45,8 +45,8 @@ class Message extends BaseController
     {
         $user_id =static::$user_id;
         $room_id = Request::post('room_id');
-        $page = Request::post('page');
-        $limit = Request::post('limit');
+        $page = Request::post('page')??1;
+        $limit = Request::post('limit')??20;
         validate(MessageValidate::class)->check(['room_id' => $room_id]);
 
         $list = $this->business->getMessage($room_id,$user_id,$page,$limit);

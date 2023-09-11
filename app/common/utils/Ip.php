@@ -3,7 +3,11 @@
 
 namespace app\common\utils;
 
-
+/**
+ * 获取IP地址工具
+ * Class Ip
+ * @package app\common\utils
+ */
 class Ip
 {
     /**

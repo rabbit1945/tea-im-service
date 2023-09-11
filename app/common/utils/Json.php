@@ -14,6 +14,11 @@ namespace app\common\utils;
 
 use think\facade\Lang;
 
+/**
+ * 自定义json工具
+ * Class Json
+ * @package app\common\utils
+ */
 class Json
 {
     /**

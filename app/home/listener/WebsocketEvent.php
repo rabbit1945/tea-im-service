@@ -3,6 +3,7 @@ declare (strict_types = 1);
 
 namespace app\home\listener;
 use app\common\utils\IdRedisGenerator;
+use app\common\utils\SensitiveWord;
 use app\home\business\MessageReceiveBusiness;
 use app\job\SendMessage;
 use think\Container;
@@ -65,6 +66,8 @@ class WebsocketEvent
         );
 
         if ($send) {
+            $sensitiveWord = $this->app->make(SensitiveWord::class);
+            $data['msg'] = $sensitiveWord->addWords(false)->filter($data['msg'],'*',2);
             app()->make(SendMessage::class)->send($data);
         }
     }

@@ -15,6 +15,11 @@ namespace app\common\utils;
 use Firebase\JWT\JWT;
 use think\facade\Config;
 
+/**
+ * jwt 工具
+ * Class JwToken
+ * @package app\common\utils
+ */
 class JwToken extends JWT
 {
 

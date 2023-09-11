@@ -8,6 +8,12 @@ use think\facade\App;
 use app\service\RedisService;
 use think\facade\Cache;
 use Exception;
+
+/**
+ * 生成id
+ * Class IdRedisGenerator
+ * @package app\common\utils
+ */
 class IdRedisGenerator
 {
 

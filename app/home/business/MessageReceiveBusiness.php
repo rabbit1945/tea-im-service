@@ -2,6 +2,7 @@
 
 
 namespace app\home\business;
+use app\common\utils\SensitiveWord;
 use app\common\utils\Upload;
 use app\home\dao\message\MessageReceiveDao;
 use app\home\dao\user\RoomUserDao;
@@ -56,11 +57,12 @@ class MessageReceiveBusiness
         $list =  $this->dao->receiveList($where,$user_id);
 
         $userDo = $this->app->make(UserDao::class);
-
+        $sensitiveWord = $this->app->make(SensitiveWord::class);
         foreach ($list as $key=>$val) {
             $user_info =  $userDo->userInfo($val['msg_form']);
             $list[$key]['nick_name'] = $user_info['nick_name'];
             $list[$key]['photo'] = $user_info['photo']?$user_info['photo']:'/static/images/微信头像.jpeg';
+            $list[$key]['msg_content'] = $sensitiveWord->addWords(false)->filter($val['msg_content'],'*',2);
 
             $list[$key]['send_time'] = date('Y-m-d H:i:s',floor($val['send_time']/1000));
 
@@ -70,7 +72,7 @@ class MessageReceiveBusiness
     }
 
     /**
-     * 获取消息
+     * 获取消息员
      * @param $room_id
      * @param $user_id
      * @param $msg_id
@@ -84,13 +86,14 @@ class MessageReceiveBusiness
         ];
         $list = $this->dao->historyMessageList($where,$user_id,$page,$limit);
         $userDo = $this->app->make(UserDao::class);
+        $sensitiveWord = $this->app->make(SensitiveWord::class);
+
         foreach ($list as $key=>$val) {
            $user_info =  $userDo->userInfo($val['msg_form']);
             $list[$key]['nick_name'] = $user_info['nick_name'];
             $list[$key]['photo'] = $user_info['photo']?$user_info['photo']:'/static/images/微信头像.jpeg';
             $list[$key]['send_time'] = date('Y-m-d H:i:s',floor($val['send_time']/1000));
-
-
+            $list[$key]['msg_content'] = $sensitiveWord->addWords(false)->filter($val['msg_content'],'*',2);
         }
         return $list;
 
