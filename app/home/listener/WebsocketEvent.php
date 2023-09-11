@@ -60,14 +60,15 @@ class WebsocketEvent
         ];
 
 
-
+        $sensitiveWord = app()->make(SensitiveWord::class);
+        $sensitiveWord->addWords(false);
+        $data['sensitiveMsg'] = $sensitiveWord->filter($data['msg'],'*',2);
         $send = $this->websocket->to($room)->emit('roomCallback',
             $data
         );
 
         if ($send) {
-            $sensitiveWord = $this->app->make(SensitiveWord::class);
-            $data['msg'] = $sensitiveWord->addWords(false)->filter($data['msg'],'*',2);
+
             app()->make(SendMessage::class)->send($data);
         }
     }

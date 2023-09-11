@@ -1,7 +1,6 @@
 <?php
 
 namespace app\common\utils;
-use app\common\utils\sensitiveWord\Node;
 use app\service\JsonService;
 use think\facade\Cache;
 use think\facade\Config;
@@ -16,13 +15,13 @@ use think\facade\Config;
 class SensitiveWord
 {
 
-    private array $dict; //字典
+    private  $dict = []; //字典
 
     /**
      * 缓存key
      * @var string
      */
-    private string $cacheKey = "imSensitiveWord";
+    private  $cacheKey = "imSensitiveWord";
     /**
      * @var mixed
      */
