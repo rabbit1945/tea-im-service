@@ -31,8 +31,8 @@ return [
         'enable'        => true,
         'handler'       => Handler::class,
         'parser'        => Parser::class,
-        'ping_interval' => 60000,
-        'ping_timeout'  => 120000,
+        'ping_interval' => 6000,
+        'ping_timeout'  => 12000,
         'room'          => [
             'type'  => 'redis',
             'table' => [
@@ -78,12 +78,12 @@ return [
     'pool'       => [
         'db'    => [
             'enable'        => true,
-            'max_active'    => 3,
+            'max_active'    => 30,
             'max_wait_time' => 5,
         ],
         'cache' => [
             'enable'        => true,
-            'max_active'    => 3,
+            'max_active'    => 30,
             'max_wait_time' => 5,
         ],
         //自定义连接池
