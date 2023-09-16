@@ -22,13 +22,20 @@ class RoomUserDao extends BaseDao
      * @param $room_id
      * @param int $pages
      * @param int $size
+     * @param string $nickName
+     * @return mixed
      */
-    public function roomUserList($room_id, int $pages= 1, int $size = 20)
+    public function roomUserList($room_id, int $pages= 1, int $size = 20, string $nickName = '')
     {
+
         $roomUserModel = $this->getModel();
         return $roomUserModel
             ->field('nick_name,photo,is_online')
             ->hasWhere('user')
+            ->when($nickName,function ($query,$nickName) {
+                // 满足条件后执行
+                $query->where('nick_name', 'LIKE','%' . $nickName);
+            })
             ->where('status','=',1)
             ->where('room_id','=',$room_id)
             ->order('is_online desc')

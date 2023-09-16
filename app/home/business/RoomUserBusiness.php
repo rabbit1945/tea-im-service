@@ -50,12 +50,15 @@ class RoomUserBusiness
     /**
      * 用户列表
      * @param $room_id
+     * @param int $pages
+     * @param int $size
+     * @param string $user_ids
      * @return mixed
      */
-    public function list($room_id,$pages= 1,$size = 20)
+    public function list($room_id, int $pages= 1, int $size = 20, string $user_ids = '')
     {
 
-        $list =$this->dao->roomUserList($room_id,$pages,$size);
+        $list =$this->dao->roomUserList($room_id,$pages,$size,$user_ids);
         foreach ($list as $key => $val) {
 
             $list[$key]['photo']     = $val['photo']?$val['photo']:'/static/images/微信头像.jpeg';

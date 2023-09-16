@@ -54,12 +54,13 @@ class Room extends BaseController
         $user_id =static::$user_id;
         $pages = Request::post('pages') ? Request::post('pages') : 1;
         $size = Request::post('size') ? Request::post('size') : 20;
+        $nickName = Request::post('nickName')?? '';
         // 聊天室名称
         $groupUserBusiness = $this->app->make(RoomUserBusiness::class);
         $groupUser = $groupUserBusiness->find($user_id);
         // 用户列表
         $room_id = $groupUser['room_id'];
-        $list = $groupUserBusiness->list($room_id,$pages,$size);
+        $list = $groupUserBusiness->list($room_id,$pages,$size,$nickName);
         if (!$list) ImJson::output(20006);
         ImJson::output(10000, '成功',[
            'userList' => $list['list']
