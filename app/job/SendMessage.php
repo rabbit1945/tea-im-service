@@ -29,6 +29,7 @@ class SendMessage
                 "msg_content" => $data['msg'],
                 "send_time" => $data['send_timestamp'],
                 "content_type" => $data['content_type'],
+                "contact"  => $data['contactList'],
                 "msg_type" => 2,
             ],256
         );

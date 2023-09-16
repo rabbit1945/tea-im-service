@@ -65,7 +65,6 @@ class Room extends BaseController
         ImJson::output(10000, '成功',[
            'userList' => $list['list']
          ]);
-
     }
 
     /**

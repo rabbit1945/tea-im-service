@@ -146,6 +146,7 @@ class MessageReceiveBusiness
                     "delivered" => $isOnline == 'online' ? 1 : 0,
                     "seq" => $data['seq'],
                     "content_type" => $data['content_type'],
+                    "contact"  => $data['contactList'],
                 ];
 
             }

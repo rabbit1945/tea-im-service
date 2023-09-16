@@ -46,6 +46,7 @@ class WebsocketEvent
         $seq = $idGenerator->getSequence();
         $room = (string)$event['data'][0]['room_id'];
         $time = floor(microtime(true) * 1000)| 0;
+        $getContactList = $this->getContactList($event['data'][0]['contactList']);
         $data =   [
             'room_id'   => $room,
             'seq' => $seq,
@@ -56,7 +57,8 @@ class WebsocketEvent
             'msg' => trim($event['data'][0]['msg']), // 消息
             'content_type' => $event['data'][0]['content_type'],
             'send_timestamp'=> $time,
-            'send_time' => date("Y-m-d H:i:s",time())   // 发送时间
+            'send_time' => date("Y-m-d H:i:s",time()),   // 发送时间
+            'contactList' => $getContactList
         ];
 
 
@@ -71,6 +73,23 @@ class WebsocketEvent
 
             app()->make(SendMessage::class)->send($data);
         }
+    }
+
+    /**
+     * 获取@联系人列表
+     * @param array $contact
+     * @return string
+     */
+    public function getContactList(array $contact): string
+    {
+        $user_ids = [];
+        foreach ($contact as $val) {
+            $user_id = $val['user_id'];
+            $user_ids[] = $user_id;
+
+        }
+
+        return implode(",",$user_ids);
     }
 
     /**
