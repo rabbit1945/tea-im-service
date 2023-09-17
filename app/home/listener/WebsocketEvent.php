@@ -6,6 +6,7 @@ use app\common\utils\IdRedisGenerator;
 use app\common\utils\SensitiveWord;
 use app\home\business\MessageReceiveBusiness;
 use app\job\SendMessage;
+use app\service\aiService;
 use think\Container;
 use think\facade\App;
 use think\swoole\Websocket;
@@ -37,9 +38,12 @@ class WebsocketEvent
 
     public function robot($event)
     {
+        $aiService = app()->make(aiService::class);
         $contactList = $event['data'][0]['contactList'];
         foreach ($contactList as $val) {
             if ($val['robot'] == 1){
+              $data =   $aiService->run();
+              var_dump($data);
 
             }
         }
