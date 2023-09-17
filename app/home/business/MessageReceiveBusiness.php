@@ -135,6 +135,7 @@ class MessageReceiveBusiness
             $receiveData = [];
             foreach ($userList as $val) {
                 $isOnline = $val['is_online'];
+
                 $receiveData[] = [
                     "room_id" => $room_id,
                     "msg_form" => $data['msg_form'],
@@ -146,7 +147,7 @@ class MessageReceiveBusiness
                     "delivered" => $isOnline == 'online' ? 1 : 0,
                     "seq" => $data['seq'],
                     "content_type" => $data['content_type'],
-                    "contact"  => $data['contactList'],
+                    "contact"  => $data['contactList']??"",
                 ];
 
             }

@@ -30,7 +30,7 @@ class RoomUserDao extends BaseDao
 
         $roomUserModel = $this->getModel();
         return $roomUserModel
-            ->field('nick_name,photo,is_online')
+            ->field('nick_name,photo,is_online,robot')
             ->hasWhere('user')
             ->when($nickName,function ($query,$nickName) {
                 // 满足条件后执行

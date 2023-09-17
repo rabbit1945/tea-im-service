@@ -35,6 +35,17 @@ class WebsocketEvent
         $this->$func($event);
     }
 
+    public function robot($event)
+    {
+        $contactList = $event['data'][0]['contactList'];
+        foreach ($contactList as $val) {
+            if ($val['robot'] == 1){
+
+            }
+        }
+
+    }
+
     /**
      * 向房间内的用户发送消息
      * @param $event
@@ -70,7 +81,6 @@ class WebsocketEvent
         );
 
         if ($send) {
-
             app()->make(SendMessage::class)->send($data);
         }
     }

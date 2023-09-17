@@ -33,7 +33,6 @@ class ReceiveMessage
         $data = json_decode($data,true);
 
         $isJobDone = $this->receiveMsg($data);
-        var_dump("--",$data);
         if ($isJobDone === true) {
             // 如果任务执行成功， 记得删除任务
             $job->delete();
@@ -86,7 +85,7 @@ class ReceiveMessage
             return true;
 
         } catch (\Exception $e) {
-            var_dump($e) ;
+
             // 回滚事务
             $userSendModel::rollback();
             return false;
