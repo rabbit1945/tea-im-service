@@ -5,8 +5,12 @@ namespace app\home\listener;
 use app\common\utils\IdRedisGenerator;
 use app\common\utils\SensitiveWord;
 use app\home\business\MessageReceiveBusiness;
+use app\home\business\MessageSendBusiness;
+use app\home\business\RoomUserBusiness;
+use app\home\business\UserBusiness;
 use app\job\SendMessage;
 use app\service\aiService;
+use app\service\JsonService;
 use think\Container;
 use think\facade\App;
 use think\swoole\Websocket;
@@ -36,15 +40,61 @@ class WebsocketEvent
         $this->$func($event);
     }
 
-    public function robot($event)
+    public function robot($contactList,$sendUser,$msg)
     {
+        echo "=============机器人============";
         $aiService = app()->make(aiService::class);
-        $contactList = $event['data'][0]['contactList'];
-        foreach ($contactList as $val) {
-            if ($val['robot'] == 1){
-              $data =   $aiService->run();
-              var_dump($data);
+        $json = app()->make(JsonService::class);
 
+        $content = "";
+        foreach ($contactList as $val) {
+            $search_name = '@'.$val['nick_name'];
+            $content =  str_replace($search_name,"",$msg);
+        }
+        if (!$content) return false;
+        $sendBus = app()->make(MessageSendBusiness::class);
+        $userBuss = app()->make(UserBusiness::class);
+        $sendMessage = app()->make(SendMessage::class);
+        foreach ($contactList as $val) {
+
+            if ($val['is_robot'] === 1){
+
+                $msgData = [
+                    "user_id"=> (string)$sendUser['user_id'],
+                    "messages"=> [
+                        [
+                            "role" => 'user',
+                            "content"=> $content
+                        ]
+                    ]
+                ];
+                $jsonData =  $aiService->run($json->jsonEncode($msgData));
+                if ($jsonData) {
+                    $data = $json->jsonDecode($jsonData);
+                    $result = $data['result'] ?'@'.$sendUser['nick_name'].' '.$data['result']: "";
+                    if (empty($result)) return false;
+                    $val['userLogo'] = $val['photo'];
+                    $val['msg'] =  $result;
+                    $val['content_type'] = 0;
+                    $userInfo = $userBuss->find($sendUser['user_id'])->toArray();
+                    if (!$userInfo) return false;
+                    $userInfo["user_id"] = $sendUser['user_id'];
+                    $val['contactList'] = [$userInfo];
+                    $getContext = $sendBus->getContext($val);
+                    if ($getContext) {
+                        $room = $val['room_id'];
+                        $send = $this->websocket->to($room)->emit('roomCallback',
+                            $getContext
+                        );
+                        if ($send) {
+                            $sendMessage->send($getContext);
+
+                        }
+
+                    }
+
+
+                }
             }
         }
 
@@ -56,55 +106,37 @@ class WebsocketEvent
      */
     public function room($event)
     {
-        $idGenerator =  app()->make(IdRedisGenerator::class);
-        $idGenerator->generator('1',strtotime('2023-08-25')*1000);
-        $seq = $idGenerator->getSequence();
-        $room = (string)$event['data'][0]['room_id'];
-        $time = floor(microtime(true) * 1000)| 0;
-        $getContactList = $this->getContactList($event['data'][0]['contactList']);
-        $data =   [
-            'room_id'   => $room,
-            'seq' => $seq,
-            'user_id'   => $event['data'][0]['user_id'], // user
-            'nick_name' => $event['data'][0]['nick_name'], // 名称
-            'userLogo' => $event['data'][0]['userLogo'], // img
-            'sender' => $this->websocket->getSender(), //客户端
-            'msg' => trim($event['data'][0]['msg']), // 消息
-            'content_type' => $event['data'][0]['content_type'],
-            'send_timestamp'=> $time,
-            'send_time' => date("Y-m-d H:i:s",time()),   // 发送时间
-            'contactList' => $getContactList
-        ];
 
+        $sendContext = $event['data'][0];
+        $msg = $sendContext['msg'];
+        $content = "";
+        foreach ($sendContext['contactList'] as $val) {
+            $search_name = '@'.$val['nick_name'];
 
-        $sensitiveWord = app()->make(SensitiveWord::class);
-        $sensitiveWord->addWords(false);
-        $data['sensitiveMsg'] = $sensitiveWord->filter($data['msg'],'*',2);
+            $content =  str_replace($search_name,"",$msg);
+        }
+        if (!$content) return false;
+        $room = (string)$sendContext['room_id'];
+        $sendBus = app()->make(MessageSendBusiness::class);
+        $getContext = $sendBus->getContext($sendContext,$this->websocket->getSender());
+
         $send = $this->websocket->to($room)->emit('roomCallback',
-            $data
+            $getContext
         );
 
         if ($send) {
-            app()->make(SendMessage::class)->send($data);
+
+            app()->make(SendMessage::class)->send($getContext);
+
+            $msg = $sendContext['msg'];
+            $this->robot($sendContext['contactList'],$sendContext,$msg);
         }
     }
 
-    /**
-     * 获取@联系人列表
-     * @param array $contact
-     * @return string
-     */
-    public function getContactList(array $contact): string
-    {
-        $user_ids = [];
-        foreach ($contact as $val) {
-            $user_id = $val['user_id'];
-            $user_ids[] = $user_id;
 
-        }
 
-        return implode(",",$user_ids);
-    }
+
+
 
     /**
      * 判断用户的状态

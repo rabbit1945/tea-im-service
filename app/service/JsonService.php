@@ -18,7 +18,7 @@ class JsonService
      * @param int $flags
      * @return false|string
      */
-    public function  jsonEncode(array $param = [], int $flags = 512) {
+    public function  jsonEncode(array $param = [], int $flags = JSON_UNESCAPED_UNICODE) {
 
         return json_encode($param, $flags);
     }

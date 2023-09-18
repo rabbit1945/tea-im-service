@@ -140,7 +140,7 @@ class UserBusiness
      */
     public function find($id) {
 
-        $find = static::$model->field('id,nick_name,photo,is_online')->where('id','=',$id)->order('is_online desc')->find();
+        $find = static::$model->field('id,nick_name,photo,is_online,is_robot')->where('id','=',$id)->order('is_online desc')->find();
         if (!$find) return false;
         $find->photo = $find->photo ?$find->photo:'/static/images/微信头像.jpeg';
         return $find;
