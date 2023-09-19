@@ -82,6 +82,12 @@ class WebsocketEvent
                     $val['contactList'] = [$userInfo];
                     $getContext = $sendBus->getContext($val);
                     if ($getContext) {
+                        // @消息内容
+                        $getContext['contactUserMsg'] =  [
+                            "user_id" => $sendUser['user_id'],
+                            "nick_name" => $sendUser['nick_name'],
+                            "msg" => $sendUser['msg'],
+                        ];
                         $room = $val['room_id'];
                         $send = $this->websocket->to($room)->emit('roomCallback',
                             $getContext
@@ -106,16 +112,20 @@ class WebsocketEvent
      */
     public function room($event)
     {
-
         $sendContext = $event['data'][0];
         $msg = $sendContext['msg'];
-        $content = "";
-        foreach ($sendContext['contactList'] as $val) {
-            $search_name = '@'.$val['nick_name'];
-
-            $content =  str_replace($search_name,"",$msg);
+        $contactList = $sendContext['contactList'];
+        if (!empty($contactList)) {
+            $content = "";
+            foreach ($contactList as $val) {
+                $search_name = '@'.$val['nick_name'];
+                $content =  str_replace($search_name,"",$msg);
+            }
+            if (!$content) return false;
+        } else {
+            if (empty($msg)) return false;
         }
-        if (!$content) return false;
+
         $room = (string)$sendContext['room_id'];
         $sendBus = app()->make(MessageSendBusiness::class);
         $getContext = $sendBus->getContext($sendContext,$this->websocket->getSender());
