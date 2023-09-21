@@ -17,19 +17,22 @@ class MessageReceiveDao extends BaseDao
 
     /**
      * @param array $where
-     * @param $user_id
      * @param int $limit
      * @return bool|array
      */
-    public function receiveList(array $where, $user_id)
+    public function receiveList(array $where)
     {
 
 
-        if (empty($where) || empty($user_id)) return false;
-        return $this->getModel()::where($where)
-            ->field('msg_id,room_id,msg_form,msg_to,msg_content,send_time,
+        if (empty($where)) return false;
+         $query = $this->getModel()::where($where)
+            ->field('msg_id,seq,room_id,msg_form,msg_to,msg_content,send_time,delivered,
             create_time,msg_type,delivered,content_type')
+             ->order('seq desc')
             ->select()->toArray();
+//         echo $this->getModel()->getLastSql();
+
+         return $query;
 
     }
 
@@ -51,7 +54,7 @@ class MessageReceiveDao extends BaseDao
             })
             ->limit($limit)
             ->order('seq desc')
-            ->field('msg_id,seq,room_id,msg_form,msg_to,msg_content,
+            ->field('msg_id,seq,room_id,msg_form,msg_to,msg_content,delivered,
             send_time,create_time,msg_type,delivered,content_type')
             ->select()->toArray();
 

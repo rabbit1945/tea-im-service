@@ -49,14 +49,27 @@ class Message extends BaseController
         $limit = Request::post('limit')??20;
         validate(MessageValidate::class)->check(['room_id' => $room_id]);
 
-        $list = $this->business->getMessage($room_id,$user_id,$page,$limit);
+        $onList = $this->business->getMessage($room_id,$user_id,$page,$limit);
+        $offList = $this->business->getOffLineMessage($room_id,$user_id);
+
+        if (!empty($offList)) {
+
+            $offTotal =  $this->business->receiveCount($room_id,$user_id,0);
+        }
+        $list = array_merge($offList,$onList);
         if (empty($list))  ImJson::output('20006');
-        $total = $this->business->receiveCount($room_id,$user_id,1);
+        $total = $this->business->receiveCount($room_id,$user_id);
         $data = [
             "list" => $list,
-            "total"=> $total
+            "total"=> $total,
+            "offTotal" => $offTotal ?? 0
 
         ];
+        if (!empty($offList)) {
+            $room_msg_key = "room_$room_id"."_".$user_id;
+            if (!$this->business->updateDeliveredStatus($user_id,['delivered'=>1],$room_msg_key)) ImJson::output('20006');
+        }
+
         ImJson::output('10000','成功',$data);
 
     }

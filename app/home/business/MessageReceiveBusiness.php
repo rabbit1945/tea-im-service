@@ -54,20 +54,21 @@ class MessageReceiveBusiness
 
         ];
 
-        $list =  $this->dao->receiveList($where,$user_id);
+        $list =  $this->dao->receiveList($where);
 
+        if (empty($list)) return [];
         $userDo = $this->app->make(UserDao::class);
         $sensitiveWord = $this->app->make(SensitiveWord::class);
         foreach ($list as $key=>$val) {
             $user_info =  $userDo->userInfo($val['msg_form']);
             $list[$key]['nick_name'] = $user_info['nick_name'];
             $list[$key]['photo'] = $user_info['photo']?$user_info['photo']:'/static/images/微信头像.jpeg';
-            $list[$key]['msg_content'] = $sensitiveWord->addWords(false)->filter($val['msg_content'],'*',2);
+            $list[$key]['msg_content'] = $sensitiveWord->addWords(false)->filter(urldecode($val['msg_content']),'*',2);
 
             $list[$key]['send_time'] = date('Y-m-d H:i:s',floor($val['send_time']/1000));
 
         }
-        if (empty($list)) return false;
+
         return $list;
     }
 
@@ -82,18 +83,19 @@ class MessageReceiveBusiness
     {
         $where = [
             ['room_id','=',$room_id],
-            ['msg_to','=',$user_id]
+            ['msg_to','=',$user_id],
+            ['delivered','=',1]
         ];
         $list = $this->dao->historyMessageList($where,$user_id,$page,$limit);
         $userDo = $this->app->make(UserDao::class);
         $sensitiveWord = $this->app->make(SensitiveWord::class);
 
         foreach ($list as $key=>$val) {
-           $user_info =  $userDo->userInfo($val['msg_form']);
+            $user_info =  $userDo->userInfo($val['msg_form']);
             $list[$key]['nick_name'] = $user_info['nick_name'];
             $list[$key]['photo'] = $user_info['photo']?$user_info['photo']:'/static/images/微信头像.jpeg';
             $list[$key]['send_time'] = date('Y-m-d H:i:s',floor($val['send_time']/1000));
-            $list[$key]['msg_content'] = $sensitiveWord->addWords(false)->filter($val['msg_content'],'*',2);
+            $list[$key]['msg_content'] = $sensitiveWord->addWords(false)->filter(urldecode($val['msg_content']),'*',2);
         }
         return $list;
 

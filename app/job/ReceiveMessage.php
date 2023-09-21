@@ -8,6 +8,7 @@ use app\home\business\MessageReceiveBusiness;
 use app\home\business\MessageSendBusiness;
 use app\model\UserSendModel;
 use think\facade\Db;
+use think\facade\Log;
 use think\queue\Job;
 
 class ReceiveMessage
@@ -81,10 +82,12 @@ class ReceiveMessage
 
             // 提交事务
             $userSendModel::commit();
+            Log::write(date('Y-m-d H:i:s').'_消费成功');
 
             return true;
 
         } catch (\Exception $e) {
+            Log::write(date('Y-m-d H:i:s').'_消费失败_'.$e->getMessage(),'info');
 
             // 回滚事务
             $userSendModel::rollback();

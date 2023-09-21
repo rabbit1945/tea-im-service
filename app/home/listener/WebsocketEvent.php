@@ -145,33 +145,6 @@ class WebsocketEvent
 
 
 
-
-
-
-    /**
-     * 判断用户的状态
-     * @param $event
-     */
-    public function sendUserStatus($event) {
-        $array = [];
-        $room = (string)$event['data'][0]['room_id'];
-
-        $data =   [
-            'room_id'   => $room,
-            'user_id'   => $event['data'][0]['user_id'], // user
-            'userStatus'=> $event['data'][0]['userStatus'],
-        ];
-        $array[] = $data;
-
-
-        $this->websocket->to($room)->emit('pushUserStatus',
-            $data
-        );
-
-
-    }
-
-
     public function __call($name,$arguments)
     {
         $this->websocket->emit('error',['code'=>'30001','msg'=>'方法不存在:'.$name]);

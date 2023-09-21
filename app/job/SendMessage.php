@@ -4,6 +4,7 @@
 namespace app\job;
 
 
+use app\service\JsonService;
 use think\facade\Log;
 use think\facade\Queue;
 
@@ -21,12 +22,13 @@ class SendMessage
 
         // 2.当前任务归属的队列名称，如果为新队列，会自动创建
         $jobQueueName        = "MessageJobQueue";
+        $JsonService = app()->make(JsonService::class);
         $sendData = json_encode(
             [
                 "room_id" => $data['room_id'],
                 "seq"     => $data['seq'],
                 "msg_form" => $data['user_id'],
-                "msg_content" => $data['msg'],
+                "msg_content" => urlencode($data['msg']),
                 "send_time" => $data['send_timestamp'],
                 "content_type" => $data['content_type'],
                 "contact"  => $data['contactList'],
@@ -37,6 +39,7 @@ class SendMessage
         $isPushed = Queue::push( $jobHandlerClassName ,$sendData, $jobQueueName);
         // database 驱动时，返回值为 1|false  ;   redis 驱动时，返回值为 随机字符串|false
         if( $isPushed !== false ) {
+
             Log::write(date('Y-m-d H:i:s').'_发布成功','info');
             return true;
         } else {
