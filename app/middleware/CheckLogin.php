@@ -45,14 +45,14 @@ class CheckLogin
             // 判断token是否一致
             $cacheToken = Cache::get('login_token_'.$verify['user_id']);
 
-            if ($tokens != $cacheToken ) ImJson::output('20001',"token检验失败1");
+            if ($tokens != $cacheToken ) ImJson::output('20014',"token检验失败");
 
 
-            if (empty($verify))  ImJson::output('20001',"token检验失败2");
+            if (empty($verify))  ImJson::output('20014',"token检验失败");
 
 
         } catch (\Exception $e) {
-            ImJson::output('20001',"token检验失败3");
+            ImJson::output('20014',"token检验失败");
         }
 
 
