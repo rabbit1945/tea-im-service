@@ -11,9 +11,9 @@ services:
     # 环境变量
     environment:
       TZ: Asia/Shanghai
-      MYSQL_ROOT_PASSWORD: '123456'
+      MYSQL_ROOT_PASSWORD: 'lightningAbc123qwe'
       MYSQL_USER: 'lightning'
-      MYSQL_PASS: '123456'
+      MYSQL_PASS: 'lightningAbc123qwe'
       MYSQL_DATABASE: 'webim'
     privileged: true
 
