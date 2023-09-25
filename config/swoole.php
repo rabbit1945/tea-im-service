@@ -42,7 +42,8 @@ return [
                 'client_size' => 2048,
             ],
             'redis' => [
-                'host'          => '127.0.0.1',
+                'host'          => '192.168.1.11',
+                'password'   => '123456',
                 'port'          => 6379,
                 'max_active'    => 3,
                 'max_wait_time' => 5,

@@ -4,7 +4,7 @@ declare (strict_types = 1);
 namespace app\home\listener;
 use app\common\utils\JwToken;
 use app\home\dao\user\UserDao;
-use Mockery\Exception;
+use Exception;
 use think\facade\Cache;
 use think\facade\Config;
 use app\model\UserLogsModel;
@@ -71,10 +71,10 @@ class UserLogin
            return Cache::set(
                 "{$key}",
                 [
-                    'user_id' => $find->id,
-                    'nick_name' => $find->nick_name,
-                    'sex' => $find->sex,
-                    'photo' => $find->photo
+                    'user_id' => $find['id'],
+                    'nick_name' => $find['nick_name'],
+                    'sex' => $find['sex'],
+                    'photo' => $find['photo']
                 ],
                 new \DateTime(date('Y-m-d h:i:s', Config::get('jwt.exp')))
             );
