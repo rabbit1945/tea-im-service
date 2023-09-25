@@ -4,3 +4,4 @@
 .env
 /public/storage
 /runtime
+/docker-compose/mysql/data
