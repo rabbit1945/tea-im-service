@@ -7,6 +7,7 @@ services:
 #    image: daocloud.io/library/mysql:5.7.5-m15 #M1芯片可以采用这个镜像
     ports:
       - "3307:3306"
+    restart: always
     # 环境变量
     environment:
       TZ: Asia/Shanghai
@@ -15,6 +16,7 @@ services:
       MYSQL_PASS: '123456'
       MYSQL_DATABASE: 'webim'
     privileged: true
+
     command:
        --character-set-server=utf8mb4
        --collation-server=utf8mb4_general_ci
@@ -24,10 +26,11 @@ services:
        --default-authentication-plugin=mysql_native_password
        --sql-mode="NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION"
     working_dir: /var/lib/mysql
+    entrypoint: bash -c "chown -R mysql:mysql /var/log/mysql && exec /entrypoint.sh mysqld"
     volumes:
       - ./mysql/my.cnf:/etc/mysql/my.cnf
       - ./mysql/data:/var/lib/mysql #挂载数据目录到本地
-      - ./mysql/log/error.log:/home/mysql/log/error.log
+      - ./mysql/log:/var/log/mysql/error.log
     networks:
       app_net:
         # 固定子网ip，网段必须在子网络192.168.*.*
