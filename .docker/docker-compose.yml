@@ -36,7 +36,7 @@ services:
     networks:
       app_net:
         # 固定子网ip，网段必须在子网络192.168.*.*
-        ipv4_address: 192.168.65.10
+        ipv4_address: 192.168.1.10
   # redis 容器
   redis:
     container_name: lightning_redis
@@ -51,7 +51,7 @@ services:
       - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
     networks:
       app_net:
-        ipv4_address: 192.168.65.11
+        ipv4_address: 192.168.1.11
   # php 容器
   php-fpm:
     container_name: lightning_php #指定容器名
@@ -80,7 +80,7 @@ services:
       - ./php/php-ini-overrides.ini:/etc/php/8.0.3/fpm/conf.d/php8.0.3-overrides.ini
     networks:
       app_net:
-        ipv4_address: 192.168.65.12
+        ipv4_address: 192.168.1.12
 
 
   # nginx 容器
@@ -107,12 +107,12 @@ services:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
     networks:
       app_net:
-        ipv4_address: 192.168.65.13
+        ipv4_address: 192.168.1.13
 networks: #网络配置
   app_net: #网络名称
     driver: bridge
     ipam: #网络配置
       config:
-        - subnet: 192.168.65.0/24 #IP区间
-          gateway: 192.168.65.100
+        - subnet: 192.168.1.0/24 #IP区间
+          gateway: 192.168.1.100
 
