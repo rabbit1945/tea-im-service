@@ -92,6 +92,7 @@ services:
     ports:
       - 80:80
       - 443:443
+      - 8078:80
     # 依赖关系 先跑php
     depends_on:
       - php-fpm
