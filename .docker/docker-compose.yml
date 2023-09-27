@@ -76,6 +76,7 @@ services:
     working_dir: /home/www
 
     volumes:
+      - ../../lightning-client:/home/www/lightning-client #程序运行目录
       - ../../lightning-service:/home/www/lightning-service #程序运行目录
       - ./php/php-ini-overrides.ini:/etc/php/8.0.3/fpm/conf.d/php8.0.3-overrides.ini
     networks:
