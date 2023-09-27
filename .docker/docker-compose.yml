@@ -103,7 +103,7 @@ services:
       - php-fpm #继承phpfpm挂载目录
     hostname: "lighting.gzy"
     volumes:
-      - ./nginx/vhost.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx/conf.d:/etc/nginx/conf.d
       - ./nginx/log:/etc/nginx/log
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
     networks:
