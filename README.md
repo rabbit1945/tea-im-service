@@ -180,3 +180,24 @@ server {
 }
  ~~~
 
+## swoole 
+
+ ~~~
+ 启动HTTP服务（默认）
+
+php think swoole start
+停止服务
+
+php think swoole stop
+重启服务
+
+php think swoole restart
+reload服务
+
+php think swoole reload
+ ~~~
+
+## think-queue 队列
+ ~~~
+ php think queue:listen --queue MessageJobQueue
+ ~~~

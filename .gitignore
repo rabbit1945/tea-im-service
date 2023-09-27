@@ -4,5 +4,5 @@
 .env
 /public/storage
 /runtime
-/.docker
 /vendor
+/config
