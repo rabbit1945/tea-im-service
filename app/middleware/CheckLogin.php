@@ -40,7 +40,7 @@ class CheckLogin
             $token = explode(' ', Request::header('authorization'));
             $tokens = !empty($token[1]) ? $token[1] : '';
 
-            if (!$tokens) return true;
+            if (!$tokens) return ImJson::output('20001');
             $verify = JwToken::verifyToken($tokens);
             // 判断token是否一致
             $cacheToken = Cache::get('login_token_'.$verify['user_id']);
