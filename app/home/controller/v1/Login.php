@@ -3,6 +3,7 @@ namespace app\home\controller\v1;
 
 use app\common\utils\ImJson;
 use think\App;
+use think\facade\Log;
 use think\facade\Request;
 use \app\home\business\UserBusiness;
 use app\common\utils\IdRedisGenerator;
@@ -70,6 +71,15 @@ class Login
 
 
         ImJson::output(20001, '',[],['name' => '登录']);
+    }
+
+    /**
+     * 第三方登录回调
+     */
+    public function callback()
+    {
+        $parm = Request::param();
+        Log::write(date('Y-m-d H:i:s').'_'.$parm,'info');
     }
 
 

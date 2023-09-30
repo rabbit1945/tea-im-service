@@ -14,6 +14,9 @@ use think\facade\Route;
 Route::post(':v/register',':v.Login/register');
 // 登录
 Route::post(':v/login',':v.Login/login');
+// 第三方登录
+Route::post(':v/Login/callback',':v.Login/callback');
+
 // 聊天室信息
 Route::post(':v/room/info',':v.Room/roomInfo');
 // 聊天室的用户列表
@@ -29,6 +32,7 @@ Route::post(':v/user/offline/msg',':v.Message/getOffLineMessageList');
 Route::post(':v/user/msg',':v.Message/getMessageList');
 //uploadAudio
 Route::post(':v/upload/audio',':v.Message/uploadAudio');
+
 
 
 
