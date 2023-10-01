@@ -41,7 +41,6 @@ class UserLogin
 
             $getToken = JwToken::getAccessToken($user_id,time()+86400*64);
             if (empty($getToken))  return false;
-
             // 设置缓存
             if (!$this->setCache($user_id,$data)) return false;
             // 缓存token
@@ -51,6 +50,7 @@ class UserLogin
             if (!$update) return false;
 
             return [
+                "is_online" => "online",
                 "token" => $getToken
             ];
         } catch (Exception $exception) {

@@ -114,7 +114,7 @@ class UserBusiness
         $result = $this->event->trigger("UserLogin",$find);
 
         if (!$result) return false;
-
+        $find['is_online'] = $result[0]['is_online'] ?? "";
         $find['token'] = $result[0]['token'] ?? "";
         return $find;
     }
