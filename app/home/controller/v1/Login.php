@@ -2,11 +2,11 @@
 namespace app\home\controller\v1;
 
 use app\common\utils\ImJson;
+use app\service\JsonService;
 use think\App;
 use think\facade\Log;
 use think\facade\Request;
 use \app\home\business\UserBusiness;
-use app\common\utils\IdRedisGenerator;
 
 
 
@@ -66,11 +66,11 @@ class Login
             ];
 
 
-            ImJson::output(10000, '',$data,['name'=>'登录']);
+           return ImJson::output(10000, '',$data,['name'=>'登录']);
         }
 
 
-        ImJson::output(20001, '',[],['name' => '登录']);
+       return ImJson::output(20001, '',[],['name' => '登录']);
     }
 
     /**
@@ -79,7 +79,9 @@ class Login
     public function callback()
     {
         $parm = Request::param();
-        Log::write(date('Y-m-d H:i:s').'_'.$parm,'info');
+        $jsonService = app()->make(JsonService::class);
+        Log::write(date('Y-m-d H:i:s').'_'.$jsonService->jsonEncode($parm),'info');
+        return ImJson::output(10000,'',$parm);
     }
 
 

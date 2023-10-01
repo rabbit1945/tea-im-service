@@ -34,8 +34,4 @@ class JsonService
         return json_decode($json,$associative);
     }
 
-
-
-
-
 }

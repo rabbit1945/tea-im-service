@@ -13,7 +13,7 @@
 namespace app\common\utils;
 
 use think\facade\Lang;
-
+use think\Response;
 class  ImJson
 {
 
@@ -26,37 +26,27 @@ class  ImJson
      * @param int $httpCode
      */
 
-    public static function output(string $code = '10000', string $msg = '', ?array $data = [], array $vars = [], $httpCode = 200):void
+    public static function output(string $code = '10000', string $msg = '', ?array $data = [], array $vars = [], int $httpCode = 200): Response
     {
-
         try {
             if (empty($msg)) {
                 //获取配置文件
                 $msg = Lang::get($code, $vars);
             }
-
             // 1.调用整个数组
-
             $getData = [
                 'code' =>  $code,
                 'msg'  => $msg,
                 'data' =>  $data,
             ];
-
-
-             json($getData,$httpCode)->send() ;
-
-
         } catch (\Exception $e) {
             $getData = [
                 'code' =>  '20001',
                 'msg'  => $e->getMessage(),
                 'data' =>  [],
             ];
-            json($getData,$httpCode)->send() ;
-
         }
 
-
+        return Response::create($getData,'json',$httpCode);
     }
 }

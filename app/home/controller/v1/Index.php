@@ -1,6 +1,7 @@
 <?php
 namespace app\home\controller\v1;
 use app\BaseController;
+use app\common\utils\ImJson;
 use app\common\utils\Json;
 use app\home\business\UserBusiness;
 use think\facade\Cache;
@@ -43,7 +44,7 @@ class Index extends BaseController
         // 用户列表
         $room_id = $groupUser['room_id'];
         $list = $groupUserBusiness->list($room_id);
-        Json::Json(10000, '成功',[
+        return ImJson::output(10000, '成功',[
             'userInfo' => [
                 'id'   => $user->id,
                 'nick_name' => $user->nick_name,

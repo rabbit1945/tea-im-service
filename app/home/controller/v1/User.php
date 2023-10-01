@@ -24,10 +24,10 @@ class User extends BaseController
     /**
      * 登出
      */
-
-    public function logOut() {
+    public function logOut(): \think\Response
+    {
         $user_id = static::$user_id;
-        if (static::$business->logOut($user_id)) ImJson::output('10000','退出成功');
+        if (static::$business->logOut($user_id)) return ImJson::output('10000','退出成功');
     }
 
 

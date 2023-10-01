@@ -35,7 +35,7 @@ class Message extends BaseController
         $room_msg_key = "room_$room_id"."_".$user_id;
         if (!$this->business->updateDeliveredStatus($user_id,['delivered'=>1],$room_msg_key)) ImJson::output('20006');
 
-        ImJson::output('10000','成功',$list);
+        return ImJson::output('10000','成功',$list);
     }
 
     /**
@@ -70,7 +70,7 @@ class Message extends BaseController
             if (!$this->business->updateDeliveredStatus($user_id,['delivered'=>1],$room_msg_key)) ImJson::output('20006');
         }
 
-        ImJson::output('10000','成功',$data);
+        return ImJson::output('10000','成功',$data);
 
     }
 
@@ -90,7 +90,7 @@ class Message extends BaseController
             if (empty($list))  ImJson::output('20001');
 
         }
-        ImJson::output('10000','成功',['file' => $uploadAudio]);
+        return ImJson::output('10000','成功',['file' => $uploadAudio]);
     }
 
 

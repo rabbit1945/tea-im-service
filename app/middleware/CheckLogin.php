@@ -52,7 +52,8 @@ class CheckLogin
 
 
         } catch (\Exception $e) {
-            ImJson::output('20014',"token检验失败");
+
+            return ImJson::output('500',$e->getMessage());
         }
 
 

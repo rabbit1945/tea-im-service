@@ -54,7 +54,7 @@ class UserLogin
                 "token" => $getToken
             ];
         } catch (Exception $exception) {
-            return false;
+            return $exception->getMessage();
         }
     }
 

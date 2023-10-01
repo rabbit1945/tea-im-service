@@ -133,20 +133,16 @@ class WebsocketEvent
         $send = $this->websocket->to($room)->emit('roomCallback',
             $getContext
         );
-
         if ($send) {
-
             app()->make(SendMessage::class)->send($getContext);
-
             $msg = $sendContext['msg'];
             $this->robot($sendContext['contactList'],$sendContext,$msg);
         }
     }
 
 
-
     public function __call($name,$arguments)
     {
-        $this->websocket->emit('error',['code'=>'30001','msg'=>'方法不存在:'.$name]);
+        $this->websocket->emit('error',['code'=>'404','msg'=>'方法不存在:'.$name]);
     }
 }

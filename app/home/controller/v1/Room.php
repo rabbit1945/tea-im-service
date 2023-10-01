@@ -34,7 +34,7 @@ class Room extends BaseController
 
         if (!$user) ImJson::output(20006);
 
-        ImJson::output(10000, '成功',[
+        return ImJson::output(10000, '成功',[
             'userInfo' => [
                 'user_id'   => $user->id,
                 'nick_name' => $user->nick_name,
@@ -62,7 +62,7 @@ class Room extends BaseController
         $room_id = $groupUser['room_id'];
         $list = $groupUserBusiness->list($room_id,$pages,$size,$nickName);
         if (!$list) ImJson::output(20006);
-        ImJson::output(10000, '成功',[
+        return ImJson::output(10000, '成功',[
            'userList' => $list['list']
          ]);
     }
@@ -77,7 +77,7 @@ class Room extends BaseController
 
         if ($groupUserBusiness)  ImJson::output(10000, '成功');
 
-        ImJson::output(20001, '失败',[],["name","添加用户日志"]);
+        return ImJson::output(20001, '失败',[],["name","添加用户日志"]);
 
     }
 }
