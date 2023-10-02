@@ -28,7 +28,7 @@ class User extends BaseController
     public function logOut()
     {
         $user_id = static::$user_id;
-        if (static::$business->logOut($user_id)) return ImJson::output('10000','退出成功');
+        if (static::$business->logOut($user_id)) return ImJson::output(10000,'退出成功');
     }
 
 

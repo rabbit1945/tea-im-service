@@ -29,7 +29,7 @@ class CheckLogin
     {
         $isLogin = $this->isLogin();
 
-        if ($isLogin['code'] == '10000') {
+        if ($isLogin['code'] === 10000) {
             return $next($request);
         }
         return ImJson::output($isLogin['code'],$isLogin['msg'],$isLogin['data'],$isLogin['vars'],$isLogin['httpCode']);
@@ -43,7 +43,7 @@ class CheckLogin
     public function isLogin()
     {
        $data =  [
-            'code' => '10000',
+            'code' => 10000,
             'msg'  => "",
             'data' => [],
             'vars' => [],
@@ -53,7 +53,7 @@ class CheckLogin
             $token = explode(' ', Request::header('authorization'));
             $tokens = !empty($token[1]) ? $token[1] : '';
             if (!$tokens) {
-                $data['code'] = '20014';
+                $data['code'] = 20014;
                 $data['httpCode'] = 401;
                 return $data;
             }
@@ -62,20 +62,20 @@ class CheckLogin
             $cacheToken = Cache::get('login_token_'.$verify['user_id']);
 
             if ($tokens !== $cacheToken){
-                $data['code'] = '20014';
+                $data['code'] = 20014;
                 $data['httpCode'] = 401;
                 return $data;
             }
 
             if (empty($verify))  {
-                $data['code'] = '20014';
+                $data['code'] = 20014;
                 $data['httpCode'] = 401;
                 return $data;
             };
 
 
         } catch (\Exception $e) {
-            $data['code'] = '500';
+            $data['code'] = 500;
             $data['data'] = [$e->getMessage()];
             $data['httpCode'] = 500;
             return $data;
