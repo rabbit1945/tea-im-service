@@ -5,6 +5,7 @@ namespace app\middleware;
 
 use app\common\utils\ImJson;
 use app\common\utils\JwToken;
+use app\service\JsonService;
 use Closure;
 use think\facade\Cache;
 use think\facade\Request;
@@ -26,8 +27,13 @@ class CheckLogin
      */
     public function handle(\think\Request $request, Closure $next)
     {
-        $this->isLogin();
-        return $next($request);
+        $isLogin = $this->isLogin();
+
+        if ($isLogin['code'] == '10000') {
+            return $next($request);
+        }
+        return ImJson::output($isLogin['code'],$isLogin['msg'],$isLogin['data'],$isLogin['vars'],$isLogin['httpCode']);
+
     }
 
     /**
@@ -36,25 +42,47 @@ class CheckLogin
      */
     public function isLogin()
     {
+       $data =  [
+            'code' => '10000',
+            'msg'  => "",
+            'data' => [],
+            'vars' => [],
+            'httpCode' => 200
+        ];
         try {
             $token = explode(' ', Request::header('authorization'));
             $tokens = !empty($token[1]) ? $token[1] : '';
-
-            if (!$tokens) return ImJson::output('20001');
+            if (!$tokens) {
+                $data['code'] = '20014';
+                $data['httpCode'] = 401;
+                return $data;
+            }
             $verify = JwToken::verifyToken($tokens);
             // 判断token是否一致
             $cacheToken = Cache::get('login_token_'.$verify['user_id']);
 
-            if ($tokens != $cacheToken ) ImJson::output('20014',"token检验失败");
+            if ($tokens !== $cacheToken){
+                $data['code'] = '20014';
+                $data['httpCode'] = 401;
+                return $data;
+            }
 
-
-            if (empty($verify))  ImJson::output('20014',"token检验失败");
+            if (empty($verify))  {
+                $data['code'] = '20014';
+                $data['httpCode'] = 401;
+                return $data;
+            };
 
 
         } catch (\Exception $e) {
+            $data['code'] = '500';
+            $data['data'] = [$e->getMessage()];
+            $data['httpCode'] = 500;
+            return $data;
 
-            return ImJson::output('500',$e->getMessage());
         }
+
+        return $data;
 
 
     }

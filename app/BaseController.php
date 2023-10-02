@@ -38,6 +38,7 @@ abstract class BaseController
      * @var array
      */
     protected $middleware = ['CheckLogin'];
+
     /**
      * 用户ID
      * @var

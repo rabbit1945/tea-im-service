@@ -30,6 +30,11 @@ class ExceptionJsonHandle extends ExceptionHandle
         ModelNotFoundException::class,
         DataNotFoundException::class,
         ValidateException::class,
+        ParseError::class,
+        ClassNotFoundException::class,
+        RouteNotFoundException::class,
+        InvalidArgumentException::class,
+        ErrorException::class
     ];
 
 
@@ -45,9 +50,9 @@ class ExceptionJsonHandle extends ExceptionHandle
     public function render($request, Throwable $e): Response
     {
         // app_debug模式下按原thinkphp6异常模式处理异常
-//        if (env('app_debug')) {
-//            return parent::render($request, $e);
-//        }
+        if (env('app_debug')) {
+            return parent::render($request, $e);
+        }
         // 使用了错误的数据类型 或 缺失参数  || 语法错误  || 请求异常
         if ($e instanceof HttpResponseException || $e instanceof ParseError || ($e instanceof HttpException && $request->isAjax())) {
 

@@ -19,15 +19,17 @@ class  ImJson
 
 
     /**
-     * @param string $code // code
+     * @param $code // code
      * @param string $msg // 说明
      * @param  $data // 数据
      * @param array $vars // 动态变量
      * @param int $httpCode
      */
 
-    public static function output(string $code = '10000', string $msg = '', ?array $data = [], array $vars = [], int $httpCode = 200): Response
+    public static function output($code = '10000', string $msg = '', ?array $data = [], array $vars = [], int $httpCode = 200): Response
     {
+
+
         try {
             if (empty($msg)) {
                 //获取配置文件

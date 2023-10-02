@@ -13,6 +13,7 @@ class User extends BaseController
 {
 
     private static $business;
+    protected $middleware = ['CheckLogin'];
 
     public function __construct(App $app,UserBusiness $business)
     {
@@ -24,7 +25,7 @@ class User extends BaseController
     /**
      * 登出
      */
-    public function logOut(): \think\Response
+    public function logOut()
     {
         $user_id = static::$user_id;
         if (static::$business->logOut($user_id)) return ImJson::output('10000','退出成功');

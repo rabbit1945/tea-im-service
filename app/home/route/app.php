@@ -15,7 +15,7 @@ Route::post(':v/register',':v.Login/register');
 // 登录
 Route::post(':v/login',':v.Login/login');
 // 第三方登录
-Route::get(':v/user/callback',':v.Login/callback');
+Route::get(':v/login/callback',':v.Login/callback');
 
 // 聊天室信息
 Route::post(':v/room/info',':v.Room/roomInfo');
