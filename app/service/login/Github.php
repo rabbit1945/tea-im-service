@@ -4,7 +4,7 @@
 namespace app\service\login;
 
 
-class github
+class Github
 {
 
 }

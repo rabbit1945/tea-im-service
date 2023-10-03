@@ -4,9 +4,11 @@ namespace app\home\controller\v1;
 use app\common\utils\ImJson;
 use app\service\JsonService;
 use think\App;
+use think\facade\Config;
 use think\facade\Log;
 use think\facade\Request;
 use \app\home\business\UserBusiness;
+use \app\service\login\Login as otherLogin;
 
 
 
@@ -72,6 +74,20 @@ class Login
 
        return ImJson::output(20001, '',[],['name' => '登录']);
     }
+
+    /**
+     * gitee 登录
+     */
+    public function giteeLogin()
+    {
+        $login = app()->make(otherLogin::class);
+        $client_id = Config::get('login.gitee.client_id');
+        $redirect_uri = Config::get('login.gitee.redirect_uri');
+        return $login->getUserInfo('Gitee')->getCode($client_id,$redirect_uri);
+
+    }
+
+
 
     /**
      * 第三方登录回调

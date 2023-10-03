@@ -11,7 +11,7 @@ use think\facade\Log;
  * Class gitee
  * @package app\service\login
  */
-class gitee
+class Gitee
 {
     /**
      * 客户端
@@ -40,7 +40,7 @@ class gitee
        $jsonService = app()->make(JsonService::class);
 
         Log::write(date('Y-m-d H:i:s').'_'.$jsonService->jsonEncode($data),'info');
-
+        return $data;
     }
 
 }
