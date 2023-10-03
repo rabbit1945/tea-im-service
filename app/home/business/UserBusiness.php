@@ -112,10 +112,11 @@ class UserBusiness
 
         // 登录之后一系列动作
         $result = $this->event->trigger("UserLogin",$find);
-
+        var_dump($result);
         if (!$result) return false;
         $find['is_online'] = $result[0]['is_online'] ?? "";
         $find['token'] = $result[0]['token'] ?? "";
+
         return $find;
     }
 
