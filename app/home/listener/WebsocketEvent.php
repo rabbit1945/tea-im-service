@@ -9,7 +9,7 @@ use app\home\business\MessageSendBusiness;
 use app\home\business\RoomUserBusiness;
 use app\home\business\UserBusiness;
 use app\job\SendMessage;
-use app\service\aiService;
+use app\service\AiService;
 use app\service\JsonService;
 use think\Container;
 use think\facade\App;
@@ -43,7 +43,7 @@ class WebsocketEvent
     public function robot($contactList,$sendUser,$msg)
     {
         echo "=============机器人============";
-        $aiService = app()->make(aiService::class);
+        $aiService = app()->make(AiService::class);
         $json = app()->make(JsonService::class);
 
         $content = "";

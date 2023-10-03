@@ -26,13 +26,10 @@ class Curl
 
             //4\. 判断是get还是post
             if(!empty($data) || $type == "post"){
-                var_dump($data);
                 curl_setopt($ch, CURLOPT_POST, true);
-//                {"user_id":"38","messages":[{"role":"user","content":"你好"}]}
                 curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
             }
             if (!empty($header)) {
-
 
                 curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
             }

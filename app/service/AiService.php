@@ -6,11 +6,11 @@ use app\service\ai\QianFan;
 
 /**
  * ai类
- * Class aiService
+ * Class AiService
  * @package app\service
  */
 
-class aiService
+class AiService
 {
 
     public function run($msg) {
