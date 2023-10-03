@@ -45,7 +45,7 @@ services:
     # image: redis:5.0
     ports:
       - "6379:6379"
-    command: redis-server /usr/local/etc/redis/redis.conf
+    command: ["redis-server","/usr/local/etc/redis/redis.conf", "--apPEndonly", "yes", "--requirepass","123456"]
     volumes:
       # - ./redis/data:/data #挂载数据目录到本地
       - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
