@@ -45,13 +45,13 @@ services:
     # image: redis:5.0
     ports:
       - "6379:6379"
-    command: ["redis-server","/usr/local/etc/redis/redis.conf", "--apPEndonly", "yes", "--requirepass","123456"]
     volumes:
       # - ./redis/data:/data #挂载数据目录到本地
       - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
     networks:
       app_net:
         ipv4_address: 192.168.1.11
+    command: [ "redis-server","/usr/local/etc/redis/redis.conf", "--apPEndonly", "yes", "--requirepass","123456" ]
   # php 容器
   php-fpm:
     container_name: lightning_php #指定容器名
