@@ -36,11 +36,7 @@ class Gitee
     public function getCode($client_id,$redirect_uri)
     {
        $url = "https://gitee.com/oauth/authorize?client_id={$client_id}&redirect_uri={$redirect_uri}&response_type=code";
-       $data = Curl::send($url);
-//       $jsonService = app()->make(JsonService::class);
-//
-//        Log::write(date('Y-m-d H:i:s').'_'.$jsonService->jsonEncode($data),'info');
-        return $data;
+       return redirect($url);
     }
 
 }

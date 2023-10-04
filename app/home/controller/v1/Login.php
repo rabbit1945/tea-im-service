@@ -96,7 +96,7 @@ class Login
     {
         $parm = Request::param();
         $jsonService = app()->make(JsonService::class);
-        Log::write(date('Y-m-d H:i:s').'_'.$jsonService->jsonEncode($parm),'info');
+//        Log::write(date('Y-m-d H:i:s').'_'.$jsonService->jsonEncode($parm),'info');
         return ImJson::output(10000,'',$parm,['name' => '回调']);
     }
 
