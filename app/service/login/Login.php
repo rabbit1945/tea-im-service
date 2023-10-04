@@ -2,7 +2,7 @@
 
 
 namespace app\service\login;
-
+use app\service\login\Gitee;
 
 class Login
 {
@@ -15,8 +15,10 @@ class Login
     public function getUserInfo($className)
     {
         $className = ucfirst($className);
-        if ($className and class_exists($className)) {
-            return app()->make("{$className}::class");
+
+        if ($className) {
+
+            return app()->make(Gitee::class);
         }
         return False;
     }
