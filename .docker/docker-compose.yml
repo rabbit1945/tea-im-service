@@ -40,18 +40,24 @@ services:
   # redis 容器
   redis:
     container_name: lightning_redis
-    image: 'redis:alpine'
+#    image: 'redis:alpine'
     # image: daocloud.io/library/redis:6.0.5-alpine
-    # image: redis:5.0
+#    image: redis:7.0.11
+    build:
+      context: ./redis #dockerfile文件路径
+      dockerfile: Dockerfile #制定dockerfile文件名
+      args:
+        REDIS_VERSION: latest
     ports:
       - "6379:6379"
+
     volumes:
       # - ./redis/data:/data #挂载数据目录到本地
       - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
     networks:
       app_net:
         ipv4_address: 192.168.1.11
-    command: [ "redis-server","/usr/local/etc/redis/redis.conf", "--apPEndonly", "yes", "--requirepass","123456" ]
+
   # php 容器
   php-fpm:
     container_name: lightning_php #指定容器名
