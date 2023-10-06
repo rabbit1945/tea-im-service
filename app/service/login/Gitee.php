@@ -45,12 +45,17 @@ class Gitee
      * @return void
      */
     public function callback($client_id,$redirect_uri,$client_secret,$code) {
-        $url = "https://gitee.com/oauth/token?grant_type=authorization_code
-        &code={$code}&client_id={$client_id}&redirect_uri={$redirect_uri}&client_secret={$client_secret}";
+        $url = "https://gitee.com/oauth/token";
+        $data = Curl::send($url,"","",[
+            "grant_type" => "authorization_code",
+            "code"       => $code,
+            "client_id"   => $client_id,
+            "redirect_uri"=> $redirect_uri,
+            "client_secret"=> $client_secret
 
-        $data = Curl::send($url,"","",[],'post');
-        var_dump($data);
-        return $data;
+        ],"post");
+        $info = json_decode($data,true);
+        return $info;
     }
 
 }
