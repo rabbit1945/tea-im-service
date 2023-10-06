@@ -66,4 +66,15 @@ class Gitee
         ])->getBody()->getContents());
     }
 
+    /**
+     * @throws GuzzleException
+     */
+    public function getUserInfo($access_token)
+    {
+        $url = 'https://gitee.com/api/v5/user?access_token='.$access_token;
+        $jsonService = app()->make(JsonService::class);
+        $client =  app()->make(client::class);
+        return $jsonService->jsonDecode($client->get($url)->getBody()->getContents());
+    }
+
 }

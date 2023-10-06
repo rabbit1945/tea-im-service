@@ -102,11 +102,15 @@ class Login
         $client_id = Config::get('login.gitee.client_id');
         $redirect_uri = Config::get('login.gitee.redirect_uri');
         $client_secret = Config::get('login.gitee.client_secret');
-        $data = $login->getUserInfo('Gitee')->getAccessToken($client_id,$redirect_uri,$client_secret,$parm['code']);
+        $getAccessToken = $login->getUserInfo('Gitee')->getAccessToken($client_id,$redirect_uri,$client_secret,$parm['code']);
 
-        if (isset($data['error'])) {
-            return ImJson::output(401,'',$data,['name' => '回调'],401);
+        if (!isset($getAccessToken['access_token'])) {
+            return ImJson::output(401,'',$getAccessToken,['name' => '回调'],401);
         }
+        $accessToken = $getAccessToken['access_token'];
+
+        $data = $login->getUserInfo('Gitee')->getUserInfo($accessToken);
+
         return ImJson::output(10000,'',$data,['name' => '回调']);
     }
 
