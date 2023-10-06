@@ -102,8 +102,8 @@ class Login
         $client_id = Config::get('login.gitee.client_id');
         $redirect_uri = Config::get('login.gitee.redirect_uri');
         $client_secret = Config::get('login.gitee.client_secret');
-        $login->getUserInfo('Gitee')->callback($client_id,$redirect_uri,$client_secret,$parm['code']);
-        return ImJson::output(10000,'',$parm,['name' => '回调']);
+        $data = $login->getUserInfo('Gitee')->callback($client_id,$redirect_uri,$client_secret,$parm['code']);
+        return ImJson::output(10000,'',$data,['name' => '回调']);
     }
 
 
