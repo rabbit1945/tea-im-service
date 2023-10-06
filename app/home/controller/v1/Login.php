@@ -104,8 +104,8 @@ class Login
         $client_secret = Config::get('login.gitee.client_secret');
         $data = $login->getUserInfo('Gitee')->getAccessToken($client_id,$redirect_uri,$client_secret,$parm['code']);
 
-        if (!$data) {
-            return ImJson::output(10000,'',[],['name' => '回调']);
+        if (isset($data['error'])) {
+            return ImJson::output(401,'',$data,['name' => '回调'],401);
         }
         return ImJson::output(10000,'',$data,['name' => '回调']);
     }
