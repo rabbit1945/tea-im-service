@@ -2,9 +2,10 @@
 
 
 namespace app\service\login;
-
+use GuzzleHttp\Client;
 use app\common\utils\Curl;
 use app\service\JsonService;
+use GuzzleHttp\Exception\GuzzleException;
 use think\facade\Log;
 use function Swoole\Coroutine\Http\post;
 
@@ -34,28 +35,34 @@ class Gitee
     /**
      * 获取code
      */
-    public function getCode($client_id,$redirect_uri): string
+    public function authorization($client_id,$redirect_uri): string
     {
         return "https://gitee.com/oauth/authorize?client_id={$client_id}&redirect_uri={$redirect_uri}&response_type=code";
+
     }
 
     /**
-     * 回调信息
+     * 获取token
+     * @param $client_id
+     * @param $redirect_uri
+     * @param $client_secret
      * @param $code
      * @return void
+     * @throws GuzzleException
      */
-    public function callback($client_id,$redirect_uri,$client_secret,$code) {
+    public function getAccessToken($client_id,$redirect_uri,$client_secret,$code) {
         $url = "https://gitee.com/oauth/token";
-        $data = Curl::send($url,"","",[
+        $query = array_filter([
             "grant_type" => "authorization_code",
             "code"       => $code,
             "client_id"   => $client_id,
             "redirect_uri"=> $redirect_uri,
             "client_secret"=> $client_secret
-
-        ],"post");
-        $info = json_decode($data,true);
-        return $info;
+        ]);
+        $client =  app()->make(client::class);
+        return $client->request('POST', $url, [
+            'query' => $query,
+        ])->getBody()->getContents();
     }
 
 }

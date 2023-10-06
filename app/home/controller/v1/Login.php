@@ -83,7 +83,7 @@ class Login
         $login = app()->make(otherLogin::class);
         $client_id = Config::get('login.gitee.client_id');
         $redirect_uri = Config::get('login.gitee.redirect_uri');
-        $url = $login->getUserInfo('Gitee')->getCode($client_id,$redirect_uri);
+        $url = $login->getUserInfo('Gitee')->authorization($client_id,$redirect_uri);
         return ImJson::output(10000,'',["url" => $url],['name' => '回调']);
 
     }
@@ -102,7 +102,7 @@ class Login
         $client_id = Config::get('login.gitee.client_id');
         $redirect_uri = Config::get('login.gitee.redirect_uri');
         $client_secret = Config::get('login.gitee.client_secret');
-        $data = $login->getUserInfo('Gitee')->callback($client_id,$redirect_uri,$client_secret,$parm['code']);
+        $data = $login->getUserInfo('Gitee')->getAccessToken($client_id,$redirect_uri,$client_secret,$parm['code']);
         var_dump($data);
         if (!$data) {
             return ImJson::output(10000,'',[],['name' => '回调']);
