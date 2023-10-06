@@ -97,7 +97,12 @@ class Login
     {
         $parm = Request::param();
         $jsonService = app()->make(JsonService::class);
-//        Log::write(date('Y-m-d H:i:s').'_'.$jsonService->jsonEncode($parm),'info');
+        Log::write(date('Y-m-d H:i:s').'_'.$jsonService->jsonEncode($parm),'info');
+        $login = app()->make(otherLogin::class);
+        $client_id = Config::get('login.gitee.client_id');
+        $redirect_uri = Config::get('login.gitee.redirect_uri');
+        $client_secret = Config::get('login.gitee.client_secret');
+        $login->getUserInfo('Gitee')->callback($client_id,$redirect_uri,$client_secret,$parm['code']);
         return ImJson::output(10000,'',$parm,['name' => '回调']);
     }
 
