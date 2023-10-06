@@ -59,11 +59,11 @@ class Gitee
             "redirect_uri"=> $redirect_uri,
             "client_secret"=> $client_secret
         ]);
-        var_dump($query);
         $client =  app()->make(client::class);
-        return $client->request('POST', $url, [
+        $jsonService = app()->make(JsonService::class);
+        return $jsonService->jsonDecode($client->request('POST', $url, [
             'query' => $query,
-        ])->getBody()->getContents();
+        ])->getBody()->getContents());
     }
 
 }
