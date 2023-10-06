@@ -49,6 +49,7 @@ class Gitee
         &code={$code}&client_id={$client_id}&redirect_uri={$redirect_uri}&client_secret={$client_secret}";
 
         $data = Curl::send($url,"","",[],'post');
+        var_dump($data);
         return $data;
     }
 
