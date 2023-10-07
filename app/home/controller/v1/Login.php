@@ -137,7 +137,7 @@ class Login
 //            'token'      => $createThirdPartyLogin['token'],
 //            "origin"     => $origin
 //        ];
-        return Response::create('https://xiaogongtx.com', 'redirect', 302)->cookie("token",$accessToken);
+        return Response::create('https://xiaogongtx.com', 'redirect')->cookie("token",$accessToken);
 
     }
 
