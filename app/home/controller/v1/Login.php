@@ -11,7 +11,7 @@ use think\facade\Log;
 use think\facade\Request;
 use \app\home\business\UserBusiness;
 use \app\service\login\Login as otherLogin;
-
+use think\Response;
 
 
 class Login
@@ -127,17 +127,18 @@ class Login
         // 创建第三方登录
         $createThirdPartyLogin = static::$business->CreateThirdPartyLogin($thirdPartyData,$origin);
         if (!$createThirdPartyLogin) return ImJson::output(20001, $createThirdPartyLogin,[],['name' => '第三方注册']);
-        //获取token
-        $user = [
-            'user_id'    => $createThirdPartyLogin['id'],
-            'nick_name'  => $createThirdPartyLogin['nick_name'],
-            'photo'      => $createThirdPartyLogin['photo'],
-            'sex'        => $createThirdPartyLogin['sex'],
-            'is_online'  => $createThirdPartyLogin['is_online'],
-            'token'      => $createThirdPartyLogin['token'],
-            "origin"     => $origin
-        ];
-        return ImJson::output(10000,'',$user);
+//        //获取token
+//        $user = [
+//            'user_id'    => $createThirdPartyLogin['id'],
+//            'nick_name'  => $createThirdPartyLogin['nick_name'],
+//            'photo'      => $createThirdPartyLogin['photo'],
+//            'sex'        => $createThirdPartyLogin['sex'],
+//            'is_online'  => $createThirdPartyLogin['is_online'],
+//            'token'      => $createThirdPartyLogin['token'],
+//            "origin"     => $origin
+//        ];
+
+        return Response::create('https://xiaogongtx.com', 'html', 302)->cookie("token",$accessToken);
 
     }
 
