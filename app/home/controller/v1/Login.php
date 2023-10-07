@@ -136,12 +136,13 @@ class Login
             'token'      => $createThirdPartyLogin['token'],
         ];
         // 模拟提交
-        #client =  app()->make(client::class);
-
-        $post_data = http_build_query($user); // 序列化POST数据
-        $redirect_url = 'https://xiaogongtx.com/?' . $post_data; // 将POST数据附加在重定向链接末尾
-        header('Location: ' . $redirect_url); // 重定向到下一个页面
-        exit;
+        $redirect_url = 'https://xiaogongtx.com'; // 将POST数据附加在重定向链接末尾
+        $guzzleClient =  app()->make(client::class);
+        // json 类型 application/json
+        $response = $guzzleClient->post($redirect_url, [
+            'json' => $user
+        ]);
+        return $response;
     }
 
 
