@@ -35,7 +35,7 @@ class Gitee
     {
         $this->config = $config;
         $this->client_id = $config::get('login.gitee.client_id');
-        $this->redirect_uri = $config::get('login.gitee.redirect_uri') + "?origin=gitee";
+        $this->redirect_uri = $config::get('login.gitee.redirect_uri')."?origin=gitee";
         $this->client_secret = $config::get('login.gitee.client_secret');
 
     }
