@@ -100,6 +100,7 @@ class Login
         Log::write(date('Y-m-d H:i:s').'_'.$jsonService->jsonEncode($parm),'info');
         $login = app()->make(otherLogin::class);
         $getAccessToken = $login->getUserInfo('Gitee')->getAccessToken($parm['code']);
+        Log::write(date('Y-m-d H:i:s').'_'.$jsonService->jsonEncode($getAccessToken),'info');
         if (!isset($getAccessToken['access_token']))  return ImJson::output(401,'',$getAccessToken,[],401);
         $accessToken = $getAccessToken['access_token'];
         $data = $login->getUserInfo('Gitee')->getUserInfo($accessToken);
@@ -113,7 +114,7 @@ class Login
                 "email"      => $data['email'],
                 "access_token" => $accessToken,
                 "refresh_token" => $getAccessToken['refresh_token'],
-                "create_token_time" => $getAccessToken['createdAt'],
+//                "create_token_time" => $getAccessToken['createdAt'],
                 "expires_in" => $getAccessToken['expires_in'],
                 "createdAt"  => $data['createdAt'],
                 "updatedAt"  => $data['updatedAt'],
