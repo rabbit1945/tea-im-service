@@ -52,10 +52,6 @@ class UserBusiness
                     ->scene('create')
                     ->check($data);
             }
-
-
-
-
             // 添加用户
             static::$model->transaction(function () use ( $nick_name,$login_name,$password,$thirdPartyData) {
                 // 创建用户
@@ -98,11 +94,12 @@ class UserBusiness
     }
 
     /**
+     * 添加第三方登录账号
      * @param $data
      * @param string $origin
-     * @return void
+     * @return array|string|true
      */
-    public function thirdPartyLogin($data, string $origin = "gitee")
+    public function CreateThirdPartyLogin($data, string $origin = "gitee"): bool|array|string
     {
         $login_name = $data['login_name'];
         $nick_name =  $data['nick_name'];
@@ -114,24 +111,26 @@ class UserBusiness
             "origin"  => $origin
         ]);
 
-        if (empty($thirdPartyLoginUserFind)) {
+        if (!empty($thirdPartyLoginUserFind)) {
 
+            $updateOrAdd =  $this->saveThirdPartyUser($data,$thirdPartyLoginUserFind['id']);
+
+        } else {
             // 查看是否已有此用户
             $userInfo =  $this->dao->find([
                 "login_name" => $login_name
             ],'id,nick_name,login_name,status,create_time');
             if ($userInfo) {
                 // 用户名加后缀
-                $login_name = $login_name +"_"+ $userInfo['create_time'];
+                $login_name = $login_name ."_".$userInfo['create_time'];
             }
             // 创建用户
-            return $this->createUser($nick_name,$login_name,"","",$data);
-
-        } else {
-            // 修改第三方登录用户
-            return $this->saveThirdPartyUser($data,$thirdPartyLoginUserFind['id']);
-
+            $updateOrAdd =  $this->createUser($nick_name,$login_name,"","",$data);
         }
+
+        if (!$updateOrAdd) return  false;
+
+         return $this->login($login_name,"",true);
 
     }
 
@@ -141,15 +140,11 @@ class UserBusiness
      * @param $id
      * @return false|mixed
      */
-    public function saveThirdPartyUser($thirdPartyData,$id = NULL)
+    public function saveThirdPartyUser($thirdPartyData,$id = NULL): mixed
     {
         $thirdPartyLoginUserDao = app()->make(thirdPartyLoginUserDao::class);
-        if (empty($id)) {
-           return $thirdPartyLoginUserDao->create($thirdPartyData);
-        } else {
-            return $thirdPartyLoginUserDao->update($id,$thirdPartyData);
-        }
-
+        if (empty($id))  return $thirdPartyLoginUserDao->create($thirdPartyData);
+        return $thirdPartyLoginUserDao->update($id,$thirdPartyData);
 
     }
 
@@ -161,21 +156,25 @@ class UserBusiness
      * @return mixed
      * @throws \Exception
      */
-    public function login($login_name,$password) {
-
+    public function login($login_name,$password,$isThirdPartyLogin =  false): mixed
+    {
         $data = [
             'login_name'=> $login_name,
             'password'  => $password,
         ];
-
-        validate(UserValidate::class)
-            ->scene('edit')
-            ->check($data);
+        $where = [
+            ['login_name', '=', $login_name],
+            ['status','=',1]
+        ];
+        if ($isThirdPartyLogin === false) {
+            validate(UserValidate::class)
+                ->scene('edit')
+                ->check($data);
+            $where[] = ['password','=',md5($password)];
+        }
 
         $find = static::$model
-            ->where('login_name', '=', $login_name)
-            ->where('password','=',md5($password))
-            ->where('status','=',1)
+            ->where($where)
             ->find();
 
         if (!$find) return false;

@@ -122,8 +122,19 @@ class Login
             ];
         }
         if (empty($thirdPartyData))  return ImJson::output(401,'',$getAccessToken,[],401);
-        static::$business->thirdPartyLogin($thirdPartyData,$origin);
-        return ImJson::output(10000,'',$data,['name' => '回调']);
+        // 创建第三方登录
+        $createThirdPartyLogin = static::$business->CreateThirdPartyLogin($thirdPartyData,$origin);
+        if (!$createThirdPartyLogin) return ImJson::output(20001, $createThirdPartyLogin,[],['name' => '第三方注册']);
+        //获取token
+        $user = [
+            'user_id'    => $createThirdPartyLogin['id'],
+            'nick_name'  => $createThirdPartyLogin['nick_name'],
+            'photo'      => $createThirdPartyLogin['photo'],
+            'sex'        => $createThirdPartyLogin['sex'],
+            'is_online'  => $createThirdPartyLogin['is_online'],
+            'token'      => $createThirdPartyLogin['token'],
+        ];
+        return ImJson::output(10000,'',$user,['name' => '登录']);
     }
 
 
