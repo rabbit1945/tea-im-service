@@ -80,6 +80,7 @@ class UserBusiness
 
                 // 添加第三方登录的信息
                 if ($thirdPartyData) {
+                    $thirdPartyData["user_id"] =  static::$model->id;
                     $this->saveThirdPartyUser($thirdPartyData);
                 }
 
@@ -123,7 +124,6 @@ class UserBusiness
                 // 用户名加后缀
                 $login_name = $login_name +"_"+ $userInfo['create_time'];
             }
-            $data["user_id"] = $userInfo['id'];
             // 创建用户
             return $this->createUser($nick_name,$login_name,"","",$data);
 
