@@ -3,12 +3,10 @@
 
 namespace app\service\login;
 use GuzzleHttp\Client;
-use app\common\utils\Curl;
 use app\service\JsonService;
 use GuzzleHttp\Exception\GuzzleException;
 use think\facade\Config;
 use think\facade\Log;
-use function Swoole\Coroutine\Http\post;
 
 /**
  * Class gitee

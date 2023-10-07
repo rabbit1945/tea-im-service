@@ -3,6 +3,7 @@ namespace app\home\controller\v1;
 
 use app\common\utils\ImJson;
 use app\service\JsonService;
+use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use think\App;
 use think\facade\Config;
@@ -134,7 +135,13 @@ class Login
             'is_online'  => $createThirdPartyLogin['is_online'],
             'token'      => $createThirdPartyLogin['token'],
         ];
-        return ImJson::output(10000,'',$user,['name' => '登录']);
+        // 模拟提交
+        #client =  app()->make(client::class);
+
+        $post_data = http_build_query($user); // 序列化POST数据
+        $redirect_url = 'https://xiaogongtx.com/?' . $post_data; // 将POST数据附加在重定向链接末尾
+        header('Location: ' . $redirect_url); // 重定向到下一个页面
+        exit;
     }
 
 
