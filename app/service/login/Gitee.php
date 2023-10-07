@@ -35,7 +35,7 @@ class Gitee
     {
         $this->config = $config;
         $this->client_id = $config::get('login.gitee.client_id');
-        $this->redirect_uri = $config::get('login.gitee.redirect_uri');
+        $this->redirect_uri = $config::get('login.gitee.redirect_uri') + "?origin=gitee";
         $this->client_secret = $config::get('login.gitee.client_secret');
 
     }
@@ -46,8 +46,7 @@ class Gitee
     public function authorization(): string
     {
         $redirect_uri =$this->redirect_uri;
-        return "https://gitee.com/oauth/authorize?client_id={$this->client_id}&redirect_uri={$redirect_uri}&response_type=code&origin=gitee";
-
+        return "https://gitee.com/oauth/authorize?client_id={$this->client_id}&redirect_uri={$redirect_uri}&response_type=code";
     }
 
     /**
