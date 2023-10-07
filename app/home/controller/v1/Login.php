@@ -3,6 +3,7 @@ namespace app\home\controller\v1;
 
 use app\common\utils\ImJson;
 use app\service\JsonService;
+use GuzzleHttp\Exception\GuzzleException;
 use think\App;
 use think\facade\Config;
 use think\facade\Log;
@@ -29,19 +30,19 @@ class Login
      * 创建用户
      */
 
-    public function register()
+    public function register(): \think\Response
     {
 
         $nickName  =  Request::param('nick_name');
         $registerName = Request::post('login');
 
-        if (!static::$business->isLoginName($registerName))  ImJson::output(10001);
+        if (static::$business->isLoginName($registerName))  ImJson::output(10001);
         $password   = Request::post('password');
         $confirmPassword = Request::post('confirm_password');
         $registerUser = static::$business->createUser($nickName,$registerName,$password,$confirmPassword);
-        if ($registerUser !== true)  ImJson::output(20001, $registerUser,[],['name' => '注册']);
+        if ($registerUser !== true)  return ImJson::output(20001, $registerUser,[],['name' => '注册']);
 
-        ImJson::output(10000, '',[],['name'=>'注册']);
+        return ImJson::output(10000, '',[],['name'=>'注册']);
 
     }
 
@@ -50,7 +51,7 @@ class Login
      * 登录
      * @throws \Exception
      */
-    public function login()
+    public function login(): \think\Response
     {
 
         $loginName = Request::post('login');
@@ -78,12 +79,10 @@ class Login
     /**
      * gitee 登录
      */
-    public function giteeLogin()
+    public function giteeLogin(): \think\Response
     {
         $login = app()->make(otherLogin::class);
-        $client_id = Config::get('login.gitee.client_id');
-        $redirect_uri = Config::get('login.gitee.redirect_uri');
-        $url = $login->getUserInfo('Gitee')->authorization($client_id,$redirect_uri);
+        $url = $login->getUserInfo('Gitee')->authorization();
         return ImJson::output(10000,'',["url" => $url],['name' => '回调']);
 
     }
@@ -92,25 +91,37 @@ class Login
 
     /**
      * 第三方登录回调
+     * @throws GuzzleException
      */
-    public function callback()
+    public function callback(): \think\Response
     {
         $parm = Request::param();
         $jsonService = app()->make(JsonService::class);
         Log::write(date('Y-m-d H:i:s').'_'.$jsonService->jsonEncode($parm),'info');
         $login = app()->make(otherLogin::class);
-        $client_id = Config::get('login.gitee.client_id');
-        $redirect_uri = Config::get('login.gitee.redirect_uri');
-        $client_secret = Config::get('login.gitee.client_secret');
-        $getAccessToken = $login->getUserInfo('Gitee')->getAccessToken($client_id,$redirect_uri,$client_secret,$parm['code']);
-
-        if (!isset($getAccessToken['access_token'])) {
-            return ImJson::output(401,'',$getAccessToken,['name' => '回调'],401);
-        }
+        $getAccessToken = $login->getUserInfo('Gitee')->getAccessToken($parm['code']);
+        if (!isset($getAccessToken['access_token']))  return ImJson::output(401,'',$getAccessToken,[],401);
         $accessToken = $getAccessToken['access_token'];
-
         $data = $login->getUserInfo('Gitee')->getUserInfo($accessToken);
-
+        $origin = $parm['origin'];
+        $thirdPartyData = [];
+        if ($origin == "gitee") {
+            $thirdPartyData = [
+                "third_party_id" =>$data['id'],
+                "login_name" => $data['login'],
+                "nick_name"  => $data['nick_name'],
+                "email"      => $data['email'],
+                "access_token" => $accessToken,
+                "refresh_token" => $getAccessToken['refresh_token'],
+                "create_token_time" => $getAccessToken['createdAt'],
+                "expires_in" => $getAccessToken['expires_in'],
+                "createdAt"  => $data['createdAt'],
+                "updatedAt"  => $data['updatedAt'],
+                "origin"     => $origin
+            ];
+        }
+        if (empty($thirdPartyData))  return ImJson::output(401,'',$getAccessToken,[],401);
+        static::$business->thirdPartyLogin($thirdPartyData,$origin);
         return ImJson::output(10000,'',$data,['name' => '回调']);
     }
 

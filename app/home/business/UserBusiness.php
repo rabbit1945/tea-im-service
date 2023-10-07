@@ -6,6 +6,7 @@ use app\common\utils\Ip;
 use app\common\utils\JwToken;
 use app\home\dao\user\UserDao;
 use app\home\dao\user\UserLogsDao;
+use app\home\dao\user\ThirdPartyLoginUserDao;
 use app\model\RoomModel;
 use app\model\UserModel;
 use app\validate\UserValidate;
@@ -17,51 +18,58 @@ use think\facade\Cache;
 class UserBusiness
 {
     protected static $model;
+    protected $dao;
     /** @var Event */
     protected $event;
-    public function __construct(UserModel $model, Event $event) {
+    public function __construct(UserModel $model, UserDao $dao, Event $event) {
         static::$model = $model;
-
         $this->event  = $event;
+        $this->dao = $dao;
     }
 
     /**
      * 创建用户
      * @param $nick_name
      * @param $login_name
-     * @param $password
-     * @param $confirm_password
+     * @param string $password
+     * @param string $confirm_password
      * @return array|string
      */
-    public function createUser($nick_name,$login_name,$password,$confirm_password){
+    public function createUser($nick_name, $login_name, string $password = "", string $confirm_password = "", $thirdPartyData = []) {
 
         try {
             // 检测字段
             $data = [
                 'nick_name' => $nick_name,
                 'login_name'=> $login_name,
-                'password'  => $password,
-                'confirm_password' => $confirm_password,
             ];
-            // 验证
-//            $validate = app()->make(UserValidate::class);
-            validate(UserValidate::class)
-                ->scene('create')
-                ->check($data);
+            // 检测是否第三登录
+            if (empty($thirdPartyData)) {
+                $data['password'] = $password;
+                $data['confirm_password'] = $confirm_password;
+                // 验证
+                validate(UserValidate::class)
+                    ->scene('create')
+                    ->check($data);
+            }
+
+
+
+
             // 添加用户
-            static::$model->transaction(function () use ( $nick_name,$login_name,$password){
+            static::$model->transaction(function () use ( $nick_name,$login_name,$password,$thirdPartyData) {
+                // 创建用户
                 static::$model->save(
                     [
                         'nick_name' => $nick_name,
                         'login_name'=> $login_name,
-                        'password'  => md5($password),
+                        'password'  => !empty($password) ? md5($password):"",
                     ]
                 );
-
-                $roomUserModel = new RoomUserModel();
-                $roomModel = new RoomModel();
+                // 用户加入聊天室
+                $roomUserModel = app()->make(RoomUserModel::class);
+                $roomModel = app()->make(RoomModel::class);
                 $groupId = $roomModel->value('id');
-
                 $roomUserModel->save(
                     [
                         'user_id' => static::$model->id,
@@ -69,6 +77,12 @@ class UserBusiness
 
                     ]
                 );
+
+                // 添加第三方登录的信息
+                if ($thirdPartyData) {
+                    $this->saveThirdPartyUser($thirdPartyData);
+                }
+
             });
 
             return True;
@@ -77,6 +91,63 @@ class UserBusiness
             // 验证失败 输出错误信息
 
             return $e->getError();
+        }
+
+
+    }
+
+    /**
+     * @param $data
+     * @param string $origin
+     * @return void
+     */
+    public function thirdPartyLogin($data, string $origin = "gitee")
+    {
+        $login_name = $data['login_name'];
+        $nick_name =  $data['nick_name'];
+
+        // 查看第三方登录
+        $thirdPartyLoginUserDao = app()->make(thirdPartyLoginUserDao::class);
+        $thirdPartyLoginUserFind = $thirdPartyLoginUserDao->find([
+            "login_name" => $login_name,
+            "origin"  => $origin
+        ]);
+
+        if (empty($thirdPartyLoginUserFind)) {
+
+            // 查看是否已有此用户
+            $userInfo =  $this->dao->find([
+                "login_name" => $login_name
+            ],'id,nick_name,login_name,status,create_time');
+            if ($userInfo) {
+                // 用户名加后缀
+                $login_name = $login_name +"_"+ $userInfo['create_time'];
+            }
+            $data["user_id"] = $userInfo['id'];
+            // 创建用户
+            return $this->createUser($nick_name,$login_name,"","",$data);
+
+        } else {
+            // 修改第三方登录用户
+            return $this->saveThirdPartyUser($data,$thirdPartyLoginUserFind['user_id']);
+
+        }
+
+    }
+
+    /**
+     * 创建修改第三方用户信息
+     * @param $thirdPartyData
+     * @param $id
+     * @return false|mixed
+     */
+    public function saveThirdPartyUser($thirdPartyData,$id = NULL)
+    {
+        $thirdPartyLoginUserDao = app()->make(thirdPartyLoginUserDao::class);
+        if (empty($id)) {
+           return $thirdPartyLoginUserDao->create($thirdPartyData);
+        } else {
+            return $thirdPartyLoginUserDao->update($id,$thirdPartyData);
         }
 
 
@@ -129,10 +200,10 @@ class UserBusiness
     {
         $count = static::$model->where('login_name', '=', $login_name)->count();
         if ($count > 0) {
-            return False;
+            return true;
         }
 
-        return True;
+        return false;
     }
 
     /**

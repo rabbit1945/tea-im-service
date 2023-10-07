@@ -6,6 +6,7 @@ use GuzzleHttp\Client;
 use app\common\utils\Curl;
 use app\service\JsonService;
 use GuzzleHttp\Exception\GuzzleException;
+use think\facade\Config;
 use think\facade\Log;
 use function Swoole\Coroutine\Http\post;
 
@@ -19,45 +20,50 @@ class Gitee
      * 客户端
      * @var
      */
-    protected $client_id;
+    protected mixed $client_id;
 
     /**
      * 回调
      * @var
      */
-    protected $redirect_uri;
+    protected mixed $redirect_uri;
 
-    public function __construct()
+    protected Config $config;
+    protected mixed $client_secret;
+
+    public function __construct(Config $config)
     {
+        $this->config = $config;
+        $this->client_id = $config::get('login.gitee.client_id');
+        $this->redirect_uri = $config::get('login.gitee.redirect_uri');
+        $this->client_secret = $config::get('login.gitee.client_secret');
 
     }
 
     /**
-     * 获取code
+     * 回调获取code
      */
-    public function authorization($client_id,$redirect_uri): string
+    public function authorization(): string
     {
-        return "https://gitee.com/oauth/authorize?client_id={$client_id}&redirect_uri={$redirect_uri}&response_type=code";
+        $redirect_uri = urlencode($this->redirect_uri);
+        return "https://gitee.com/oauth/authorize?client_id={$this->client_id}&redirect_uri={$redirect_uri}&response_type=code&origin=gitee";
 
     }
 
     /**
      * 获取token
-     * @param $client_id
-     * @param $redirect_uri
-     * @param $client_secret
      * @param $code
-     * @return void
+     * @return mixed
      * @throws GuzzleException
      */
-    public function getAccessToken($client_id,$redirect_uri,$client_secret,$code) {
+    public function getAccessToken($code) {
         $url = "https://gitee.com/oauth/token";
         $query = array_filter([
             "grant_type" => "authorization_code",
             "code"       => $code,
-            "client_id"   => $client_id,
-            "redirect_uri"=> $redirect_uri,
-            "client_secret"=> $client_secret
+            "client_id"   => $this->client_id,
+            "redirect_uri"=> urlencode($this->redirect_uri),
+            "client_secret"=> $this->client_secret
         ]);
         $client =  app()->make(client::class);
         $jsonService = app()->make(JsonService::class);
