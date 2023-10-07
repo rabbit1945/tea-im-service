@@ -94,7 +94,7 @@ class Login
      * 第三方登录回调
      * @throws GuzzleException
      */
-    public function callback(): \think\Response
+    public function callback()
     {
         $parm = Request::param();
         $jsonService = app()->make(JsonService::class);
@@ -138,7 +138,7 @@ class Login
         ];
         // 模拟提交
         $redirect_url = "https://xiaogongtx.com?code={$code}&origin={$origin}"; // 将POST数据附加在重定向链接末尾
-        redirect($redirect_url);
+        return redirect($redirect_url);
     }
 
 
