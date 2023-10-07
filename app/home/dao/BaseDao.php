@@ -39,10 +39,14 @@ abstract class BaseDao
     public function find(array $where,string $field = "*",string $order = ""): array
     {
         if (empty($where)) return [];
-        return $this->getModel()::where($where)->when($order,function ($query) use ($order) {
+        $find = $this->getModel()::where($where)->when($order,function ($query) use ($order) {
             $query->order($order);
 
-        })->field($field)->find()->toArray();
+        })->field($field)->find();
+        if ($find) {
+            return  $find->toArray();
+        }
+        return $find;
 
     }
 
@@ -54,7 +58,12 @@ abstract class BaseDao
     public function list(array $where)
     {
         if (empty($where)) return [];
-        return $this->getModel()::where($where)->select()->toArray();
+        $list = $this->getModel()::where($where)->select();
+        if ($list) {
+            return $list->toArray();
+        }
+        return $list;
+
     }
 
     /**
