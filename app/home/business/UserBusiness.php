@@ -134,7 +134,10 @@ class UserBusiness
 
         if (!$updateOrAdd) return  false;
 
-         return $this->login($login_name,"",true);
+        return $updateOrAdd;
+
+
+//         return $this->login($login_name,"",true);
 
     }
 
