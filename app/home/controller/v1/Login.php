@@ -140,7 +140,7 @@ class Login
         $guzzleClient =  app()->make(client::class);
         // json 类型 application/json
         $response = $guzzleClient->get($redirect_url, [
-            'json' => $parm
+            'query' => $parm
         ]);
         return $response;
     }
