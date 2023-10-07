@@ -111,7 +111,7 @@ class Login
                 "third_party_id" =>$data['id'],
                 "login_name" => $data['login'],
                 "nick_name"  => $data['name'],
-                "email"      => $data['email'],
+                "email"      => $data['email'] ?? "",
                 "access_token" => $accessToken,
                 "refresh_token" => $getAccessToken['refresh_token'],
                 "create_token_time" => $getAccessToken['created_at'],
