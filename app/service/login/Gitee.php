@@ -45,7 +45,7 @@ class Gitee
      */
     public function authorization(): string
     {
-        $redirect_uri = urlencode($this->redirect_uri);
+        $redirect_uri =$this->redirect_uri;
         return "https://gitee.com/oauth/authorize?client_id={$this->client_id}&redirect_uri={$redirect_uri}&response_type=code&origin=gitee";
 
     }
@@ -62,7 +62,7 @@ class Gitee
             "grant_type" => "authorization_code",
             "code"       => $code,
             "client_id"   => $this->client_id,
-            "redirect_uri"=> urlencode($this->redirect_uri),
+            "redirect_uri"=> $this->redirect_uri,
             "client_secret"=> $this->client_secret
         ]);
         $client =  app()->make(client::class);
