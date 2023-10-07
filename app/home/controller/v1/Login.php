@@ -114,10 +114,10 @@ class Login
                 "email"      => $data['email'],
                 "access_token" => $accessToken,
                 "refresh_token" => $getAccessToken['refresh_token'],
-//                "create_token_time" => $getAccessToken['createdAt'],
+                "create_token_time" => $getAccessToken['created_at'],
                 "expires_in" => $getAccessToken['expires_in'],
-                "createdAt"  => $data['createdAt'],
-                "updatedAt"  => $data['updatedAt'],
+                "createdAt"  => $data['created_at'],
+                "updatedAt"  => $data['updated_at'],
                 "origin"     => $origin
             ];
         }

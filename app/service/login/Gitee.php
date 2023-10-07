@@ -79,6 +79,7 @@ class Gitee
         $url = 'https://gitee.com/api/v5/user?access_token='.$access_token;
         $jsonService = app()->make(JsonService::class);
         $client =  app()->make(client::class);
+        Log::write(date('Y-m-d H:i:s').'_'.$client,'info');
         return $jsonService->jsonDecode($client->get($url)->getBody()->getContents());
     }
 
