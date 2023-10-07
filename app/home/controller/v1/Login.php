@@ -100,7 +100,8 @@ class Login
         $jsonService = app()->make(JsonService::class);
         Log::write(date('Y-m-d H:i:s').'_'.$jsonService->jsonEncode($parm),'info');
         $login = app()->make(otherLogin::class);
-        $getAccessToken = $login->getUserInfo('Gitee')->getAccessToken($parm['code']);
+        $code = $parm['code'];
+        $getAccessToken = $login->getUserInfo('Gitee')->getAccessToken($code);
         Log::write(date('Y-m-d H:i:s').'_'.$jsonService->jsonEncode($getAccessToken),'info');
         if (!isset($getAccessToken['access_token']))  return ImJson::output(401,'',$getAccessToken,[],401);
         $accessToken = $getAccessToken['access_token'];
@@ -136,13 +137,8 @@ class Login
             'token'      => $createThirdPartyLogin['token'],
         ];
         // 模拟提交
-        $redirect_url = 'https://xiaogongtx.com'; // 将POST数据附加在重定向链接末尾
-        $guzzleClient =  app()->make(client::class);
-        // json 类型 application/json
-        $response = $guzzleClient->get($redirect_url, [
-            'query' => $parm
-        ]);
-        return $response;
+        $redirect_url = "https://xiaogongtx.com?code={$code}&origin={$origin}"; // 将POST数据附加在重定向链接末尾
+        redirect($redirect_url);
     }
 
 
