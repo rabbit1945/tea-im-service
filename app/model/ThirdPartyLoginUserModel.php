@@ -7,8 +7,6 @@ use think\Model;
 class ThirdPartyLoginUserModel extends Model
 {
 
-    protected $name = 'user';
-
-
+    protected $name = 'third_party_login_user';
 
 }
