@@ -112,7 +112,7 @@ class UserBusiness
         ]);
 
         if (!empty($thirdPartyLoginUserFind)) {
-
+            var_dump($thirdPartyLoginUserFind);
             $updateOrAdd =  $this->saveThirdPartyUser($data,$thirdPartyLoginUserFind['id']);
 
         } else {
