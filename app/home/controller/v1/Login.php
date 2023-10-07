@@ -57,8 +57,13 @@ class Login
 
         $loginName = Request::post('login');
         $password   = Request::post('password') ?? "";
-        $isThirdPartyLogin =  Request::post('isThirdPartyLogin') ?? false;
-        $createUser = static::$business->login($loginName,$password,$isThirdPartyLogin);
+        $oauthToken = Request::post('oauthToken');
+        if ($oauthToken) {
+            $createUser = static::$business->oauthLogin($oauthToken);
+        } else {
+            $createUser = static::$business->login($loginName,$password);
+        }
+
         if ($createUser){
             //获取token
             $data = [
@@ -105,6 +110,7 @@ class Login
         $getAccessToken = $login->getUserInfo('Gitee')->getAccessToken($code);
         Log::write(date('Y-m-d H:i:s').'_'.$jsonService->jsonEncode($getAccessToken),'info');
         if (!isset($getAccessToken['access_token']))  return ImJson::output(401,'',$getAccessToken,[],401);
+
         $accessToken = $getAccessToken['access_token'];
         $data = $login->getUserInfo('Gitee')->getUserInfo($accessToken);
         $origin = $parm['origin'];

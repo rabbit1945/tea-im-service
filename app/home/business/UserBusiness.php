@@ -155,6 +155,23 @@ class UserBusiness
 
     }
 
+    public function oauthLogin($oauthToken){
+        $thirdPartyLoginUserDao = app()->make(thirdPartyLoginUserDao::class);
+        $thirdPartyLoginUserFind = $thirdPartyLoginUserDao->find([
+            "access_token" => $oauthToken
+        ]);
+        if ($thirdPartyLoginUserFind) {
+            $find = static::$model
+                ->where(['id' =>$thirdPartyLoginUserFind['user_id']])
+                ->find();
+            return $this->extracted($find);
+        }
+
+        return false;
+
+
+    }
+
 
     /**
      * 登录
@@ -163,45 +180,25 @@ class UserBusiness
      * @return mixed
      * @throws \Exception
      */
-    public function login($login_name,$password,$isThirdPartyLogin =  false): mixed
+    public function login($login_name,$password): mixed
     {
         $data = [
             'login_name'=> $login_name,
             'password'  => $password,
         ];
-
-        if ($isThirdPartyLogin === false) {
-            $scene = 'edit';
-        } else {
-            $scene = 'thirdPartyLogin';
-        }
-
+        $scene = 'edit';
         validate(UserValidate::class)
             ->scene($scene)
             ->check($data);
-
         $where = [
             ['login_name', '=', $login_name],
-            ['status','=',1]
+            ['status','=',1],
+            ['password','=',md5($password)]
         ];
-        if ($isThirdPartyLogin === false) {
-            $where[] = ['password','=',md5($password)];
-        }
-
         $find = static::$model
             ->where($where)
             ->find();
-
-        if (!$find) return false;
-        $find  = $find->toArray();
-
-        // 登录之后一系列动作
-        $result = $this->event->trigger("UserLogin",$find);
-        if (!$result[0]) return false;
-        $find['is_online'] = $result[0]['is_online'] ?? "";
-        $find['token'] = $result[0]['token'] ?? "";
-
-        return $find;
+        return $this->extracted($find);
     }
 
     /**
@@ -299,5 +296,22 @@ class UserBusiness
         if (empty($where)) return false;
         return app()->make(UserDao::class)->count($where);
 
+    }
+
+    /**
+     * @param $find
+     * @return false|mixed
+     */
+    public function extracted($find): mixed
+    {
+        if (!$find) return false;
+        $find = $find->toArray();
+        // 登录之后一系列动作
+        $result = $this->event->trigger("UserLogin", $find);
+        if (!$result[0]) return false;
+        $find['is_online'] = $result[0]['is_online'] ?? "";
+        $find['token'] = $result[0]['token'] ?? "";
+
+        return $find;
     }
 }
