@@ -135,10 +135,10 @@ class Login
             'sex'        => $createThirdPartyLogin['sex'],
             'is_online'  => $createThirdPartyLogin['is_online'],
             'token'      => $createThirdPartyLogin['token'],
+            "origin"     => $origin
         ];
-        // 模拟提交
-        $redirect_url = "https://xiaogongtx.com?code={$code}&origin={$origin}"; // 将POST数据附加在重定向链接末尾
-        return redirect($redirect_url);
+        return ImJson::output(10000,'',$user);
+
     }
 
 
