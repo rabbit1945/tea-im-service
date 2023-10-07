@@ -139,9 +139,9 @@ class Login
         $redirect_url = 'https://xiaogongtx.com'; // 将POST数据附加在重定向链接末尾
         $guzzleClient =  app()->make(client::class);
         // json 类型 application/json
-        $response = $guzzleClient->request('POST', $redirect_url, [
-                'query' => $user,
-            ]);
+        $response = $guzzleClient->get($redirect_url, [
+            'json' => $parm
+        ]);
         return $response;
     }
 
