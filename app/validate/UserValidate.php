@@ -15,7 +15,7 @@ class UserValidate extends Validate
      */
     protected $rule = [
         'nick_name' => 'require|min:2',
-        'login_name' => 'require|min:6|email',
+        'login_name' => 'require|min:6',
         'password'   => 'require|min:6',
         'confirm_password' => 'require|confirm:password',
 
@@ -40,8 +40,10 @@ class UserValidate extends Validate
     ];
 
     protected $scene = [
+        'thirdPartyLogin' =>  ['login_name'],
         'edit'  =>  ['login_name','password'],
         'create' =>  ['nick_name','login_name','password','confirm_password'],
+
     ];
 
 }

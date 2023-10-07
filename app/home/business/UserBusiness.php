@@ -43,15 +43,20 @@ class UserBusiness
                 'nick_name' => $nick_name,
                 'login_name'=> $login_name,
             ];
+
             // 检测是否第三登录
             if (empty($thirdPartyData)) {
                 $data['password'] = $password;
                 $data['confirm_password'] = $confirm_password;
-                // 验证
-                validate(UserValidate::class)
-                    ->scene('create')
-                    ->check($data);
+                $scene = "create";
+            } else {
+                $scene = "thirdPartyLogin";
             }
+
+            // 验证
+            validate(UserValidate::class)
+                ->scene($scene)
+                ->check($data);
             // 添加用户
             static::$model->transaction(function () use ( $nick_name,$login_name,$password,$thirdPartyData) {
                 // 创建用户
@@ -112,7 +117,6 @@ class UserBusiness
         ]);
 
         if (!empty($thirdPartyLoginUserFind)) {
-            var_dump($thirdPartyLoginUserFind);
             $updateOrAdd =  $this->saveThirdPartyUser($data,$thirdPartyLoginUserFind['id']);
 
         } else {
@@ -162,14 +166,22 @@ class UserBusiness
             'login_name'=> $login_name,
             'password'  => $password,
         ];
+
+        if ($isThirdPartyLogin === false) {
+            $scene = 'edit';
+        } else {
+            $scene = 'thirdPartyLogin';
+        }
+
+        validate(UserValidate::class)
+            ->scene($scene)
+            ->check($data);
+
         $where = [
             ['login_name', '=', $login_name],
             ['status','=',1]
         ];
         if ($isThirdPartyLogin === false) {
-            validate(UserValidate::class)
-                ->scene('edit')
-                ->check($data);
             $where[] = ['password','=',md5($password)];
         }
 
