@@ -56,8 +56,9 @@ class Login
     {
 
         $loginName = Request::post('login');
-        $password   = Request::post('password');
-        $createUser = static::$business->login($loginName,$password);
+        $password   = Request::post('password') ?? "";
+        $isThirdPartyLogin =  Request::post('isThirdPartyLogin') ?? false;
+        $createUser = static::$business->login($loginName,$password,$isThirdPartyLogin);
         if ($createUser){
             //获取token
             $data = [
@@ -137,7 +138,8 @@ class Login
 //            'token'      => $createThirdPartyLogin['token'],
 //            "origin"     => $origin
 //        ];
-        return Response::create('https://xiaogongtx.com', 'redirect')->cookie("token",$accessToken);
+        return Response::create('https://xiaogongtx.com', 'redirect',302)
+            ->cookie("oauthToken",$accessToken);
 
     }
 
