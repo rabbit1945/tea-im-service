@@ -129,7 +129,7 @@ class UserBusiness
 
         } else {
             // 修改第三方登录用户
-            return $this->saveThirdPartyUser($data,$thirdPartyLoginUserFind['user_id']);
+            return $this->saveThirdPartyUser($data,$thirdPartyLoginUserFind['id']);
 
         }
 
