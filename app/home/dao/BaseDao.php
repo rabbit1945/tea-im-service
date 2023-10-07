@@ -46,7 +46,7 @@ abstract class BaseDao
         if ($find) {
             return  $find->toArray();
         }
-        return $find;
+        return [];
 
     }
 
