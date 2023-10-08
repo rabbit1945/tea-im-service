@@ -16,6 +16,8 @@ RUN apt-get update && \
     apt-get install -y zip unzip && \
     apt-get install -y zlib1g-dev && \
     apt-get install -y libzip-dev && \
+    apt-get install -y libssl-dev && \
+    apt-get install -y openssl && \
     docker-php-ext-install zip
 
 
@@ -42,7 +44,7 @@ RUN pecl install redis \
 ###########################################################################
 # PHP SWOOLE EXTENSION
 ###########################################################################
-RUN pecl install swoole  && \
+RUN printf "no\nyes\nyes\nno\n" | pecl install swoole   && \
     docker-php-ext-enable swoole
 
 

@@ -74,6 +74,7 @@ services:
       TZ: Asia/Shanghai
     ports:
       - 9001:9000
+      - 9502:9502
     depends_on:
       - redis
       - mysql

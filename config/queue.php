@@ -24,9 +24,9 @@ return [
         'redis'    => [
             'type'       => 'redis',
             'queue'      => 'default',
-            'host'       => '127.0.0.1',
+            'host'       => '192.168.1.11',
             'port'       => 6379,
-            'password'   => '',
+            'password'   => '123456',
             'select'     => 0,
             'timeout'    => 0,
             'persistent' => false,
