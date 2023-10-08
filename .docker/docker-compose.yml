@@ -74,6 +74,7 @@ services:
       TZ: Asia/Shanghai
     ports:
       - 9001:9000
+      - 9592:9502
     depends_on:
       - redis
       - mysql
@@ -108,7 +109,6 @@ services:
     working_dir:  /home/www
     volumes_from:
       - php-fpm #继承phpfpm挂载目录
-    hostname: "lighting.gzy"
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d
       - ./nginx/log:/etc/nginx/log
