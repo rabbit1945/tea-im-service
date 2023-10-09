@@ -10,35 +10,27 @@ curl -sSL https://get.daocloud.io/docker | sh
 ## 2、安装docker-compose
 https://www.runoob.com/docker/docker-compose.html
 ## 3、下载CRMEB程序
-建议去下载最新开源代码 https://gitee.com/ZhongBangKeJi/CRMEB
+建议去下载最新开源代码 https://gitee.com/gongzhiyang/lightning-service.git
 程序放到docker-compose 同级目录下
 ## 4、启动项目
 ```
-进入docker-compose目录 cd /docker-compose
+进入docker-compose目录 cd /.docker
 
 运行命令：docker-compose up -d
-```
-进入PHP容器启动队列、定时任务、长连接命令
-```
-进入容器：docker exec -it crmeb_php /bin/bash
-进入到项目目录：cd /var/www
-定时任务命令：php think timer start --d
-长连接命令：php think workerman start --d
-队列命令：php think queue:listen --queue
-```
-## 5、访问CRMEB 系统
-http://localhost:8011/
+
+## 5、访问 系统
+http://localhost:8078/
 ## 6、安装CRMEB
 ### Mysql数据库信息：
 ```
-Host:192.168.10.1 
+Host:192.168.1.10
 Post:3306 
 user:root 
-pwd:123456 
+pwd:lightningAbc123qwe 
 ```
 ### Redis信息：
 ```
-Host:192.168.10.10
+Host:192.168.10.11
 Post:6379
 db:0
 pwd:123456
