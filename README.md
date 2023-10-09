@@ -39,6 +39,7 @@ http://localhost:8078/
 ```
 ```
 ### Mysql数据库信息：
+表结构文件：[webim.sql](.docker%2Fmysql%2Fwebim.sql)
 Host:192.168.1.10
 Post:3306
 user:root
@@ -167,6 +168,9 @@ php think swoole reload
 ### 主进程配置
 
 [supervisord]
+~~~
+.docker/php/supervisord.conf
+~~~
  ~~~
 logfile=/var/log/supervisor/supervisord.log ; (main log file;default /supervisord.log)
 logfile_maxbytes=50MB       ; (max main logfile bytes b4 rotation;default 50MB)
@@ -193,7 +197,12 @@ files = supervisord.d/*.conf
  ~~~
 
 ### 应用程序配置
-#### php-fpm
+~~~
+.docker/php/supervisord.d
+~~~
+
+#### php-fpm 
+
  ~~~
 [program:php-fpm]
 command = php-fpm
