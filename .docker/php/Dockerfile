@@ -17,7 +17,9 @@ RUN apt-get update && \
     apt-get install -y zlib1g-dev && \
     apt-get install -y libzip-dev && \
     apt-get install -y libssl-dev && \
-    apt-get install -y openssl && \
+    apt-get install -y openssl  && \
+    apt-get install -y supervisor && \
+    apt-get install -y lsof && \
     docker-php-ext-install zip
 
 
@@ -27,7 +29,9 @@ RUN apt-get update && \
 
 RUN docker-php-ext-install pdo pdo_mysql
 
-
+###########################################################################
+# 安装  composer
+###########################################################################
 
 RUN curl -sS https://getcomposer.org/installer | php \
     && mv composer.phar /usr/local/bin/composer  && \
@@ -48,11 +52,17 @@ RUN printf "no\nyes\nyes\nno\n" | pecl install swoole   && \
     docker-php-ext-enable swoole
 
 
+###########################################################################
+# 配置进程管理
+###########################################################################
+
+COPY supervisord.conf /etc/supervisord.conf
 
 
 #COPY php.sh /home/www/php.sh
 #ENTRYPOINT ["./php.sh"]
-
+# Clean up
+RUN rm -rf /var/cache/apt/*
 WORKDIR "/home/www"
 
 CMD ["php-fpm"]

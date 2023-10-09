@@ -12,11 +12,11 @@ return [
         'options'   => [
             'pid_file'              => runtime_path() . 'swoole.pid',
             'log_file'              => runtime_path() . 'swoole.log',
-            'daemonize'             => false,
+            'daemonize'             => true,
             // Normally this value should be 1~4 times larger according to your cpu cores.
-            'reactor_num'           => 4,
-            'worker_num'            => 4,
-            'task_worker_num'       => 4,
+            'reactor_num'           => 2,
+            'worker_num'            => 2,
+            'task_worker_num'       => 2,
             'enable_static_handler' => true,
             'document_root'         => root_path('public'),
             'package_max_length'    => 20 * 1024,
