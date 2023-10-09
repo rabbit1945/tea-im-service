@@ -1,11 +1,11 @@
-xiaogongtx-Im 1.0
+lightning-server 1.0
 ===============
 
-> 运行环境要求PHP7.2+，兼容PHP8.1
+> 运行环境要求PHP8.0.3 swoole 4.0  topthink/think-swoole 3.0  swoole 5.1.0
 
-## 安装
-### 安装 thinkphp6 具体查看官方手册
-~~~
+# 安装
+## 安装 thinkphp6 具体查看官方手册
+~~~        
 composer create-project topthink/think tp 6.0.*
 ~~~
 
@@ -13,100 +13,60 @@ composer create-project topthink/think tp 6.0.*
 ~~~
 composer update topthink/framework
 ~~~
-### docker 安装php环境
-一、安装docker
-安装命令如下：
 
-`curl -fsSL https://get.docker.com | bash -s docker --mirror Aliyun
-`
+# docker-compose 快速运行项目
+## 1、安装docker
+docker 官网下载
+https://www.docker.com/products/docker-desktop
 
-测试docker是否安装成功：
+或命令安装
+```
+curl -sSL https://get.daocloud.io/docker | sh
+```
+## 2、安装docker-compose
+https://www.runoob.com/docker/docker-compose.html
+## 3、下载lightning程序
+建议去下载最新开源代码 https://gitee.com/gongzhiyang/lightning-service.git
+程序放到docker-compose 同级目录下
+## 4、启动项目
+```
+进入docker-compose目录 cd /.docker
 
-`sudo docker help
-`
+运行命令：docker-compose up -d
 
-二、配置镜像加速
+## 5、访问 系统
+http://localhost:8078/
+```
+```
+### Mysql数据库信息：
+Host:192.168.1.10
+Post:3306
+user:root
+pwd:lightningAbc123qwe
 
-Docker 下载镜像时，如果不配置镜像加速，下载镜像会比较慢，常见的国内镜像加速地址包括：
-~~~
-#腾讯云的镜像地址
-https://mirror.ccs.tencentyun.com
+```
 
-#网易的镜像地址
-http://hub-mirror.c.163.com
-
-#阿里云的镜像地址
-https://{自己的阿里云ID}.mirror.aliyuncs.com
-~~~
-
-可以通过修改daemon配置文件/etc/docker/daemon.json来使用加速器：
-~~~
-sudo mkdir -p /etc/docker
-sudo vim /etc/docker/daemon.json
-~~~
-
-json文件输入以下内容，表示使用网易的镜像加速地址：
-~~~
-{
-"registry-mirrors": ["http://hub-mirror.c.163.com"]
-}
-~~~
-配置好镜像加速以后，需要重启docker服务：
-~~~
-sudo systemctl daemon-reload
-sudo systemctl restart docker
-~~~
-
-三、从docker hub拉取镜像
-~~~
-docker compose up -d
-~~~
+```
+### Redis信息：
+Host:192.168.10.11
+Post:6379
+db:0
+pwd:123456
+```
 
 
-四、设置端口
+```
 
-  查看端口
-  ~~~
-  netstat -aptn #查看所有开放端口
-   ~~~
-  查看已经开启的端口
-  ~~~
-  sudo ufw status
-  ~~~
-  打开端口
-  ~~~
-  sudo ufw allow 9123
-  ~~~
-  开启防火墙
-  ~~~
-  sudo ufw enable
-  ~~~
-  重启防火墙
-  ~~~
-  sudo ufw reload
-  ~~~
+## 常见问题
+1、端口被占用进入docker-compose.yml 里面修改端口
 
-  五、配置mysql
+2、如果运行docker-compose up -d 启动失败，请查看docker-compose.yml 修改里面镜像地址或其它配置
 
-  创建数据库名为wedo，并指定为utf8字符集
-   ~~~
-  create database xxxxxxxx default character set utf8mb4 collate utf8mb4_unicode_ci;
-   ~~~
-  创建用户，用户名为wedo，并指定密码
-   ~~~
-  CREATE USER 'xxxxxxxx'@'%' IDENTIFIED BY 'xxxxxxxx';
-   ~~~
-  给用户添加所创建数据库的所有权限，包括远程登陆
-   ~~~
-  grant all privileges on xxxxxxxx.* to 'xxxxxxxx'@'%' identified by 'xxxxxxxx' with grant option;
-   ~~~
-  刷新
-   ~~~
-  flush privileges;
-   ~~~
+```
+
 ## 配置
 
-### nginx 配置
+### nginx 配置 
  ~~~
  
 server {
@@ -172,11 +132,7 @@ server {
          }
 
 
-   	}
-
-
-    
-   
+   	}  
 }
  ~~~
 
@@ -200,4 +156,85 @@ php think swoole reload
 ## think-queue 队列
  ~~~
  php think queue:listen --queue MessageJobQueue
+ ~~~
+
+## Supervisor 配置使用
+### 安装
+ ~~~
+  apt-get install -y supervisor
+ ~~~
+
+### 主进程配置
+
+[supervisord]
+ ~~~
+logfile=/var/log/supervisor/supervisord.log ; (main log file;default /supervisord.log)
+logfile_maxbytes=50MB       ; (max main logfile bytes b4 rotation;default 50MB)
+logfile_backups=10          ; (num of main logfile rotation backups;default 10)
+loglevel=info               ; (logging level;default info; others: debug,warn)
+pidfile=/var/run/supervisord.pid ; (supervisord pidfile;default supervisord.pid)
+nodaemon=true               ; (start in foreground if true;default false)
+minfds=1024                 ; (min. avail startup file descriptors;default 1024)
+minprocs=200                ; (min. avail process descriptors;default 200)
+
+[supervisorctl]
+serverurl=unix:///var/tmp/supervisor.sock ; use a unix:// URL  for a unix socket
+[inet_http_server]
+port = 127.0.0.1:9100
+username=user              ; default is no username (open server)
+password=123               ; default is no password (open server)
+[rpcinterface:supervisor]
+supervisor.rpcinterface_factory = supervisor.rpcinterface:make_main_rpcinterface
+[unix_http_server]
+file = /var/tmp/supervisor.sock
+
+[include]
+files = supervisord.d/*.conf
+ ~~~
+
+### 应用程序配置
+#### php-fpm
+ ~~~
+[program:php-fpm]
+command = php-fpm
+autostart=true
+autorestart=true
+startsecs=5
+startretries=3                           ;启动尝试次数
+stdout_logfile_maxbytes = 50MB
+stdout_logfile_backups = 200
+stderr_logfile=/var/log/supervisor/php-fpm-worker_err.log        ;标准输出的位置
+stdout_logfile=/var/log/supervisor/php-fpm-worker_out.log        ;标准错误输出的位置
+ ~~~
+
+#### swoole 
+ ~~~
+ [program:tp-swoole-worker]
+
+command=   php think swoole start
+directory= /home/www/lightning-service ; 项目执行目录
+autostart=true                           ;是否随supervisor启动
+autorestart=true                         ;是否在挂了之后重启，意外关闭后会重启，比如kill掉！
+startsecs=5
+startretries=3                           ;启动尝试次数
+stdout_logfile_maxbytes = 50MB
+stdout_logfile_backups = 200
+stderr_logfile=/var/log/supervisor/tp-swoole-worker_err.log        ;标准输出的位置
+stdout_logfile=/var/log/supervisor/tp-swoole-worker_out.log        ;标准错误输出的位置
+ ~~~
+
+#### queue 
+ ~~~
+ [program:tp-queue-worker]
+command= php think queue:listen --queue MessageJobQueue  --tries 3;
+process_name=%(program_name)s_%(process_num)02d              ;多进程名称肯定不同，匹配多个
+numprocs=1                                                   ;启动多个进程
+directory= /home/www/lightning-service ; 项目执行目录
+autostart=true                           ;是否随supervisor启动
+autorestart=true                         ;是否在挂了之后重启，意外关闭后会重启，比如kill掉！
+startsecs=5
+startretries=3                           ;启动尝试次数
+stderr_logfile=/var/log/supervisor/tp-queue-worker_err.log        ;标准输出的位置
+stdout_logfile=/var/log/supervisor/tp-queue-worker_out.log        ;标准错误输出的位置
+
  ~~~
