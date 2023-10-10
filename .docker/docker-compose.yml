@@ -91,7 +91,7 @@ services:
       - ./php/supervisord.conf:/etc/supervisord.conf
       - ./php/logs:/var/log/supervisor
     #执行多条指令
-    command: /bin/bash -c "cd /home/www/lightning-service && composer install  && /usr/bin/supervisord -n -c /etc/supervisord.conf"
+    command: /bin/bash -c "cd /home/www/lightning-service && composer install  && supervisord -n -c /etc/supervisord.conf"
     networks:
       app_net:
         ipv4_address: 192.168.1.12
