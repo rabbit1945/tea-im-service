@@ -41,7 +41,7 @@ class Message extends BaseController
     /**
      * 获取所有消息记录
      */
-    public function getMessageList()
+    public function getMessageList(): \think\Response
     {
         $user_id =static::$user_id;
         $room_id = Request::post('room_id');
