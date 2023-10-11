@@ -23,7 +23,7 @@ class WebsocketTest
      */
     public function handle($event)
     {
-        var_dump($event);
+
         //
         //回复客户端消息
         $this->websocket->emit("testcallback", ['fuck' => 1, 'test' => $event['asd']]);
