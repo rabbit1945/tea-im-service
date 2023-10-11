@@ -5,8 +5,11 @@ namespace app\service\login;
 use GuzzleHttp\Client;
 use app\service\JsonService;
 use GuzzleHttp\Exception\GuzzleException;
+use think\Exception;
 use think\facade\Config;
 use think\facade\Log;
+use think\facade\Request;
+use think\Response;
 
 /**
  * Class gitee
@@ -25,15 +28,19 @@ class Gitee
      * @var
      */
     protected mixed $redirect_uri;
-
+    // 配置
     protected Config $config;
     protected mixed $client_secret;
 
+    private string $origin  = "gitee";
+
     public function __construct(Config $config)
     {
+
         $this->config = $config;
+        $origin = $config::get('login.gitee.origin');
         $this->client_id = $config::get('login.gitee.client_id');
-        $this->redirect_uri = $config::get('login.gitee.redirect_uri')."?origin=gitee";
+        $this->redirect_uri = $config::get('login.gitee.redirect_uri')."?origin=$origin";
         $this->client_secret = $config::get('login.gitee.client_secret');
 
     }
@@ -53,20 +60,27 @@ class Gitee
      * @return mixed
      * @throws GuzzleException
      */
-    public function getAccessToken($code) {
-        $url = "https://gitee.com/oauth/token";
-        $query = array_filter([
-            "grant_type" => "authorization_code",
-            "code"       => $code,
-            "client_id"   => $this->client_id,
-            "redirect_uri"=> $this->redirect_uri,
-            "client_secret"=> $this->client_secret
-        ]);
-        $client =  app()->make(client::class);
-        $jsonService = app()->make(JsonService::class);
-        return $jsonService->jsonDecode($client->request('POST', $url, [
-            'query' => $query,
-        ])->getBody()->getContents());
+    public function getAccessToken($code): mixed
+    {
+        try {
+            $url = "https://gitee.com/oauth/token";
+            $query = array_filter([
+                "grant_type" => "authorization_code",
+                "code"       => $code,
+                "client_id"   => $this->client_id,
+                "redirect_uri"=> $this->redirect_uri,
+                "client_secret"=> $this->client_secret
+            ]);
+            $client =  app()->make(client::class);
+            $jsonService = app()->make(JsonService::class);
+            return $jsonService->jsonDecode($client->request('POST', $url, [
+                'query' => $query,
+            ])->getBody()->getContents());
+
+        } catch (\Exception $e) {
+            return false;
+        }
+
     }
 
     /**

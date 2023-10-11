@@ -9,11 +9,15 @@ use app\home\dao\user\UserLogsDao;
 use app\home\dao\user\ThirdPartyLoginUserDao;
 use app\model\RoomModel;
 use app\model\UserModel;
+use app\service\login\Login as otherLogin;
 use app\validate\UserValidate;
+use GuzzleHttp\Exception\GuzzleException;
 use think\Event;
 use think\exception\ValidateException;
 use app\model\RoomUserModel;
 use think\facade\Cache;
+use think\facade\Request;
+use think\Response;
 
 class UserBusiness
 {
@@ -136,9 +140,6 @@ class UserBusiness
 
         return $updateOrAdd;
 
-
-//         return $this->login($login_name,"",true);
-
     }
 
     /**
@@ -171,6 +172,56 @@ class UserBusiness
 
 
     }
+
+    /**
+     * 获取token
+     * @param $origin
+     * @param string $code
+     * @return mixed|Response
+     * @throws GuzzleException
+     */
+    public function getAccessToken($origin,  $code): mixed
+    {
+        $login = app()->make(otherLogin::class);
+        $getAccessToken = $login->getUserInfo($origin)->getAccessToken($code);
+        if (!$getAccessToken)  return false;
+        //  设置缓存
+        $accessToken = $getAccessToken['access_token'];
+        Cache::set($accessToken,$getAccessToken,86000);
+
+        return $getAccessToken;
+
+    }
+
+
+    /**
+     * 获取 AuthUserInfo
+     * @throws GuzzleException
+     */
+    public function getAuthUserInfo($origin,$accessToken)
+    {
+        if(empty($accessToken) && empty($type)) return false;
+        $login = app()->make(otherLogin::class);
+        return $login->getUserInfo($origin)->getUserInfo($accessToken);
+    }
+
+    /**
+     * 授权重定向
+     * @param $accessToken
+     * @return Response
+     */
+    public function authRedirect($accessToken): Response
+    {
+        // 重定向
+        $url = Request::domain();
+        $strHttps = strstr($url,'https');
+        if (!$strHttps) $url = str_replace("http","https",$url);
+
+        return Response::create($url, 'redirect',302)
+            ->cookie("oauthToken",$accessToken)
+            ->cookie("isAuthLogin",true);
+    }
+
 
 
     /**
@@ -311,7 +362,14 @@ class UserBusiness
         if (!$result[0]) return false;
         $find['is_online'] = $result[0]['is_online'] ?? "";
         $find['token'] = $result[0]['token'] ?? "";
-
-        return $find;
+        //获取token
+        return [
+            'user_id'    => $find['id'],
+            'nick_name'  => $find['nick_name'],
+            'photo'      => $find['photo'],
+            'sex'        => $find['sex'],
+            'is_online'  => $find['is_online'],
+            'token'      => $find['token'],
+        ];
     }
 }

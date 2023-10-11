@@ -1,9 +1,10 @@
 <?php
 return [
     "gitee"  => [
-        'client_id'    => '544eabc2fa0c121f285257642b6c79419aa4fe3b8604842bbe84f40be1c838b3',
-        'client_secret'=> '4ece1e47b4d9531df17731d1c64ec71c6cdd91b68aa7df16abaee56795381bd9',
-        'redirect_uri' =>  'https://xiaogongtx.com/api/v1/login/callback'
+        "origin" => 'gitee',
+        'client_id'    => 'e80b209e4e9c04bc10899fc2a6679e416a6f36ecc4c0c97c807aeca032a8cae8',
+        'client_secret'=> '6a07357c414e9c8f65b3f5c5195435893d0bd0c0a3850d52626702eda044dfb6',
+        'redirect_uri' =>  'https://1c1892v069.imdo.co/api/v1/login/callback'
     ],
     "github" => []
 

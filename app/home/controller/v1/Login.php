@@ -6,6 +6,7 @@ use app\service\JsonService;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use think\App;
+use think\facade\Cache;
 use think\facade\Config;
 use think\facade\Log;
 use think\facade\Request;
@@ -56,27 +57,11 @@ class Login
     {
 
         $loginName = Request::post('login');
-        $password   = Request::post('password') ?? "";
-        $oauthToken = Request::post('oauthToken');
-        if ($oauthToken) {
-            $createUser = static::$business->oauthLogin($oauthToken);
-        } else {
-            $createUser = static::$business->login($loginName,$password);
-        }
-
+        $password   = Request::post('password');
+        $createUser = static::$business->login($loginName,$password);
         if ($createUser){
-            //获取token
-            $data = [
-                'user_id'    => $createUser['id'],
-                'nick_name'  => $createUser['nick_name'],
-                'photo'      => $createUser['photo'],
-                'sex'        => $createUser['sex'],
-                'is_online'  => $createUser['is_online'],
-                'token'      => $createUser['token'],
-            ];
 
-
-           return ImJson::output(10000, '',$data,['name'=>'登录']);
+           return ImJson::output(10000, '',$createUser,['name'=>'登录']);
         }
 
 
@@ -85,14 +70,50 @@ class Login
 
     /**
      * gitee 登录
+     * @return Response
      */
-    public function giteeLogin(): \think\Response
+    public function thirdPartyLogin(): Response
     {
+        $oauthToken = Request::post('oauthToken');
+        if (!$oauthToken) return ImJson::output(20006, '',[]);
+        $createUser = static::$business->oauthLogin($oauthToken);
+        if ($createUser) return ImJson::output(10000, '',$createUser,['name'=>'登录']);
+        return ImJson::output(20001, '',[],['name' => '登录']);
+    }
+
+
+    /**
+     * gitee 授权
+     * @throws GuzzleException
+     */
+    public function auth(): \think\Response
+    {
+        $origin =  Request::get('origin');
+        $oauthToken =  Request::get('oauthToken');
+        if (empty($origin)) {
+            return ImJson::output(20006, '',[]);
+        }
+
+        if ($oauthToken) {
+            // 获取token
+            $getAccessToken = [];
+            if (Cache::has($oauthToken)){
+                $getAccessToken =  Cache::get($oauthToken);
+            }
+
+            if ($getAccessToken) {
+                return ImJson::output(10000,'',["url" => "","oauthToken"=>$oauthToken,"origin"=>$origin],['name' => '回调']);
+            }
+
+        }
+
         $login = app()->make(otherLogin::class);
-        $url = $login->getUserInfo('Gitee')->authorization();
+        $url = $login->getUserInfo($origin)->authorization();
         return ImJson::output(10000,'',["url" => $url],['name' => '回调']);
 
     }
+
+
 
 
 
@@ -100,20 +121,19 @@ class Login
      * 第三方登录回调
      * @throws GuzzleException
      */
-    public function callback()
+    public function callback(): Response
     {
         $parm = Request::param();
         $jsonService = app()->make(JsonService::class);
         Log::write(date('Y-m-d H:i:s').'_'.$jsonService->jsonEncode($parm),'info');
-        $login = app()->make(otherLogin::class);
         $code = $parm['code'];
-        $getAccessToken = $login->getUserInfo('Gitee')->getAccessToken($code);
-        Log::write(date('Y-m-d H:i:s').'_'.$jsonService->jsonEncode($getAccessToken),'info');
-        if (!isset($getAccessToken['access_token']))  return ImJson::output(401,'',$getAccessToken,[],401);
-
-        $accessToken = $getAccessToken['access_token'];
-        $data = $login->getUserInfo('Gitee')->getUserInfo($accessToken);
         $origin = $parm['origin'];
+        // 获取token
+        $getAccessToken =  static::$business->getAccessToken($origin,$code);
+        if (!isset($getAccessToken['access_token']))  return ImJson::output(401,'',$getAccessToken,[],401);
+        //  获取基本信息
+        $accessToken = $getAccessToken['access_token'];
+        $data =  static::$business->getAuthUserInfo($origin,$accessToken);
         $thirdPartyData = [];
         if ($origin == "gitee") {
             $thirdPartyData = [
@@ -134,20 +154,9 @@ class Login
         // 创建第三方登录
         $createThirdPartyLogin = static::$business->CreateThirdPartyLogin($thirdPartyData,$origin);
         if (!$createThirdPartyLogin) return ImJson::output(20001, $createThirdPartyLogin,[],['name' => '第三方注册']);
-//        //获取token
-//        $user = [
-//            'user_id'    => $createThirdPartyLogin['id'],
-//            'nick_name'  => $createThirdPartyLogin['nick_name'],
-//            'photo'      => $createThirdPartyLogin['photo'],
-//            'sex'        => $createThirdPartyLogin['sex'],
-//            'is_online'  => $createThirdPartyLogin['is_online'],
-//            'token'      => $createThirdPartyLogin['token'],
-//            "origin"     => $origin
-//        ];
-        return Response::create('https://xiaogongtx.com', 'redirect',302)
-            ->cookie("oauthToken",$accessToken);
-
+        return static::$business->authRedirect($accessToken);
     }
+
 
 
 

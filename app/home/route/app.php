@@ -14,9 +14,10 @@ use think\facade\Route;
 Route::post(':v/register',':v.Login/register');
 // 登录
 Route::post(':v/login',':v.Login/login');
-// gitee 登录
-Route::get(':v/login/giteeLogin',':v.Login/giteeLogin');
-
+// gitee 登录 返回gitee code url
+Route::get(':v/auth/gitee',':v.Login/auth');
+// gittee 登录
+Route::post(':v/gitee/login',':v.Login/thirdPartyLogin');
 // 第三方登录回调
 Route::get(':v/login/callback',':v.Login/callback');
 
