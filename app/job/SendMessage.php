@@ -2,9 +2,6 @@
 
 
 namespace app\job;
-
-
-use app\service\JsonService;
 use think\facade\Log;
 use think\facade\Queue;
 
@@ -22,7 +19,6 @@ class SendMessage
 
         // 2.当前任务归属的队列名称，如果为新队列，会自动创建
         $jobQueueName        = "MessageJobQueue";
-        $JsonService = app()->make(JsonService::class);
         $sendData = json_encode(
             [
                 "room_id" => $data['room_id'],

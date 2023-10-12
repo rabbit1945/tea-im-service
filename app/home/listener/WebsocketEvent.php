@@ -13,6 +13,7 @@ use app\service\AiService;
 use app\service\JsonService;
 use think\Container;
 use think\facade\App;
+use think\facade\Log;
 use think\swoole\Websocket;
 
 class WebsocketEvent
@@ -88,7 +89,8 @@ class WebsocketEvent
                             "nick_name" => $sendUser['nick_name'],
                             "msg" => $sendUser['msg'],
                         ];
-                        $room = $val['room_id'];
+                        $room = (string)$val['room_id'];
+                        Log::write(date('Y-m-d H:i:s').'_机器人_'.$room,'info');
                         $send = $this->websocket->to($room)->emit('roomCallback',
                             $getContext
                         );
