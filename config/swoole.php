@@ -9,9 +9,9 @@ return [
         'port'      => env('SWOOLE_PORT', 9502), // 监听端口
         'mode'      => SWOOLE_PROCESS, // 运行模式 默认为SWOOLE_PROCESS
         'sock_type' => SWOOLE_SOCK_TCP| SWOOLE_SSL, // sock type 默认为SWOOLE_SOCK_TCP
-        //配置SSL证书和密钥路径
-        'ssl_cert_file' => "../.docker/nginx/conf.d/cert/scs1695721843916_xiaogongtx.com_server.crt",
-        'ssl_key_file'  => "../.docker/nginx/conf.d/cert/scs1695721843916_xiaogongtx.com_server.key",
+//        //配置SSL证书和密钥路径
+//        'ssl_cert_file' => "../.docker/nginx/conf.d/cert/scs1695721843916_xiaogongtx.com_server.crt",
+//        'ssl_key_file'  => "../.docker/nginx/conf.d/cert/scs1695721843916_xiaogongtx.com_server.key",
 
         'options'   => [
             'pid_file'              => runtime_path() . 'swoole.pid',
