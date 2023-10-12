@@ -1,7 +1,7 @@
 ARG MYSQL_VERSION
 FROM mysql:${MYSQL_VERSION}
 
-RUN  sudo mkdir -R 777 /var/log/mysql
+RUN  mkdir -R 777 /var/log/mysql
 RUN  echo "" >> /var/log/mysql/error.log
 RUN  chown -R root:root  /var/log/mysql && chmod -Rf 777 /var/log/mysql/error.log
 # Clean up
