@@ -5,10 +5,14 @@ use think\swoole\websocket\socketio\Parser;
 
 return [
     'server'     => [
-        'host'      => env('SWOOLE_HOST', '192.168.1.12'), // 监听地址
+        'host'      => env('SWOOLE_HOST', '127.0.0.1'), // 监听地址
         'port'      => env('SWOOLE_PORT', 9502), // 监听端口
         'mode'      => SWOOLE_PROCESS, // 运行模式 默认为SWOOLE_PROCESS
         'sock_type' => SWOOLE_SOCK_TCP, // sock type 默认为SWOOLE_SOCK_TCP
+        //配置SSL证书和密钥路径
+        'ssl_cert_file' => "../.docker/nginx/conf.d/cert/scs1695721843916_xiaogongtx.com_server.crt",
+        'ssl_key_file'  => "../.docker/nginx/conf.d/cert/scs1695721843916_xiaogongtx.com_server.key",
+
         'options'   => [
             'pid_file'              => runtime_path() . 'swoole.pid',
             'log_file'              => runtime_path() . 'swoole.log',
