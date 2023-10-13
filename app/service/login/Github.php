@@ -48,7 +48,7 @@ class Github implements OauthInterface
 
     public function authorization(): string
     {
-        return "https://github.com/login/oauth/authorize?client_id={$this->client_id}&redirect_uri={$this->redirect_uri}";
+        return "https://github.com/login/oauth/authorize?client_id={$this->client_id}&redirect_uri={$this->redirect_uri}&scope=user:email";
     }
 
     /**
@@ -64,7 +64,8 @@ class Github implements OauthInterface
             $query = array_filter([
                 "code"       => $code,
                 "client_id"   => $this->client_id,
-                "client_secret"=> $this->client_secret
+                "client_secret"=> $this->client_secret,
+                "redirect_uri" => $this->redirect_uri
             ]);
             $client =  app()->make(client::class);
             $jsonService = app()->make(JsonService::class);
@@ -94,7 +95,7 @@ class Github implements OauthInterface
 
         $data = $client->request('get',$url,[
             'headers' => [
-                'Authorization' =>  `token $access_token`,
+                'Authorization' =>  `Bearer $access_token`,
             ]
         ])->getBody()->getContents();
         Log::write(date('Y-m-d H:i:s').'.github_'.$data,'info');
@@ -117,7 +118,7 @@ class Github implements OauthInterface
         $data = $client->request('get',$url,[
             'headers' => [
                 'Accept'        => "application/vnd.github+json",
-                'Authorization' =>  `token $access_token`,
+                'Authorization' =>  `Bearer $access_token`,
 
             ]
         ])->getBody()->getContents();
