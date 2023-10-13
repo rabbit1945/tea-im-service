@@ -15,7 +15,7 @@ use think\Response;
  * Class gitee
  * @package app\service\login
  */
-class Gitee
+class Gitee implements OauthInterface
 {
     /**
      * 客户端
@@ -28,19 +28,24 @@ class Gitee
      * @var
      */
     protected mixed $redirect_uri;
-    // 配置
+
+    /**
+     * @var Config
+     */
     protected Config $config;
+
+    /**
+     * @var mixed
+     */
     protected mixed $client_secret;
 
-    private string $origin  = "gitee";
 
     public function __construct(Config $config)
     {
 
         $this->config = $config;
-        $origin = $config::get('login.gitee.origin');
         $this->client_id = $config::get('login.gitee.client_id');
-        $this->redirect_uri = $config::get('login.gitee.redirect_uri')."?origin=$origin";
+        $this->redirect_uri = $config::get('login.gitee.redirect_uri');
         $this->client_secret = $config::get('login.gitee.client_secret');
 
     }
@@ -78,7 +83,7 @@ class Gitee
             ])->getBody()->getContents());
 
         } catch (\Exception $e) {
-            return false;
+            return $e->getMessage();
         }
 
     }
@@ -86,14 +91,14 @@ class Gitee
     /**
      * @throws GuzzleException
      */
-    public function getUserInfo($access_token)
+    public function getUserInfo($access_token):mixed
     {
         $url = 'https://gitee.com/api/v5/user?access_token='.$access_token;
         $jsonService = app()->make(JsonService::class);
         $client =  app()->make(client::class);
 
         $data = $client->get($url)->getBody()->getContents();
-        Log::write(date('Y-m-d H:i:s').'_'.$data,'info');
+        Log::write(date('Y-m-d H:i:s').'_gitee_'.$data,'info');
         return $jsonService->jsonDecode($data);
     }
 

@@ -150,6 +150,30 @@ class Login
                 "origin"     => $origin
             ];
         }
+
+        switch ($origin)
+        {
+            case 'gitee':
+                $thirdPartyData = [
+                    "third_party_id" =>$data['id'],
+                    "login_name" => $data['login'],
+                    "nick_name"  => $data['name'],
+                    "email"      => $data['email'] ?? "",
+                    "access_token" => $accessToken,
+                    "refresh_token" => $getAccessToken['refresh_token'],
+                    "create_token_time" => $getAccessToken['created_at'],
+                    "expires_in" => $getAccessToken['expires_in'],
+                    "createdAt"  => $data['created_at'],
+                    "updatedAt"  => $data['updated_at'],
+                    "origin"     => $origin
+                ];
+                break;
+            case 'github':
+
+                break;
+
+
+        }
         if (empty($thirdPartyData))  return ImJson::output(401,'',$getAccessToken,[],401);
         // 创建第三方登录
         $createThirdPartyLogin = static::$business->CreateThirdPartyLogin($thirdPartyData,$origin);
