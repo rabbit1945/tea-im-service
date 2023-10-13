@@ -2,23 +2,24 @@
 
 
 namespace app\service\login;
-use app\service\login\Gitee;
 
 class Login
 {
 
-    public function __construct()
+
+    public string $className;
+
+    public function __construct($className)
     {
+        $this->className =  "app\\service\\login\\$className";
 
     }
 
-    public function getUserInfo($className)
+    public function getUserInfo()
     {
-        $className = ucfirst($className);
+        if ($this->className) {
 
-        if ($className) {
-
-            return app()->make(Gitee::class);
+            return  app()->make($this->className);;
         }
         return False;
     }

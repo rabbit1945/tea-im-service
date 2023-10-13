@@ -72,7 +72,7 @@ class Login
      * gitee 登录
      * @return Response
      */
-    public function thirdPartyLogin(): Response
+    public function authLogin(): Response
     {
         $oauthToken = Request::post('oauthToken');
         if (!$oauthToken) return ImJson::output(20006, '',[]);
@@ -86,7 +86,7 @@ class Login
      * gitee 授权
      * @throws GuzzleException
      */
-    public function auth(): \think\Response
+    public function getAuth(): \think\Response
     {
         $origin =  Request::get('origin');
         $oauthToken =  Request::get('oauthToken');
@@ -107,7 +107,7 @@ class Login
 
         }
 
-        $login = app()->make(otherLogin::class);
+        $login = app()->make(otherLogin::class,[$origin]);
         $url = $login->getUserInfo($origin)->authorization();
         return ImJson::output(10000,'',["url" => $url],['name' => '回调']);
 

@@ -15,9 +15,9 @@ Route::post(':v/register',':v.Login/register');
 // 登录
 Route::post(':v/login',':v.Login/login');
 // gitee 登录 返回gitee code url
-Route::get(':v/auth/gitee',':v.Login/auth');
-// gittee 登录
-Route::post(':v/gitee/login',':v.Login/thirdPartyLogin');
+Route::get(':v/get/auth',':v.Login/getAuth');
+//  登录
+Route::post(':v/auth/login',':v.Login/authLogin');
 // 第三方登录回调
 Route::get(':v/login/callback',':v.Login/callback');
 

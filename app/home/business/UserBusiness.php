@@ -16,6 +16,7 @@ use think\Event;
 use think\exception\ValidateException;
 use app\model\RoomUserModel;
 use think\facade\Cache;
+use think\facade\Log;
 use think\facade\Request;
 use think\Response;
 
@@ -184,6 +185,7 @@ class UserBusiness
     {
         $login = app()->make(otherLogin::class);
         $getAccessToken = $login->getUserInfo($origin)->getAccessToken($code);
+        Log::write(date('Y-m-d H:i:s').'.github_'.json_encode($getAccessToken),'info');
         if (!$getAccessToken)  return false;
         //  设置缓存
         $accessToken = $getAccessToken['access_token'];

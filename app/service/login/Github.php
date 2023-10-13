@@ -68,9 +68,11 @@ class Github implements OauthInterface
             ]);
             $client =  app()->make(client::class);
             $jsonService = app()->make(JsonService::class);
-            return $jsonService->jsonDecode($client->request('POST', $url, [
+            $data = $client->request('POST', $url, [
                 'json' => $query,
-            ])->getBody()->getContents());
+            ])->getBody()->getContents();
+            Log::write(date('Y-m-d H:i:s').'.github_'.$data,'info');
+            return $jsonService->jsonDecode($data);
 
         } catch (\Exception $e) {
             return $e->getMessage();
