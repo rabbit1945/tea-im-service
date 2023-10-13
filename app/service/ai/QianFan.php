@@ -58,7 +58,7 @@ class QianFan implements AiChat
 
 
     public function __construct() {
-        $this->domain = Config::get('aiChat.qian_fan.domain')??'https://aip.baidubce.com/';
+        $this->domain = Config::get('aiChat.qian_fan.domain');
 
         $this->accessToken = $this->getAccessToken();
 
@@ -74,7 +74,7 @@ class QianFan implements AiChat
 
         $this->model = $model;
 
-        $this->parameter =  Config::get('aiChat.qian_fan.'.$model) ?? 'rpc/2.0/ai_custom/v1/wenxinworkshop/chat/chatglm2_6b_32k?access_token=';
+        $this->parameter =  Config::get('aiChat.qian_fan.'.$model);
         return $this;
     }
 
@@ -102,7 +102,7 @@ class QianFan implements AiChat
      */
     public function getGrantType(): static
     {
-        $this->grantType = Config::get('aiChat.qian_fan.grant_type')??'client_credentials';
+        $this->grantType = Config::get('aiChat.qian_fan.grant_type');
         return $this;
 
     }
@@ -138,7 +138,7 @@ class QianFan implements AiChat
         ),'post');
 
 
-        if (empty($send)) throw new Exception('数据返货为空');
+        if (empty($send)) throw new Exception('数据返回为空');
         $data = app()->make(JsonService::class)->jsonDecode($send);
         Cache::set($this->cacheName,$data['access_token'],$data['expires_in']-86400);
 
