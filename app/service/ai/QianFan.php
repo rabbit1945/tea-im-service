@@ -52,7 +52,7 @@ class QianFan implements AiChat
     public string $grantType;
 
 
-    public string $cacheName = 'qianFanToken';
+    public string $cacheName = 'newQianFanToken';
 
 
 

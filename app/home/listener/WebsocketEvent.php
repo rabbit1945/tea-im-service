@@ -72,7 +72,7 @@ class WebsocketEvent
                 $jsonData =  $aiService->run($json->jsonEncode($msgData));
                 if ($jsonData) {
                     $data = $json->jsonDecode($jsonData);
-                    $result = $data['result'] ?'@'.$sendUser['nick_name'].' '.$data['result']: "";
+                    $result = isset($data['result']) ?'@'.$sendUser['nick_name'].' '.$data['result']: '@'.$sendUser['nick_name'].'请稍后重试';
                     if (empty($result)) return false;
                     $val['userLogo'] = $val['photo'];
                     $val['msg'] =  $result;
@@ -138,6 +138,7 @@ class WebsocketEvent
         if ($send) {
             app()->make(SendMessage::class)->send($getContext);
             $msg = $sendContext['msg'];
+            Log::write(date('Y-m-d H:i:s').'_机器人_'.json_encode($sendContext),'info');
             $this->robot($sendContext['contactList'],$sendContext,$msg);
         }
     }
