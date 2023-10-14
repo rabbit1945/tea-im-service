@@ -101,7 +101,7 @@ class Github implements OauthInterface
                 'Authorization' =>  `Bearer $access_token`,
             ]
         ])->getBody()->getContents();
-        Log::write(date('Y-m-d H:i:s').'.github_'.$data,'info');
+        Log::write(date('Y-m-d H:i:s').'.github_getUserInfo'.$data,'info');
         return $jsonService->jsonDecode($data);
     }
 
@@ -120,6 +120,7 @@ class Github implements OauthInterface
 
         $data = $client->request('get',$url,[
             'headers' => [
+                'UserAgent' => "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.138 Safari/537.36",
                 'Accept'        => "application/vnd.github+json",
                 'Authorization' =>  `Bearer $access_token`,
 
