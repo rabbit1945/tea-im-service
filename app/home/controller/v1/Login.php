@@ -113,10 +113,6 @@ class Login
 
     }
 
-
-
-
-
     /**
      * 第三方登录回调
      * @throws GuzzleException
@@ -127,8 +123,8 @@ class Login
         if (!$parm) return ImJson::output(422,'',[],[],422);
         $jsonService = app()->make(JsonService::class);
         Log::write(date('Y-m-d H:i:s').'_'.$jsonService->jsonEncode($parm),'info');
-        $code = isset($parm['code'])??"";
-        $origin = isset($parm['origin'])??"";
+        $code = $parm['code'] ?? "";
+        $origin = $parm['origin'] ?? "";
         if (!$code || !$origin) return ImJson::output(422,'',[],[],422);
         // 获取token
         $getAccessToken =  static::$business->getAccessToken($origin,$code);
@@ -137,21 +133,6 @@ class Login
         $accessToken = $getAccessToken['access_token'];
         $data =  static::$business->getAuthUserInfo($origin,$accessToken);
         $thirdPartyData = [];
-        if ($origin == "gitee") {
-            $thirdPartyData = [
-                "third_party_id" =>$data['id'],
-                "login_name" => $data['login'],
-                "nick_name"  => $data['name'],
-                "email"      => $data['email'] ?? "",
-                "access_token" => $accessToken,
-                "refresh_token" => $getAccessToken['refresh_token'],
-                "create_token_time" => $getAccessToken['created_at'],
-                "expires_in" => $getAccessToken['expires_in'],
-                "createdAt"  => $data['created_at'],
-                "updatedAt"  => $data['updated_at'],
-                "origin"     => $origin
-            ];
-        }
 
         switch ($origin)
         {
