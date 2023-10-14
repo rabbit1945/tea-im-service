@@ -185,7 +185,7 @@ class UserBusiness
     {
         $login = app()->make(AuthLogin::class,[$origin]);
         $getAccessToken = $login->getUserInfo()->getAccessToken($code);
-        if ($getAccessToken['error'])  return false;
+        if (isset($getAccessToken['error']))  return false;
         //  设置缓存
         $accessToken = $getAccessToken['access_token'] ?? "";
         if ($accessToken) {
