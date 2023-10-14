@@ -19,7 +19,7 @@ class Login
     {
         if ($this->className) {
 
-            return  app()->make($this->className);;
+            return  app()->make($this->className);
         }
         return False;
     }
