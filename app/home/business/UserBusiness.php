@@ -185,7 +185,6 @@ class UserBusiness
     {
         $login = app()->make(AuthLogin::class,[$origin]);
         $getAccessToken = $login->getUserInfo()->getAccessToken($code);
-        Log::write(date('Y-m-d H:i:s').'.github_'.json_encode($getAccessToken),'info');
         if (!$getAccessToken)  return false;
         //  设置缓存
         $accessToken = $getAccessToken['access_token'];

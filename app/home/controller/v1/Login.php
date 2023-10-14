@@ -124,13 +124,15 @@ class Login
     public function callback(): Response
     {
         $parm = Request::param();
+        if (!$parm)
         $jsonService = app()->make(JsonService::class);
         Log::write(date('Y-m-d H:i:s').'_'.$jsonService->jsonEncode($parm),'info');
-        $code = $parm['code'];
-        $origin = $parm['origin'];
+        $code = isset($parm['code'])??"";
+        $origin = isset($parm['origin'])??"";
+        if (!$code || !$origin) return ImJson::output(422,'',[],[],422);
         // 获取token
         $getAccessToken =  static::$business->getAccessToken($origin,$code);
-        if (!isset($getAccessToken['access_token']))  return ImJson::output(401,'',$getAccessToken,[],401);
+        if (!isset($getAccessToken['access_token']))  return ImJson::output(401,'',[],[],401);
         //  获取基本信息
         $accessToken = $getAccessToken['access_token'];
         $data =  static::$business->getAuthUserInfo($origin,$accessToken);
