@@ -11,6 +11,7 @@ class Login
 
     public function __construct($className)
     {
+        $className = ucfirst($className);
         $this->className =  "app\\service\\login\\$className";
 
     }

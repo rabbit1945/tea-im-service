@@ -181,10 +181,10 @@ class UserBusiness
      * @return mixed|Response
      * @throws GuzzleException
      */
-    public function getAccessToken($origin,  $code): mixed
+    public function getAccessToken($origin, string $code): mixed
     {
-        $login = app()->make(otherLogin::class);
-        $getAccessToken = $login->getUserInfo($origin)->getAccessToken($code);
+        $login = app()->make(otherLogin::class,[$origin]);
+        $getAccessToken = $login->getUserInfo()->getAccessToken($code);
         Log::write(date('Y-m-d H:i:s').'.github_'.json_encode($getAccessToken),'info');
         if (!$getAccessToken)  return false;
         //  设置缓存
@@ -203,8 +203,8 @@ class UserBusiness
     public function getAuthUserInfo($origin,$accessToken)
     {
         if(empty($accessToken) && empty($type)) return false;
-        $login = app()->make(otherLogin::class);
-        return $login->getUserInfo($origin)->getUserInfo($accessToken);
+        $login = app()->make(otherLogin::class,[$origin]);
+        return $login->getUserInfo()->getUserInfo($accessToken);
     }
 
     /**
