@@ -9,7 +9,7 @@ use app\home\dao\user\UserLogsDao;
 use app\home\dao\user\ThirdPartyLoginUserDao;
 use app\model\RoomModel;
 use app\model\UserModel;
-use app\service\login\Login as otherLogin;
+use app\service\login\AuthLogin;
 use app\validate\UserValidate;
 use GuzzleHttp\Exception\GuzzleException;
 use think\Event;
@@ -183,7 +183,7 @@ class UserBusiness
      */
     public function getAccessToken($origin, string $code): mixed
     {
-        $login = app()->make(otherLogin::class,[$origin]);
+        $login = app()->make(AuthLogin::class,[$origin]);
         $getAccessToken = $login->getUserInfo()->getAccessToken($code);
         Log::write(date('Y-m-d H:i:s').'.github_'.json_encode($getAccessToken),'info');
         if (!$getAccessToken)  return false;
@@ -203,7 +203,7 @@ class UserBusiness
     public function getAuthUserInfo($origin,$accessToken)
     {
         if(empty($accessToken) && empty($type)) return false;
-        $login = app()->make(otherLogin::class,[$origin]);
+        $login = app()->make(AuthLogin::class,[$origin]);
         return $login->getUserInfo()->getUserInfo($accessToken);
     }
 

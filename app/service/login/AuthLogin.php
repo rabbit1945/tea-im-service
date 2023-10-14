@@ -3,7 +3,7 @@
 
 namespace app\service\login;
 
-class Login
+class AuthLogin
 {
 
 

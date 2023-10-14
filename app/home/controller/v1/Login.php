@@ -11,7 +11,7 @@ use think\facade\Config;
 use think\facade\Log;
 use think\facade\Request;
 use \app\home\business\UserBusiness;
-use \app\service\login\Login as otherLogin;
+use \app\service\login\AuthLogin;
 use think\Response;
 
 
@@ -107,8 +107,8 @@ class Login
 
         }
 
-        $login = app()->make(otherLogin::class,[$origin]);
-        $url = $login->getUserInfo($origin)->authorization();
+        $login = app()->make(AuthLogin::class,[$origin]);
+        $url = $login->getUserInfo()->authorization();
         return ImJson::output(10000,'',["url" => $url],['name' => '回调']);
 
     }
