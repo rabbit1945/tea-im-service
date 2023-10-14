@@ -124,7 +124,7 @@ class Login
     public function callback(): Response
     {
         $parm = Request::param();
-        if (!$parm)
+        if (!$parm) return ImJson::output(422,'',[],[],422);
         $jsonService = app()->make(JsonService::class);
         Log::write(date('Y-m-d H:i:s').'_'.$jsonService->jsonEncode($parm),'info');
         $code = isset($parm['code'])??"";
