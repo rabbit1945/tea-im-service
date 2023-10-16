@@ -8,6 +8,7 @@ use GuzzleHttp\Exception\GuzzleException;
 use think\App;
 use think\facade\Cache;
 use think\facade\Config;
+use think\facade\Db;
 use think\facade\Log;
 use think\facade\Request;
 use \app\home\business\UserBusiness;
@@ -163,6 +164,19 @@ class Login
         if (!$createThirdPartyLogin) return ImJson::output(20001, $createThirdPartyLogin,[],['name' => '第三方注册']);
         return static::$business->authRedirect($accessToken);
     }
+
+
+//    public function test()
+//    {
+//       $list =  Db::table('webim_user_send')->select();
+//       foreach ($list as $val) {
+//           Db::name('msg_list')->save([
+//               "seq"=>$val['seq'],
+//               "msg_content"=>$val['msg_content'],
+//
+//           ]);
+//       }
+//    }
 
 
 

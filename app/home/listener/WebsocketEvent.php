@@ -131,6 +131,9 @@ class WebsocketEvent
 
         $room = (string)$sendContext['room_id'];
         $sendBus = app()->make(MessageSendBusiness::class);
+        $sendContext['file_name'] = $sendContext['file_name'] ?? "";
+        $sendContext['file_size'] = $sendContext['file_size'] ?? "";
+
         $getContext = $sendBus->getContext($sendContext,$this->websocket->getSender());
 
         $send = $this->websocket->to($room)->emit('roomCallback',

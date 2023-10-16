@@ -2,6 +2,7 @@
 
 
 namespace app\home\business;
+use app\common\utils\ImJson;
 use app\common\utils\SensitiveWord;
 use app\common\utils\Upload;
 use app\home\dao\message\MessageReceiveDao;
@@ -226,6 +227,33 @@ class MessageReceiveBusiness
         if (!$path) return false;
         return $path;
 
+    }
+
+    /**
+     * 上传base64
+     * @param $base64
+     * @param $fileName
+     * @param $dir
+     * @return array|false
+     */
+    public function uploadBase64($base64,$fileName,$dir)
+    {
+        $reg = '/data:image\/(\w+?);base64,(.+)$/si';
+        preg_match($reg,$base64,$match_result);
+        if (!$match_result)  return false;
+        $baseImg=str_replace($match_result[1], '', $base64);
+        $baseImg=str_replace('=','',$baseImg);
+        $imgLen = strlen($baseImg);
+        $fileSize = intval($imgLen - ($imgLen/8)*2);
+
+        $fileName = $fileName.'_'.$match_result[1];
+        $path = $dir.$fileName;
+        $upload = file_put_contents($path,base64_decode($match_result[2]));
+        return [
+            "isSuccess" => $upload,
+            "fileSize" => $fileSize,
+            "fileName"  => $fileName,
+        ];
     }
 
 

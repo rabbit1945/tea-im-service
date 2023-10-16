@@ -35,9 +35,11 @@ Route::post(':v/user/offline/msg',':v.Message/getOffLineMessageList');
 // 用户消息
 Route::post(':v/user/msg',':v.Message/getMessageList');
 //uploadAudio
-Route::post(':v/upload/audio',':v.Message/uploadAudio');
+Route::post(':v/upload/audio',':v.Upload/uploadAudio');
 //uploadFiles
-Route::post(':v/upload/files',':v.Message/uploadFiles');
+Route::post(':v/upload/files',':v.Upload/uploadFiles');
+
+Route::post(':v/upload/base64',':v.Upload/uploadBase64');
 
 Route::get(':v/test',':v.Login/test');
 
