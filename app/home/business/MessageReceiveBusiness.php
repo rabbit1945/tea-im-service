@@ -10,17 +10,32 @@ use app\home\dao\user\UserDao;
 use app\service\JsonService;
 use app\service\RedisService;
 use think\App;
+use think\Event;
 use think\facade\Config;
 
 class MessageReceiveBusiness
 {
+    /**
+     * @var App
+     */
     protected $app;
+    /**
+     * @var MessageReceiveDao
+     */
     protected $dao;
+    /**
+     * @var
+     */
     protected static $redis;
+    /*
+     *
+     */
+    protected Event $event;
 
-    public function __construct(App $app,MessageReceiveDao $dao) {
+    public function __construct(App $app,MessageReceiveDao $dao,Event $event) {
         $this->dao = $dao;
         $this->app = $app;
+        $this->event = $event;
     }
 
     /**
@@ -142,10 +157,12 @@ class MessageReceiveBusiness
                     "room_id" => $room_id,
                     "msg_form" => $data['msg_form'],
                     "msg_to"   => $val['user_id'],
+                    'file_name' => $data['file_name'], // 文件名称
+                    'file_size' => $data['file_size'], // 文件大小
                     "nick_name" => $val['nick_name'],
                     "msg_content" => $data['msg_content'],
                     "send_time" => $data['send_time'],
-                    "msg_type" => 2,
+                    "msg_type" => $data['msg_type'],
                     "delivered" => $isOnline == 'online' ? 1 : 0,
                     "seq" => $data['seq'],
                     "content_type" => $data['content_type'],
@@ -200,13 +217,13 @@ class MessageReceiveBusiness
 
 
     /**
-     * 上传音频
+     * 上传
      */
-    public function uploadAudio($dir,$file,$name)
+    public function upload($dir,$file,$name)
     {
         $upload = $this->app->make(Upload::class);
         $path = $upload->fileUpload($dir,$file,$name);
-
+        if (!$path) return false;
         return $path;
 
     }

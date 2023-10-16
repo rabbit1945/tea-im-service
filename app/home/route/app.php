@@ -36,6 +36,10 @@ Route::post(':v/user/offline/msg',':v.Message/getOffLineMessageList');
 Route::post(':v/user/msg',':v.Message/getMessageList');
 //uploadAudio
 Route::post(':v/upload/audio',':v.Message/uploadAudio');
+//uploadFiles
+Route::post(':v/upload/files',':v.Message/uploadFiles');
+
+Route::get(':v/test',':v.Login/test');
 
 
 

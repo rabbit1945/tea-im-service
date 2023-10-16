@@ -81,16 +81,41 @@ class Message extends BaseController
     {
         $user_id =static::$user_id;
         $file = Request::file('file');
-
+        if (!$file) {
+            return ImJson::output(20006);
+        }
         $dir = 'audio';
         $time = time();
-        $name = "audio"."_$user_id"."_$time".".mp3";
-        $uploadAudio = $this->business->uploadAudio($dir,$file,$name);
+        $name = "audio"."_$user_id"."_$time"."_".".mp3";
+        $uploadAudio = $this->business->upload($dir,$file,$name);
         if (!$uploadAudio) {
             if (empty($list))  ImJson::output('20001');
 
         }
         return ImJson::output(10000,'成功',['file' => $uploadAudio]);
+    }
+
+    /**
+     * 上传文件
+     * @return \think\Response
+     */
+    public function uploadFiles(): \think\Response
+    {
+        $user_id =static::$user_id;
+        $files = Request::file('file');
+        if (!$files) {
+            return ImJson::output(20006);
+        }
+        $fileName = $files->getOriginalName();
+        $getSize = $files->getSize();
+        $dir = 'files';
+        $time = time();
+        $name = "files"."_$user_id"."_$time"."_".$fileName;
+        $uploadAudio = $this->business->upload($dir,$files,$name);
+        if (!$uploadAudio) {
+            if (empty($list))  ImJson::output('20001');
+        }
+        return ImJson::output(10000,'成功',['fileName' => $fileName,'fileSize' => $getSize,'file' => $uploadAudio]);
     }
 
 

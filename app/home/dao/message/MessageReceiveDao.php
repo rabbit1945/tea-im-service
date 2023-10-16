@@ -27,7 +27,7 @@ class MessageReceiveDao extends BaseDao
         if (empty($where)) return false;
          $query = $this->getModel()::where($where)
             ->field('msg_id,seq,room_id,msg_form,msg_to,msg_content,send_time,delivered,
-            create_time,msg_type,delivered,content_type')
+            create_time,msg_type,delivered,content_type,file_name,file_size')
              ->order('seq desc')
             ->select()->toArray();
 //         echo $this->getModel()->getLastSql();
@@ -55,7 +55,7 @@ class MessageReceiveDao extends BaseDao
             ->limit($limit)
             ->order('seq desc')
             ->field('msg_id,seq,room_id,msg_form,msg_to,msg_content,delivered,
-            send_time,create_time,msg_type,delivered,content_type')
+            send_time,create_time,msg_type,delivered,content_type,file_name,file_size')
             ->select()->toArray();
 
     }

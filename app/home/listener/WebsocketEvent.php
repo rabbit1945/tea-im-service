@@ -116,7 +116,8 @@ class WebsocketEvent
     {
         $sendContext = $event['data'][0];
         $msg = $sendContext['msg'];
-        $contactList = $sendContext['contactList'];
+        $sendContext["contactList"] = $sendContext['contactList'] ?? [];
+        $contactList = $sendContext["contactList"];
         if (!empty($contactList)) {
             $content = "";
             foreach ($contactList as $val) {
@@ -139,11 +140,16 @@ class WebsocketEvent
             app()->make(SendMessage::class)->send($getContext);
             $msg = $sendContext['msg'];
             Log::write(date('Y-m-d H:i:s').'_机器人_'.json_encode($sendContext),'info');
-            $this->robot($sendContext['contactList'],$sendContext,$msg);
+            $this->robot($contactList,$sendContext,$msg);
         }
     }
 
 
+    /**
+     * @param $name
+     * @param $arguments
+     * @return void
+     */
     public function __call($name,$arguments)
     {
         $this->websocket->emit('error',['code'=>'404','msg'=>'方法不存在:'.$name]);

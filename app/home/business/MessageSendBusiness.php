@@ -72,15 +72,22 @@ class MessageSendBusiness
         $msg = trim($msgData['msg']);
         $seq = $this->getSequence();
         $room = $msgData['room_id'];
+        $msg_type = 0;
+        if (!empty($room)) {
+            $msg_type = 2;
 
+        }
         $data =   [
             'room_id'   => $room,
             'seq'       => $seq,
             'user_id'   => $user_id, // user
             'nick_name' => $msgData['nick_name'], // 名称
             'userLogo'  => $msgData['userLogo'], // img
+            'file_name' => $msgData['file_name'], // 文件名称
+            'file_size' => $msgData['file_size'], // 文件大小
             'sender'    => $sender, //客户端
             'msg'       => $msg, // 消息
+            'msg_type'  => $msg_type,
             'content_type'  => $msgData['content_type'],
             'send_timestamp'=> $time,
             'send_time'     => date("Y-m-d H:i:s",time()),   // 发送时间

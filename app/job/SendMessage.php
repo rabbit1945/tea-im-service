@@ -24,11 +24,13 @@ class SendMessage
                 "room_id" => $data['room_id'],
                 "seq"     => $data['seq'],
                 "msg_form" => $data['user_id'],
+                'file_name' => $data['file_name'], // 文件名称
+                'file_size' => $data['file_size'], // 文件大小
                 "msg_content" => urlencode($data['msg']),
                 "send_time" => $data['send_timestamp'],
                 "content_type" => $data['content_type'],
                 "contact"  => $data['contactList'],
-                "msg_type" => 2,
+                "msg_type" => $data['msg_type'],
             ],256
         );
         // 4.将该任务推送到消息队列，等待对应的消费者去执行
