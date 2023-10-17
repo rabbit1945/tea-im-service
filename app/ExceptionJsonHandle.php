@@ -62,7 +62,7 @@ class ExceptionJsonHandle extends ExceptionHandle
         //参数验证错误
         if ($e instanceof ValidateException) {
 
-            return  ImJson::output(422,$e->getError(),[],[],422);
+            return  ImJson::output(20422,$e->getError(),[],[],422);
         }
 
         // 方法（控制器、路由、http请求）、资源（多媒体文件，如视频、文件）未匹配到，

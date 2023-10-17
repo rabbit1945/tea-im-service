@@ -53,7 +53,7 @@ class CheckLogin
             $token = explode(' ', Request::header('authorization'));
             $tokens = !empty($token[1]) ? $token[1] : '';
             if (!$tokens) {
-                $data['code'] = 20014;
+                $data['code'] = 20401;
                 $data['httpCode'] = 401;
                 return $data;
             }
@@ -62,13 +62,13 @@ class CheckLogin
             $cacheToken = Cache::get('login_token_'.$verify['user_id']);
 
             if ($tokens !== $cacheToken){
-                $data['code'] = 20014;
+                $data['code'] = 20401;
                 $data['httpCode'] = 401;
                 return $data;
             }
 
             if (empty($verify))  {
-                $data['code'] = 20014;
+                $data['code'] = 20401;
                 $data['httpCode'] = 401;
                 return $data;
             };
