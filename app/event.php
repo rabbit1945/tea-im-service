@@ -10,7 +10,7 @@ return [
         'HttpEnd'  => [],
         'LogLevel' => [],
         'LogWrite' => [],
-        'UserLogin' =>  ['app\home\listener\UserLogin'],
+        'UserLogin' =>  ['app\api\listener\UserLogin'],
 
     ],
 

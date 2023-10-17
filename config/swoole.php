@@ -55,12 +55,12 @@ return [
             ],
         ],
         'listen'      => [
-            'open'    => app\home\listener\WebsocketOpen::class, // 判断协议 是 http轮询或ws
-            'connect' =>  app\home\listener\WebsocketConnect::class,//连接成功
-            'message' =>  app\home\listener\WebsocketMessage::class,// 处理消息
-            'event'   => app\home\listener\WebsocketEvent::class, //重要的事件监听类 处理消息
-            'disconnect' => app\home\listener\WebsocketDisconnect::class, // 断开连接
-            'close'   => app\home\listener\WebsocketClose::class, // 关闭连接
+            'open'    => app\api\listener\WebsocketOpen::class, // 判断协议 是 http轮询或ws
+            'connect' =>  app\api\listener\WebsocketConnect::class,//连接成功
+            'message' =>  app\api\listener\WebsocketMessage::class,// 处理消息
+            'event'   => app\api\listener\WebsocketEvent::class, //重要的事件监听类 处理消息
+            'disconnect' => app\api\listener\WebsocketDisconnect::class, // 断开连接
+            'close'   => app\api\listener\WebsocketClose::class, // 关闭连接
         ],
         'subscribe'     => [],
     ],

@@ -56,13 +56,13 @@ class ExceptionJsonHandle extends ExceptionHandle
         // 使用了错误的数据类型 或 缺失参数  || 语法错误  || 请求异常
         if ($e instanceof HttpResponseException || $e instanceof ParseError || ($e instanceof HttpException && $request->isAjax())) {
 
-             return  ImJson::output(500,'',[$e->getMessage()],[],500);
+             return  ImJson::output(20500,$e->getMessage(),[],[],500);
 
         }
         //参数验证错误
         if ($e instanceof ValidateException) {
 
-            return  ImJson::output(422,'',[$e->getError()],[],422);
+            return  ImJson::output(422,$e->getError(),[],[],422);
         }
 
         // 方法（控制器、路由、http请求）、资源（多媒体文件，如视频、文件）未匹配到，
@@ -72,12 +72,12 @@ class ExceptionJsonHandle extends ExceptionHandle
         // 到底这个请求时控制器找不到呢？还是方法找不到？还是请求类型（get,post）不对？
         if(($e instanceof ClassNotFoundException || $e instanceof RouteNotFoundException)
             || ($e instanceof HttpException && $e->getStatusCode()==404)){
-            return ImJson::output(404,'',[$e->getMessage()]);
+            return ImJson::output(20404,$e->getMessage(),[],[],404);
         }
         // 使用了错误的数据类型 或 缺失参数
         if ($e instanceof InvalidArgumentException || $e instanceof ErrorException) {
 
-            return  ImJson::output(20003,'',[$e->getMessage()],[],500);
+            return  ImJson::output(20003,$e->getMessage(),[],[],500);
 
         }
 

@@ -13,6 +13,7 @@
 namespace app\common\utils;
 
 use think\facade\Lang;
+use think\facade\Request;
 use think\Response;
 class  ImJson
 {
@@ -26,9 +27,14 @@ class  ImJson
      * @param int $httpCode
      */
 
-    public static function output($code = '10000', string $msg = '', ?array $data = [], array $vars = [], int $httpCode = 200): Response
+    public static function output(int $code = 10000, string $msg = '', ?array $data = [], array $vars = [], int $httpCode = 200): Response
     {
-
+        $method = Request::method();
+        if (in_array($method,["POST","PUT","PATCH"])) {
+            $httpCode = 201;
+        } elseif ($method == "DELETE") {
+            $httpCode = 204;
+        }
 
         try {
             if (empty($msg)) {

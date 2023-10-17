@@ -16,7 +16,7 @@ class CheckLogin
      * 用户的key
      * @var string
      */
-    protected  $user_key = "home_api_user";
+    protected  $user_key = "api_api_user";
 
     /**
      * 处理请求
@@ -75,7 +75,7 @@ class CheckLogin
 
 
         } catch (\Exception $e) {
-            $data['code'] = 500;
+            $data['code'] = 20500;
             $data['data'] = [$e->getMessage()];
             $data['httpCode'] = 500;
             return $data;

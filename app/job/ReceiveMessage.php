@@ -4,8 +4,8 @@
 namespace app\job;
 
 
-use app\home\business\MessageReceiveBusiness;
-use app\home\business\MessageSendBusiness;
+use app\api\business\MessageReceiveBusiness;
+use app\api\business\MessageSendBusiness;
 use app\model\UserSendModel;
 use think\facade\Db;
 use think\facade\Log;
