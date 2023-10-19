@@ -4,6 +4,11 @@ services:
   mysql:
     container_name: lightning_mysql #指定容器名
 #    image: mysql:5.7 #一般电脑可以用这个镜像
+    deploy:
+      resources:
+        reservations:
+          cpus: '0.25'
+          memory: 100M
     build:
       context: ./mysql #dockerfile文件路径
       dockerfile: Dockerfile #制定dockerfile文件名
@@ -43,6 +48,11 @@ services:
 #    image: 'redis:alpine'
     # image: daocloud.io/library/redis:6.0.5-alpine
 #    image: redis:7.0.11
+    deploy:
+      resources:
+        reservations:
+          cpus: '0.25'
+          memory: 100M
     build:
       context: ./redis #dockerfile文件路径
       dockerfile: Dockerfile #制定dockerfile文件名
@@ -63,6 +73,11 @@ services:
     container_name: lightning_php #指定容器名
     # image: phpfpm-image #指定镜像名
 #    image: php:8.0.3-fpm  #指定镜像名都可热
+    deploy:
+      resources:
+        reservations:
+          cpus: '0.25'
+          memory: 100M
     build:
       context: ./php #dockerfile文件路径
       dockerfile: Dockerfile #制定dockerfile文件名
@@ -83,6 +98,7 @@ services:
     tmpfs: /var/temp #上传临时文件夹
     working_dir: /home/www
 
+
     volumes:
       - ../../lightning-client:/home/www/lightning-client #程序运行目录
       - ../../lightning-service:/home/www/lightning-service #程序运行目录
@@ -91,7 +107,9 @@ services:
       - ./php/supervisord.conf:/etc/supervisord.conf
       - ./php/logs:/var/log/supervisor
     #执行多条指令
-    command: /bin/bash -c "cd /home/www/lightning-service && composer install  && /usr/bin/supervisord -n -c /etc/supervisord.conf"
+#    command: /bin/bash -c "cd /home/www/lightning-service && composer install  && /usr/bin/supervisord -n -c /etc/supervisord.conf"
+    command: /bin/bash -c "/usr/bin/supervisord -n -c /etc/supervisord.conf"
+
     networks:
       app_net:
         ipv4_address: 192.168.1.12
@@ -103,6 +121,11 @@ services:
     image: 'nginx:alpine'
     # image: daocloud.io/library/nginx:1.19.1-alpine
     restart: always
+    deploy:
+      resources:
+        reservations:
+          cpus: '0.25'
+          memory: 100M
     ports:
       - 80:80
       - 443:443

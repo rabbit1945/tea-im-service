@@ -8,23 +8,27 @@ return [
         'host'      => env('SWOOLE_HOST', '192.168.1.12'), // 监听地址
         'port'      => env('SWOOLE_PORT', 9502), // 监听端口
         'mode'      => SWOOLE_PROCESS, // 运行模式 默认为SWOOLE_PROCESS
-        'sock_type' => SWOOLE_SOCK_TCP| SWOOLE_SSL, // sock type 默认为SWOOLE_SOCK_TCP
+        'sock_type' => SWOOLE_SOCK_TCP| SWOOLE_SSL, // sock type 默认为SWOOLE_SOCK_TCP，SWOOLE_SSL 支持 https
 
-
+        // 参数
         'options'   => [
             'pid_file'              => runtime_path() . 'swoole.pid',
             'log_file'              => runtime_path() . 'swoole.log',
-            'daemonize'             => true,
+            'daemonize'             => true,  // 开启守护进程
             // Normally this value should be 1~4 times larger according to your cpu cores.
-            'reactor_num'           => 2,
-            'worker_num'            => 2,
-            'task_worker_num'       => 2,
+            'reactor_num'           => swoole_cpu_num()*4,// 线程数
+            'worker_num'            => swoole_cpu_num()*4,// 进程数
+            'task_worker_num'       => swoole_cpu_num(),// 任务进程
             'enable_static_handler' => true,
             'document_root'         => root_path('public'),
-            'package_max_length'    => 3 * 1024 * 1024, // 3M
-            'buffer_output_size'    => 3 * 1024 * 1024, // 3M
-            'socket_buffer_size'    => 3* 1024 * 1024,  // 3M
-            'heartbeat_check_interval' => 60,
+            'package_max_length'    => 3 * 1024 * 1024, // 3M  最大数据包 默认 2M
+            'buffer_output_size'    => 32 * 1024 * 1024, // 32M 配置发送输出缓存区内存尺寸【默认值：2M】
+            'socket_buffer_size'    => 128* 1024 * 1024,  // 128M 配置客户端连接的缓存区长度。【默认值：2M】
+            'heartbeat_idle_time' => 6,
+            'heartbeat_check_interval' => 3,
+            'compression_min_length' => 20,
+            'open_eof_split' => true,
+            'package_eof' => "\r\n",
             //配置SSL证书和密钥路径
             'ssl_cert_file' => "../.docker/nginx/conf.d/cert/scs1695721843916_xiaogongtx.com_server.crt",
             'ssl_key_file'  => "../.docker/nginx/conf.d/cert/scs1695721843916_xiaogongtx.com_server.key",
@@ -36,8 +40,8 @@ return [
         'enable'        => true,
         'handler'       => Handler::class,
         'parser'        => Parser::class,
-        'ping_interval' => 6000,
-        'ping_timeout'  => 12000,
+        'ping_interval' => 1000,
+        'ping_timeout'  => 2000,
         'room'          => [
             'type'  => 'redis',
             'table' => [

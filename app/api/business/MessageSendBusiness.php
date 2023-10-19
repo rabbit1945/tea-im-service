@@ -1,10 +1,10 @@
 <?php
 
 
-namespace app\home\business;
+namespace app\api\business;
 use app\common\utils\IdRedisGenerator;
 use app\common\utils\SensitiveWord;
-use app\home\dao\message\MessageSendDao;
+use app\api\dao\message\MessageSendDao;
 use think\App;
 
 class MessageSendBusiness
@@ -83,8 +83,8 @@ class MessageSendBusiness
             'user_id'   => $user_id, // user
             'nick_name' => $msgData['nick_name'], // 名称
             'userLogo'  => $msgData['userLogo'], // img
-            'file_name' => $msgData['file_name'], // 文件名称
-            'file_size' => $msgData['file_size'], // 文件大小
+            'file_name' => $msgData['file_name']?? "", // 文件名称
+            'file_size' => $msgData['file_size']??"", // 文件大小
             'sender'    => $sender, //客户端
             'msg'       => $msg, // 消息
             'msg_type'  => $msg_type,
