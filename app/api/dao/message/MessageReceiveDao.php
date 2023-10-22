@@ -17,22 +17,17 @@ class MessageReceiveDao extends BaseDao
 
     /**
      * @param array $where
-     * @param int $limit
      * @return bool|array
      */
-    public function receiveList(array $where)
+    public function receiveList(array $where): bool|array
     {
-
-
         if (empty($where)) return false;
-         $query = $this->getModel()::where($where)
-            ->field('msg_id,seq,room_id,msg_form,msg_to,msg_content,send_time,delivered,
-            create_time,msg_type,delivered,content_type,file_name,file_size')
-             ->order('seq desc')
+         return $this->getModel()::where($where)
+             ->field('UserReceiveModel.msg_id,UserReceiveModel.seq,UserReceiveModel.room_id,UserReceiveModel.msg_form,UserReceiveModel.msg_to,MessageListModel.send_time,UserReceiveModel.delivered,
+            UserReceiveModel.create_time,MessageListModel.msg_type,MessageListModel.msg_content,MessageListModel.content_type,MessageListModel.file_name,MessageListModel.file_size')
+             ->hasWhere('userReceive')
+             ->order('UserReceiveModel.seq desc')
             ->select()->toArray();
-//         echo $this->getModel()->getLastSql();
-
-         return $query;
 
     }
 
@@ -40,22 +35,24 @@ class MessageReceiveDao extends BaseDao
      * 历史消息
      * @param array $where
      * @param $user_id
-     * @param  $page
-     * @param  $limit
+     * @param int $page
+     * @param int $limit
      */
-    public function historyMessageList(array $where, $user_id,  $page = 1,  $limit =  20)
+    public function historyMessageList(array $where, $user_id, int $page = 1, int $limit =  20)
     {
-
-
         if (empty($where) || empty($user_id)) return false;
         return $this->getModel()::where($where)
+            ->field(
+                'UserReceiveModel.msg_id,UserReceiveModel.seq,UserReceiveModel.room_id,UserReceiveModel.msg_form,UserReceiveModel.msg_to,MessageListModel.send_time,UserReceiveModel.delivered,
+            UserReceiveModel.create_time,MessageListModel.msg_type,MessageListModel.msg_content,MessageListModel.content_type,MessageListModel.file_name,MessageListModel.file_size'
+            )
+            ->hasWhere('userReceive')
             ->when($page && $limit ,function ($query) use ($page,$limit) {
                 $query->page($page,$limit);
             })
             ->limit($limit)
-            ->order('seq desc')
-            ->field('msg_id,seq,room_id,msg_form,msg_to,msg_content,delivered,
-            send_time,create_time,msg_type,delivered,content_type,file_name,file_size')
+            ->order('UserReceiveModel.seq desc')
+
             ->select()->toArray();
 
     }

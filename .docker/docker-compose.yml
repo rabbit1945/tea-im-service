@@ -4,6 +4,7 @@ services:
   mysql:
     container_name: lightning_mysql #指定容器名
 #    image: mysql:5.7 #一般电脑可以用这个镜像
+    restart: always
     deploy:
       resources:
         reservations:
@@ -51,7 +52,7 @@ services:
     deploy:
       resources:
         reservations:
-          cpus: '0.25'
+          cpus: '1'
           memory: 100M
     build:
       context: ./redis #dockerfile文件路径
@@ -59,8 +60,7 @@ services:
       args:
         REDIS_VERSION: latest
     ports:
-      - "6379:6379"
-
+      - 6379:6379
     volumes:
       # - ./redis/data:/data #挂载数据目录到本地
       - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
@@ -75,6 +75,9 @@ services:
 #    image: php:8.0.3-fpm  #指定镜像名都可热
     deploy:
       resources:
+        limits:
+          cpus: '2'
+#          memory: 100M
         reservations:
           cpus: '0.25'
           memory: 100M
@@ -97,8 +100,6 @@ services:
 
     tmpfs: /var/temp #上传临时文件夹
     working_dir: /home/www
-
-
     volumes:
       - ../../lightning-client:/home/www/lightning-client #程序运行目录
       - ../../lightning-service:/home/www/lightning-service #程序运行目录
@@ -108,13 +109,11 @@ services:
       - ./php/logs:/var/log/supervisor
     #执行多条指令
 #    command: /bin/bash -c "cd /home/www/lightning-service && composer install  && /usr/bin/supervisord -n -c /etc/supervisord.conf"
-    command: /bin/bash -c "/usr/bin/supervisord -n -c /etc/supervisord.conf"
-
+    command:
+      /bin/bash -c "/usr/bin/supervisord -n -c /etc/supervisord.conf"
     networks:
       app_net:
         ipv4_address: 192.168.1.12
-
-
   # nginx 容器
   nginx:
     container_name: lightning_nginx
@@ -123,6 +122,9 @@ services:
     restart: always
     deploy:
       resources:
+        limits:
+          cpus: '2'
+        #          memory: 100M
         reservations:
           cpus: '0.25'
           memory: 100M
@@ -145,6 +147,30 @@ services:
     networks:
       app_net:
         ipv4_address: 192.168.1.13
+ #  mycat
+  my-cat:
+   container_name: lightning_my_cat
+   build:
+     context: ./mycat
+     dockerfile: Dockerfile
+   restart: always
+   environment:
+     TZ: Asia/Shanghai
+   ports:
+     - 8066:8066
+     - 9066:9066
+     - 1984:1984
+   working_dir: /usr/local
+
+   volumes:
+     - ./mycat/conf/root.user.json:/usr/local/mycat/conf/users/root.user.json
+     - ./mycat/conf/datasources:/usr/local/mycat/conf/datasources
+     - ./mycat/conf/server.json:/usr/local/mycat/conf/server.json
+     - ./mycat/conf/wrapper.conf:/usr/local/mycat/conf/wrapper.conf
+     - ./mycat/logs:/usr/local/mycat/logs
+   networks:
+     app_net:
+       ipv4_address: 192.168.1.14
 networks: #网络配置
   app_net: #网络名称
     driver: bridge

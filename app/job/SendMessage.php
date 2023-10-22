@@ -19,26 +19,19 @@ class SendMessage
 
         // 2.当前任务归属的队列名称，如果为新队列，会自动创建
         $jobQueueName        = "MessageJobQueue";
+        $data['msg_content'] =  urlencode($data['msg']);
+        $data['send_time']   = $data['send_timestamp'];
+        $data['contact']     = $data['contactList']??"";
+        $data['msg_form']    = $data['user_id'];
         $sendData = json_encode(
-            [
-                "room_id" => $data['room_id'],
-                "seq"     => $data['seq'],
-                "msg_form" => $data['user_id'],
-                'file_name' => $data['file_name'], // 文件名称
-                'file_size' => $data['file_size'], // 文件大小
-                "msg_content" => urlencode($data['msg']),
-                "send_time" => $data['send_timestamp'],
-                "content_type" => $data['content_type'],
-                "contact"  => $data['contactList'],
-                "msg_type" => $data['msg_type'],
-            ],256
+            $data,256
         );
         // 4.将该任务推送到消息队列，等待对应的消费者去执行
         $isPushed = Queue::push( $jobHandlerClassName ,$sendData, $jobQueueName);
         // database 驱动时，返回值为 1|false  ;   redis 驱动时，返回值为 随机字符串|false
         if( $isPushed !== false ) {
 
-            Log::write(date('Y-m-d H:i:s').'_发布成功','info');
+            Log::write(date('Y-m-d H:i:s').'_发布成功'.$sendData,'info');
             return true;
         } else {
             Log::write(date('Y-m-d H:i:s').$sendData.'_发布失败','info');

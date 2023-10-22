@@ -24,11 +24,10 @@ return [
             'package_max_length'    => 3 * 1024 * 1024, // 3M  最大数据包 默认 2M
             'buffer_output_size'    => 32 * 1024 * 1024, // 32M 配置发送输出缓存区内存尺寸【默认值：2M】
             'socket_buffer_size'    => 128* 1024 * 1024,  // 128M 配置客户端连接的缓存区长度。【默认值：2M】
-            'heartbeat_idle_time' => 6,
-            'heartbeat_check_interval' => 3,
             'compression_min_length' => 20,
             'open_eof_split' => true,
             'package_eof' => "\r\n",
+            'discard_timeout_request'=> false,
             //配置SSL证书和密钥路径
             'ssl_cert_file' => "../.docker/nginx/conf.d/cert/scs1695721843916_xiaogongtx.com_server.crt",
             'ssl_key_file'  => "../.docker/nginx/conf.d/cert/scs1695721843916_xiaogongtx.com_server.key",
@@ -40,8 +39,8 @@ return [
         'enable'        => true,
         'handler'       => Handler::class,
         'parser'        => Parser::class,
-        'ping_interval' => 1000,
-        'ping_timeout'  => 2000,
+        'ping_interval' => 25000,
+        'ping_timeout'  => 60000,
         'room'          => [
             'type'  => 'redis',
             'table' => [
@@ -54,8 +53,8 @@ return [
                 'host'          => '192.168.1.11',
                 'password'   => '123456',
                 'port'          => 6379,
-                'max_active'    => 3,
-                'max_wait_time' => 5,
+                'max_active'    => 6,
+                'max_wait_time' => 10,
             ],
         ],
         'listen'      => [

@@ -19,5 +19,13 @@ class UserReceiveModel extends Model
         return $this->hasOne(UserModel::class,'id','msg_to');
     }
 
+    /**
+     * @return HasOne
+     */
+    public function userReceive(): HasOne
+    {
+        return $this->hasOne(MessageListModel::class,'seq','seq');
+    }
+
 
 }

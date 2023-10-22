@@ -114,6 +114,7 @@ class WebsocketEvent
      */
     public function room($event)
     {
+        Log::write(date('Y-m-d H:i:s').'_event_'.json_encode($event),'info');
         $sendContext = $event['data'][0];
         $msg = $sendContext['msg'];
         $sendContext["contactList"] = $sendContext['contactList'] ?? [];

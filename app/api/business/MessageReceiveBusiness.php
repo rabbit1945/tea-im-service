@@ -64,9 +64,9 @@ class MessageReceiveBusiness
     //    }
 
         $where = [
-            ['room_id','=',$room_id],
-            ['msg_to','=',$user_id],
-            ['delivered','=',0]
+            ['UserReceiveModel.room_id','=',$room_id],
+            ['UserReceiveModel.msg_to','=',$user_id],
+            ['UserReceiveModel.delivered','=',0]
 
         ];
 
@@ -98,9 +98,9 @@ class MessageReceiveBusiness
     public function getMessage($room_id, $user_id, $page =1,$limit =20)
     {
         $where = [
-            ['room_id','=',$room_id],
-            ['msg_to','=',$user_id],
-            ['delivered','=',1]
+            ['UserReceiveModel.room_id','=',$room_id],
+            ['UserReceiveModel.msg_to','=',$user_id],
+            ['UserReceiveModel.delivered','=',1]
         ];
         $list = $this->dao->historyMessageList($where,$user_id,$page,$limit);
         $userDo = $this->app->make(UserDao::class);
@@ -149,38 +149,20 @@ class MessageReceiveBusiness
             if (empty($userList)) return false;
             $redis = $this->app->make(RedisService::class);
             $json = $this->app->make(JsonService::class);
-
             $receiveData = [];
             foreach ($userList as $val) {
                 $isOnline = $val['is_online'];
-
-                $receiveData[] = [
-                    "room_id" => $room_id,
-                    "msg_form" => $data['msg_form'],
-                    "msg_to"   => $val['user_id'],
-                    'file_name' => $data['file_name'], // 文件名称
-                    'file_size' => $data['file_size'], // 文件大小
-                    "nick_name" => $val['nick_name'],
-                    "msg_content" => $data['msg_content'],
-                    "send_time" => $data['send_time'],
-                    "msg_type" => $data['msg_type'],
-                    "delivered" => $isOnline == 'online' ? 1 : 0,
-                    "seq" => $data['seq'],
-                    "content_type" => $data['content_type'],
-                    "contact"  => $data['contactList']??"",
-                ];
-
+                $data["msg_to"] = $val['user_id'];
+                $data["delivered"] = $isOnline == 'online' ? 1 : 0;
+                $data["nick_name"] =  $val['nick_name'];
+                $receiveData[] = $data;
             }
-
-
             $list = $this->dao->saveAll($receiveData)->toArray();
-
             if ($list) {
                 // 用户维度进行有序集合
                 foreach ($list as $val) {
                     // redis 存离线消息
                     if  ($val['delivered'] === 0) {
-
                         $key = "room_$room_id"."_".$val['msg_to'];
                         $jsonEncode = $json->jsonEncode($val);
                         $redis->zadd($key,$val['id'],$jsonEncode);

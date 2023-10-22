@@ -7,7 +7,7 @@ namespace app\job;
 use app\api\business\MessageReceiveBusiness;
 use app\api\business\MessageSendBusiness;
 use app\model\UserSendModel;
-use think\facade\Db;
+use app\api\business\MessageBusiness;
 use think\facade\Log;
 use think\queue\Job;
 
@@ -75,10 +75,13 @@ class ReceiveMessage
         $userSendModel = app()->make(UserSendModel::class);
         $userSendModel::startTrans();
         try {
-
+            //   消息列表
+            app()->make(MessageBusiness::class)->addMessage($data);
+            // 发送消息列表
             app()->make(MessageSendBusiness::class)->addSend($data);
-
+            // 接收消息列表
             app()->make(MessageReceiveBusiness::class)->addReceive($data);
+
 
             // 提交事务
             $userSendModel::commit();
