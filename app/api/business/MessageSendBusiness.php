@@ -86,7 +86,6 @@ class MessageSendBusiness
         $msgData['send_timestamp'] = $time;
         $msgData['send_time'] = date("Y-m-d H:i:s",time());
         $msgData['contactList'] =implode(",",$getContactUsers);
-        $msgData['location'] = $msgData['location'] ??$seq;
         // 屏蔽敏感词
         $sensitiveWord = app()->make(SensitiveWord::class);
         $sensitiveWord->addWords(false);

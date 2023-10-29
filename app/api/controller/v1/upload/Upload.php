@@ -90,39 +90,35 @@ class Upload extends BaseController
         $user_id =static::$user_id;
         $time = time();
         $fileName = "files"."_$user_id"."_$time";
-        $dir = Config::get('filesystem.disks.public.root').'/'.'files/';
-        $uploadAudio = $this->business->uploadBase64($base64,$fileName,$dir);
+        $dir = Config::get('filesystem.disks.public.root').'/'.'files/'.$user_id.'/';
+        $uploadAudio = $this->business->uploadPic($base64,$fileName,$dir);
         $getSize = $uploadAudio['fileSize'];
         if ($getSize > $this->size) return ImJson::output('20015','',[],['name'=>3]);
         if (!$uploadAudio['isSuccess']) {
             if (empty($list))  return ImJson::output('20001');
         }
 
-        return ImJson::output(10000,'成功',['fileName' => $fileName,'fileSize' => $getSize,'file' => "files/".$uploadAudio['fileName']]);
+        return ImJson::output(10000,'成功',['fileName' => $fileName,'fileSize' => $getSize,'file' => "files/$user_id/".$uploadAudio['fileName']]);
     }
 
     /**
      * 上传大文件
-     * @return \think\Response
      */
-    public function uploadPut(): \think\Response
+    public function uploadPut()
     {
         $user_id =static::$user_id;
-        $files = Request::file('file');
+        $files = Request::post('file');
         if (!$files) {
             return ImJson::output(20006);
         }
-        $fileName = $user_id."_".$files->getOriginalName();
-        $getSize = $files->getSize();
-        $getData = file_get_contents($files->getPathname());
-        $dir = Config::get('filesystem.disks.public.root').'/files/';
-        $file = $dir.$fileName;
+        $fileName    = Request::post('fileName');
+        $newFileName = $user_id."_".$fileName;
+        $dir ='files/'.$user_id."/";
+        $path =$dir.$newFileName;
 
-        // 否则继续追加文件数据
-        if (!file_put_contents($file, $getData, FILE_APPEND)) return ImJson::output('20001');
+        if (!$this->business->uploadFile($files,$path)) return ImJson::outData(20001);
 
-
-        return ImJson::output(10000,'成功',['fileName' => $fileName,'fileSize' => $getSize,'file' => "files/".$fileName]);
+        return ImJson::output(10000,'成功',['newFileName' => $newFileName,'path' => $path]);
 
     }
 
@@ -153,10 +149,8 @@ class Upload extends BaseController
         $upload_status = 0;
         if(!Filesystem::has( $mergeFilePath)) {
             Filesystem::createDir($dir."$md5");
-            Filesystem::write( $mergeFilePath,"");
         } else if (Filesystem::getSize($mergeFilePath) > 0) {
             $upload_status = 1;
-
         }
 
         $data = [

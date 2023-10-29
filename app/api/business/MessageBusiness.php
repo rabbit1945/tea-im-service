@@ -60,12 +60,28 @@ class MessageBusiness
 
     /**
      * 上传base64
+     * @param $file
+     * @param $path
+     * @return bool
+     */
+    public function uploadFile($file,$path): bool
+    {
+        $match_result =  explode(',', $file);
+        if (!Filesystem::has( $path)) {
+            return Filesystem::put($path,base64_decode($match_result[1]));
+        }
+        return true;
+    }
+
+
+    /**
+     * 上传base64
      * @param $base64
      * @param $fileName
      * @param $dir
      * @return array|false
      */
-    public function uploadBase64($base64,$fileName,$dir)
+    public function uploadPic($base64,$fileName,$dir)
     {
         $reg = '/data:image\/(\w+?);base64,(.+)$/si';
         preg_match($reg,$base64,$match_result);
@@ -75,7 +91,7 @@ class MessageBusiness
         $imgLen = strlen($baseImg);
         $fileSize = intval($imgLen - ($imgLen/8)*2);
 
-        $fileName = $fileName.'_'.$match_result[1];
+        $fileName = $fileName.'.'.$match_result[1];
         $path = $dir.$fileName;
         $upload = file_put_contents($path,base64_decode($match_result[2]));
         return [
