@@ -4,9 +4,6 @@ use app\api\business\MessageBusiness;
 use app\api\business\MessageSendBusiness;
 use app\BaseController;
 use app\common\utils\ImJson;
-use app\service\RedisService;
-use League\Flysystem\FileExistsException;
-use League\Flysystem\FileNotFoundException;
 use think\App;
 use think\facade\Config;
 use think\facade\Filesystem;
@@ -137,27 +134,31 @@ class Upload extends BaseController
         // 查询是否有相同的文件
         $find = $this->business->find(
             [
-                "md5"  => $md5
+                "md5"  => $md5,
+                "upload_status" => 3
             ]
         );
-
-        $dir = "files/$user_id/";
-
         $newFileName = $location.'_'.$user_id.'_'.$filename;
-        // 创建合并文件
-        $mergeFilePath = $find['file_path'] ?? "$dir".$newFileName;
-        $upload_status = 0;
-        if(!Filesystem::has( $mergeFilePath)) {
-            Filesystem::createDir($dir."$md5");
-        } else if (Filesystem::getSize($mergeFilePath) > 0) {
-            $upload_status = 1;
+        $dir = "files/$user_id/";
+        $type = 0;
+        if ($find) {
+            $type = 1;
+            $mergeFilePath = $find['file_path'];
+        } else {
+
+            // 创建合并文件
+            $mergeFilePath ="$dir".$newFileName;
+
         }
 
+        if(!Filesystem::has( $mergeFilePath)) {
+            $type = 0;
+            Filesystem::createDir($dir."$md5");
+        }
         $data = [
-            "allUploadSuccess" => $upload_status,
-            "mergePath"        => $find['file_path'] ??  $mergeFilePath,
+            "mergePath"        => $mergeFilePath,
             "newFileName"      => $newFileName,
-            "location"         => $location
+            "type"             => $type // 秒传
         ];
 
         return ImJson::output(10000,'成功',$data);

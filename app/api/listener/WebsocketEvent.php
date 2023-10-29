@@ -3,26 +3,16 @@ declare (strict_types = 1);
 
 namespace app\api\listener;
 use app\api\business\MessageBusiness;
-use app\common\utils\IdRedisGenerator;
 use app\common\utils\ImJson;
-use app\common\utils\SensitiveWord;
-use app\api\business\MessageReceiveBusiness;
 use app\api\business\MessageSendBusiness;
-use app\api\business\RoomUserBusiness;
 use app\api\business\UserBusiness;
 use app\job\SendMessage;
 use app\service\AiService;
 use app\service\JsonService;
-use app\service\RedisService;
-use League\Flysystem\FileNotFoundException;
 use think\Container;
-use think\facade\App;
 use think\facade\Config;
-use think\facade\Filesystem;
 use think\facade\Log;
-use think\facade\Request;
 use think\swoole\Websocket;
-use function Swoole\Coroutine\Http\post;
 
 class WebsocketEvent
 {
@@ -149,7 +139,6 @@ class WebsocketEvent
         $sendContext['file_size'] = $sendContext['file_size'] ?? "";
         $sendContext['md5'] = $sendContext['md5'] ?? "";
         $sendContext['original_file_name'] = $sendContext['original_file_name'] ?? "";
-
         $getContext = $sendBus->getContext($sendContext,$this->websocket->getSender());
 
         $send = $this->websocket->to($room)->emit('roomCallback',
