@@ -21,13 +21,14 @@ return [
             'task_worker_num'       => swoole_cpu_num(),// 任务进程
             'enable_static_handler' => true,
             'document_root'         => root_path('public'),
-            'package_max_length'    => 3 * 1024 * 1024, // 3M  最大数据包 默认 2M
-            'buffer_output_size'    => 32 * 1024 * 1024, // 32M 配置发送输出缓存区内存尺寸【默认值：2M】
-            'socket_buffer_size'    => 128* 1024 * 1024,  // 128M 配置客户端连接的缓存区长度。【默认值：2M】
+            'package_max_length'    => 30 * 1024 * 1024, // 3M  最大数据包 默认 2M
+            'buffer_output_size'    => 512 * 1024 * 1024, // 32M 配置发送输出缓存区内存尺寸【默认值：2M】
+            'socket_buffer_size'    => 512* 1024 * 1024,  // 128M 配置客户端连接的缓存区长度。【默认值：2M】
             'compression_min_length' => 20,
             'open_eof_split' => true,
             'package_eof' => "\r\n",
             'discard_timeout_request'=> false,
+            'websocket_compression'  => true,
             //配置SSL证书和密钥路径
             'ssl_cert_file' => "../.docker/nginx/conf.d/cert/scs1695721843916_xiaogongtx.com_server.crt",
             'ssl_key_file'  => "../.docker/nginx/conf.d/cert/scs1695721843916_xiaogongtx.com_server.key",
@@ -105,7 +106,8 @@ return [
     // 协程
     'coroutine'  => [
         'enable' => true,
-        'flags'  => SWOOLE_HOOK_ALL,
+//        'flags'  => SWOOLE_HOOK_ALL,
+        'hook_flags' => SWOOLE_HOOK_ALL | SWOOLE_HOOK_CURL
     ],
     'tables'     => [],
     //每个worker里需要预加载以共用的实例

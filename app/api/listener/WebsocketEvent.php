@@ -2,7 +2,9 @@
 declare (strict_types = 1);
 
 namespace app\api\listener;
+use app\api\business\MessageBusiness;
 use app\common\utils\IdRedisGenerator;
+use app\common\utils\ImJson;
 use app\common\utils\SensitiveWord;
 use app\api\business\MessageReceiveBusiness;
 use app\api\business\MessageSendBusiness;
@@ -11,14 +13,22 @@ use app\api\business\UserBusiness;
 use app\job\SendMessage;
 use app\service\AiService;
 use app\service\JsonService;
+use app\service\RedisService;
+use League\Flysystem\FileNotFoundException;
 use think\Container;
 use think\facade\App;
+use think\facade\Config;
+use think\facade\Filesystem;
 use think\facade\Log;
+use think\facade\Request;
 use think\swoole\Websocket;
+use function Swoole\Coroutine\Http\post;
 
 class WebsocketEvent
 {
     public $websocket = null;
+
+    public $jsontoArray = [];
 
 
     /**
@@ -29,6 +39,9 @@ class WebsocketEvent
     public function __construct(Container $container)
     {
         $this->websocket = $container->make(Websocket::class);
+
+        $this->jsontoArray = app()->make(JsonService::class);
+
     }
 
     /**
@@ -134,6 +147,8 @@ class WebsocketEvent
         $sendBus = app()->make(MessageSendBusiness::class);
         $sendContext['file_name'] = $sendContext['file_name'] ?? "";
         $sendContext['file_size'] = $sendContext['file_size'] ?? "";
+        $sendContext['md5'] = $sendContext['md5'] ?? "";
+        $sendContext['original_file_name'] = $sendContext['original_file_name'] ?? "";
 
         $getContext = $sendBus->getContext($sendContext,$this->websocket->getSender());
 
@@ -142,11 +157,208 @@ class WebsocketEvent
         );
         if ($send) {
             app()->make(SendMessage::class)->send($getContext);
-            $msg = $sendContext['msg'];
             Log::write(date('Y-m-d H:i:s').'_机器人_'.json_encode($sendContext),'info');
             $this->robot($contactList,$sendContext,$msg);
         }
     }
+
+
+    /**
+     * @param $event
+     * @return
+     */
+    public function chunkFile($event)
+    {
+        $CallbackEvent = 'chunkFileCallback';  // 回调名称
+        $sendContext = $event['data'][0];
+        if (!$sendContext) return  $this->setSender($CallbackEvent,ImJson::output(20003));
+        $md5 = $sendContext['identifier'];  // md5
+        $room_id = (string)$sendContext['room_id'];
+        $filename = $sendContext['filename']; // 文件名称
+        $totalChunks =$sendContext['totalChunks']; // 分片总数量
+        $chunkNumber = $sendContext['chunkNumber']+1; // 当前分片数量
+        $totalSize = $sendContext['totalSize']; // 总 size
+        $user_id = $sendContext['user_id']; // 用户id
+        $uploadProgress = $sendContext['uploadProgress']; // 上传进度
+        $chunkSize = $sendContext['chunkSize'];  // 分块size
+        $file = $sendContext['file'];    // 二进制数据流
+        $newFileName =  $sendContext['newFileName']; // 新的文件名称
+        $location = $sendContext['location']; // 消息的位置标识
+        // 目录
+        $dir ='files/'.$user_id."/".$md5."/";
+
+        // 分块名称
+        $chunk_filename = $chunkNumber.'_'.$newFileName;
+        $data = explode(',', $file);
+        $proTem =  $dir.$chunk_filename;  //临时文件
+
+        if(!Filesystem::has( $proTem)) {
+            // 创建
+            if (!Filesystem::put($proTem, base64_decode($data[1]))) return  $this->setSender($CallbackEvent,ImJson::output(20001));
+
+        }
+        $upload_status = 0;
+        if ($totalChunks == $chunkNumber) {
+            $upload_status =  1;
+        }
+        return $this->websocket->to($room_id)->emit($CallbackEvent,
+            [
+                'filename'  => $filename,
+                'totalSize' => $totalSize,
+                'identifier'  =>$md5,
+                'chunkPath' => $proTem,
+                'totalChunks' => $totalChunks,
+                'chunkNumber' => $chunkNumber,
+                "uploadStatus" => $upload_status,
+                "uploadProgress" => $uploadProgress,
+                "chunkSize"  => $chunkSize,
+                "newFileName" => $newFileName,
+                "location" => $location
+
+            ]
+        );
+
+    }
+    public function mergeFile($event)
+    {
+        $callbackEvent = "mergeFileCallback";
+        $sendContext = $event['data'][0];
+        if (!$sendContext) return  $this->setSender($callbackEvent,ImJson::output(20003));
+        $room_id = (string)$sendContext['room_id'];
+        $totalChunks = (int)$sendContext['totalChunks'];
+        $md5 = $sendContext['identifier'];  // md5
+        $user_id = $sendContext['user_id'];
+        $totalSize = (int)$sendContext['totalSize'];
+        $newFileName =  $sendContext['newFileName']; // 文件名称
+        $chunksSize = (int)$sendContext['chunksSize'];  // 每一块的大小
+        $chunkDir = Config::get('filesystem.disks.public.root').'/files/'.$user_id."/".$md5."/";
+
+        $mergePath =  Config::get('filesystem.disks.public.root').'/files/'.$user_id."/".$newFileName; // 合并文件
+        if (!$out = @fopen($mergePath, "wb")) {
+            return true;
+        }
+        if (flock($out, LOCK_EX) ) {
+            // 分块文件
+            for ($i=1; $i<=$totalChunks; $i++) {
+                $val = $chunkDir.$i."_".$newFileName;
+
+                if (!$in = @fopen($val, "rb")) {
+                    Log::write(date('Y-m-d H:i:s').'_权限_'.json_encode($val),'info');
+                    $mergeFileStatus = 2; // 文件没有权限
+                    $this->websocket->to($room_id)->emit($callbackEvent,
+                        [
+                            "mergeNum" =>  $i,
+                            "mergeFileStatus" => $mergeFileStatus,
+                            'identifier'  =>$md5,
+                            "newFileName"  => $newFileName,
+                            'chunkNumber' => $i,
+                            'totalSize' => $totalSize
+                        ]
+                    );
+                    break;
+
+
+                }
+                Log::write(date('Y-m-d H:i:s').'_分块_'.json_encode($val),'info');
+                while ($buff = fread($in, $chunksSize)) {
+                    fwrite($out, $buff);
+                }
+                @fclose($in);
+                $upload_status = 2;
+                if ($totalChunks ==  $i) {
+                    $upload_status =  3;
+//                    $messageBusiness = app()->make(MessageBusiness::class);
+//                    $messageBusiness -> updateMsgStatus($newFileName,$upload_status);
+                }
+                @unlink($val); //删除分片
+                $this->websocket->to($room_id)->emit($callbackEvent,
+                    [
+                        "mergeNum" =>  $i,
+                        "uploadStatus" => $upload_status,
+                        'identifier'  =>$md5,
+                        "newFileName"  => $newFileName,
+                        "totalChunks"  => $totalChunks,
+                        'chunkNumber' => $i,
+                        'totalSize' => $totalSize
+
+                    ]
+                );
+            }
+
+            flock($out, LOCK_UN); // 释放锁
+
+
+        }
+        @fclose($out);
+
+
+    }
+
+    /**
+     * 修改消息
+     * @return
+     */
+    public function updateMsgStatus($event)
+    {
+
+        $callbackEvent = "updateMsgStatusCallback";
+        $sendContext = $event['data'][0];
+        if (!$sendContext) return  $this->setSender($callbackEvent,ImJson::outData(20003));
+        $totalChunks = (int)$sendContext['totalChunks']; // 分片总数量
+        $chunkNumber =$sendContext['chunkNumber'];// 当前分片数量
+
+        $uploadStatus = $sendContext['uploadStatus'];
+        $newFileName =  $sendContext['newFileName']; // 文件名称
+        $room_id = $sendContext['room_id'];
+        $md5 = $sendContext['identifier'];  // md5
+
+        $where = [
+            "md5"       => $md5,
+            "room_id"   => $room_id,
+            "file_name" => $newFileName
+        ];
+        $updateData = [
+            "upload_status" => $uploadStatus
+        ];
+        $data = [
+            "room_id"      => $room_id,
+            "identifier"   => $md5,
+            "newFileName"  => $newFileName,
+            "uploadStatus" => $uploadStatus,
+            "totalChunks"  => $totalChunks,
+            "chunkNumber"  => $chunkNumber
+        ];
+        if ($totalChunks > $chunkNumber)  return  $this->setSender($callbackEvent,ImJson::outData(20018,"",$data));
+        $messageBusiness = app()->make(MessageBusiness::class);
+        $save =  $messageBusiness->save($where,$updateData);
+        if (!$save)  return  $this->setSender($callbackEvent,ImJson::outData(20017,"",$data));
+
+        Log::write(date('Y-m-d H:i:s').'_$save_'.json_encode($save),'info');
+        $find = $messageBusiness->find($where);
+        $data['seq'] = $find['seq'];
+        $this->websocket->to($room_id)->emit($callbackEvent,ImJson::outData(10000,'成功',$data));
+
+    }
+
+
+    function unicodeToChn($str){
+        $pattern = '/\\\\u([0-9a-f]{4})/i';
+        $result = preg_replace_callback($pattern, function($matches){
+            return iconv('UCS-2', 'UTF-8', hex2bin($matches[1]));
+        }, $str);
+        return $result;
+    }
+
+
+
+
+    public function setSender($event,$data)
+    {
+        $fd =  $this->websocket->getSender();
+        return $this->websocket->setSender($fd)->emit($event,$data);
+    }
+
+
 
 
     /**

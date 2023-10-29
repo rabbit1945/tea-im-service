@@ -19,6 +19,14 @@ Route::group('upload',function () {
 
     Route::post('<v>/base64',':v.upload.Upload/uploadBase64');
 
+    Route::post('<v>/put',':v.upload.Upload/uploadPut');
+
+    Route::post('<v>/checkChunkExist',':v.upload.Upload/checkChunkExist');
+
+    Route::post('<v>/chunk',':v.upload.Upload/chunk');
+
+    Route::post('<v>/merge',':v.upload.Upload/merge');
+
 })->option(['mark' => 'upload','mark_name' => "上传模块"]);
 
 

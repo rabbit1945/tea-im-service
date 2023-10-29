@@ -1,6 +1,8 @@
 FROM php:8.0.3-fpm
+ENV user www
 
 
+#RUN usermod -u 1000 www-data && usermod -G staff www-data
 ARG CHANGE_SOURCE=false
 RUN if [ ${CHANGE_SOURCE} = true ]; then \
     # Change application source from deb.debian.org to aliyun source
@@ -20,22 +22,39 @@ RUN apt-get update && \
     apt-get install -y openssl  && \
     apt-get install -y supervisor && \
     apt-get install -y lsof && \
-    docker-php-ext-install zip
+    docker-php-ext-install zip && \
+    apt-get install sudo
+
+RUN groupadd docker
+RUN useradd -m -d /home/${user} ${user} && \
+    chown -R ${user} /home/${user} && \
+    adduser ${user} sudo && \
+    echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+
+
+RUN usermod -a -G docker ${user}
+
+
+
+
+RUN  cd /usr/local/etc/php/ && \
+     cp php.ini-development php.ini && \
+     ln -s php.ini /etc/php.ini
 
 
 ###########################################################################
 # PHP PDO EXTENSION
 ###########################################################################
 
-RUN docker-php-ext-install pdo pdo_mysql
+RUN  docker-php-ext-install pdo pdo_mysql
 
 ###########################################################################
 # 安装  composer
 ###########################################################################
 
-RUN curl -sS https://getcomposer.org/installer | php \
+RUN curl -sS https://install.phpcomposer.com/installer | php \
     && mv composer.phar /usr/local/bin/composer  && \
-    composer config -g repo.packagist composer https://packagist.phpcomposer.com
+    composer config -g repos.packagist composer https://mirrors.aliyun.com/composer/
 
 
 
@@ -48,8 +67,8 @@ RUN pecl install redis \
 ###########################################################################
 # PHP SWOOLE EXTENSION
 ###########################################################################
-RUN printf "no\nyes\nyes\nno\n" | pecl install swoole   && \
-    docker-php-ext-enable swoole
+RUN  printf "no\nyes\nyes\nno\n" | pecl install swoole   && \
+     docker-php-ext-enable swoole
 
 
 ###########################################################################
@@ -57,13 +76,15 @@ RUN printf "no\nyes\nyes\nno\n" | pecl install swoole   && \
 ###########################################################################
 
 COPY supervisord.conf /etc/supervisord.conf
+RUN  rm -rf /var/cache/apt/*
 
 
-#COPY php.sh /home/www/php.sh
-#ENTRYPOINT ["./php.sh"]
-# Clean up
-RUN rm -rf /var/cache/apt/*
-WORKDIR "/home/www"
+
+
+RUN sudo chmod -Rf 777 /var/log/supervisor
+WORKDIR "/home/${user}"
+
+
 
 CMD ["php-fpm"]
 

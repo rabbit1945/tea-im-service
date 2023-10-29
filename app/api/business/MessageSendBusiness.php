@@ -6,6 +6,7 @@ use app\common\utils\IdRedisGenerator;
 use app\common\utils\SensitiveWord;
 use app\api\dao\message\MessageSendDao;
 use think\App;
+use think\facade\Log;
 
 class MessageSendBusiness
 {
@@ -77,29 +78,21 @@ class MessageSendBusiness
             $msg_type = 2;
 
         }
-        $data =   [
-            'room_id'   => $room,
-            'seq'       => $seq,
-            'user_id'   => $user_id, // user
-            'nick_name' => $msgData['nick_name'], // 名称
-            'userLogo'  => $msgData['userLogo'], // img
-            'file_name' => $msgData['file_name']?? "", // 文件名称
-            'file_size' => $msgData['file_size']??"", // 文件大小
-            'sender'    => $sender, //客户端
-            'msg'       => $msg, // 消息
-            'msg_type'  => $msg_type,
-            'content_type'  => $msgData['content_type'],
-            'send_timestamp'=> $time,
-            'send_time'     => date("Y-m-d H:i:s",time()),   // 发送时间
-            'contactList'   => implode(",",$getContactUsers)
-        ];
 
-       // 屏蔽敏感词
+        $msgData['seq'] = $seq;
+        $msgData['sender'] = $sender;
+        $msgData['msg'] = $msg;
+        $msgData['msg_type'] = $msg_type;
+        $msgData['send_timestamp'] = $time;
+        $msgData['send_time'] = date("Y-m-d H:i:s",time());
+        $msgData['contactList'] =implode(",",$getContactUsers);
+        $msgData['location'] = $msgData['location'] ??$seq;
+        // 屏蔽敏感词
         $sensitiveWord = app()->make(SensitiveWord::class);
         $sensitiveWord->addWords(false);
-        $data['sensitiveMsg'] = $sensitiveWord->filter($data['msg'],'*',2);
+        $msgData['sensitiveMsg'] = $sensitiveWord->filter($msgData['msg'],'*',2);
 
-        return $data;
+        return $msgData;
 
     }
 

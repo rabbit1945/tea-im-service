@@ -46,6 +46,13 @@ abstract class BaseDao
 
     }
 
+    public function save($where,$data)
+    {
+        $find = $this->getModel()::where($where)->find();
+        if (!$find) return false;
+        return  $find->save($data);
+    }
+
     /**
      * 获取列表
      * @param array $where
@@ -101,7 +108,8 @@ abstract class BaseDao
         } else {
             $where = [is_null($key) ? $this->getPk() : $key => $id];
         }
-        return $this->getModel()::update($data, $where);
+
+        return $this->getModel()::update($data, $where)->toArray();
 
 
     }

@@ -32,8 +32,14 @@ class ReceiveMessage
         }
 
         $data = json_decode($data,true);
+        $type = $data['type'] ?? "add";
+        if ($type == "add") {
+            $isJobDone = $this->receiveMsg($data);
+        } else {
+            $isJobDone = $this->updateMsg($data);
 
-        $isJobDone = $this->receiveMsg($data);
+        }
+
         if ($isJobDone === true) {
             // 如果任务执行成功， 记得删除任务
             $job->delete();
@@ -81,7 +87,6 @@ class ReceiveMessage
             app()->make(MessageSendBusiness::class)->addSend($data);
             // 接收消息列表
             app()->make(MessageReceiveBusiness::class)->addReceive($data);
-
 
             // 提交事务
             $userSendModel::commit();

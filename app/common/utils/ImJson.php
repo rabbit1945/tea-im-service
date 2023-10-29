@@ -27,7 +27,7 @@ class  ImJson
      * @param int $httpCode
      */
 
-    public static function output(int $code = 10000, string $msg = '', ?array $data = [], array $vars = [], int $httpCode = 200): Response
+    public static function output(int $code = 10000, string $msg = '', ?array $data = [], array $vars = [], int $httpCode = 200,$type = 'json' ): Response
     {
         $method = Request::method();
         if (in_array($method,["POST","PUT","PATCH"])) {
@@ -35,6 +35,15 @@ class  ImJson
         } elseif ($method == "DELETE") {
             $httpCode = 204;
         }
+        $getData = self::outData($code,$msg,$data,$vars);
+
+
+        return Response::create($getData,$type,$httpCode);
+    }
+
+
+    public static function outData(int $code = 10000, string $msg = '', ?array $data = [], array $vars = [] ): array
+    {
 
         try {
             if (empty($msg)) {
@@ -55,6 +64,10 @@ class  ImJson
             ];
         }
 
-        return Response::create($getData,'json',$httpCode);
+        return $getData;
+
     }
+
+
+
 }
