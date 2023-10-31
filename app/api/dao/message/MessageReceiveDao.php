@@ -27,7 +27,8 @@ class MessageReceiveDao extends BaseDao
              UserReceiveModel.msg_to,MessageListModel.send_time,UserReceiveModel.delivered,
             UserReceiveModel.create_time,MessageListModel.msg_type,MessageListModel.msg_content,
             MessageListModel.content_type,MessageListModel.file_name,MessageListModel.file_size,
-            MessageListModel.original_file_name,MessageListModel.md5,MessageListModel.total_chunks,MessageListModel.upload_status')
+            MessageListModel.original_file_name,MessageListModel.md5,MessageListModel.total_chunks,
+            MessageListModel.upload_status,MessageListModel.chunk_number,MessageListModel.merge_number')
              ->hasWhere('userReceive')
              ->order('UserReceiveModel.seq desc')
             ->select()->toArray();
@@ -51,7 +52,8 @@ class MessageReceiveDao extends BaseDao
                 UserReceiveModel.msg_to,MessageListModel.send_time,UserReceiveModel.delivered,
                 UserReceiveModel.create_time,MessageListModel.msg_type,MessageListModel.msg_content,
                 MessageListModel.content_type,MessageListModel.file_name,MessageListModel.file_size,
-                MessageListModel.original_file_name,MessageListModel.md5,MessageListModel.total_chunks,MessageListModel.upload_status'
+                MessageListModel.original_file_name,MessageListModel.md5,MessageListModel.total_chunks,
+                MessageListModel.upload_status,MessageListModel.chunk_number,MessageListModel.merge_number'
             )
             ->hasWhere('userReceive')
             ->when($page && $limit ,function ($query) use ($page,$limit) {

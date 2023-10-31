@@ -3,12 +3,15 @@ declare (strict_types = 1);
 
 namespace app\api\listener;
 use app\api\business\MessageBusiness;
+use app\api\business\UploadBusiness;
 use app\common\utils\ImJson;
 use app\api\business\MessageSendBusiness;
 use app\api\business\UserBusiness;
+use app\common\utils\Upload;
 use app\job\SendMessage;
 use app\service\AiService;
 use app\service\JsonService;
+use think\App;
 use think\Container;
 use think\facade\Config;
 use think\facade\Log;
@@ -16,29 +19,42 @@ use think\swoole\Websocket;
 
 class WebsocketEvent
 {
-    public $websocket = null;
+    public ?Websocket $websocket = null;
 
-    public $jsontoArray = [];
-
+    public array|JsonService $jsonToArray = [];
 
     /**
-     * @var false|mixed
+     * @var Upload
      */
+    private $upload;
 
+    /**
+     * @var App
+     */
+    private $app;
 
-    public function __construct(Container $container)
+    /**
+     * @param App $app
+     * @param Upload $upload
+     * @param Websocket $websocket
+     * @param JsonService $jsonService
+     */
+    public function __construct(App $app,Upload $upload,Websocket $websocket,JsonService $jsonService)
     {
-        $this->websocket = $container->make(Websocket::class);
+        $this->app = $app;
 
-        $this->jsontoArray = app()->make(JsonService::class);
+        $this->websocket = $websocket;
 
+        $this->jsonToArray = $jsonService;
+
+        $this->upload = $upload;
     }
 
     /**
      * 事件监听处理
      * @param $event
      */
-    public function handle($event)
+    public function handle($event): void
     {
         $func = $event['type'];
         $this->$func($event);
@@ -178,14 +194,15 @@ class WebsocketEvent
         // 分块名称
         $chunk_filename = $chunkNumber.'_'.$newFileName;
         $proTem =  $dir.$chunk_filename;  //临时文件
-        $messageBusiness = app()->make(MessageBusiness::class);
-        if (!$messageBusiness->uploadFile($file,$proTem)) return  $this->setSender($CallbackEvent,ImJson::outData(20001));
-        $upload_status = 0;
+        $uploadBusiness = app()->make(UploadBusiness::class);
+        if (!$uploadBusiness->uploadFile($file,$proTem)) return  $this->setSender($CallbackEvent,ImJson::outData(20001));
+        $upload_status = $this->upload::UPLOADING;
         if ($totalChunks == $chunkNumber) {
-            $upload_status =  1;
+            $upload_status =  $this->upload::UPLOAD_SUCCESS; // 1
         }
         return $this->websocket->to($room_id)->emit($CallbackEvent,
-            [
+
+            ImJson::outData(10000,'成功',[
                 'filename'  => $filename,
                 'totalSize' => $totalSize,
                 'identifier'  =>$md5,
@@ -198,7 +215,7 @@ class WebsocketEvent
                 "newFileName" => $newFileName,
                 "user_id"  => $user_id
 
-            ]
+            ])
         );
 
     }
@@ -224,19 +241,20 @@ class WebsocketEvent
             // 分块文件
             for ($i=1; $i<=$totalChunks; $i++) {
                 $val = $chunkDir.$i."_".$newFileName;
+                $data = [
+                    "mergeNum" =>  $i,
+                    'identifier'  =>$md5,
+                    "newFileName"  => $newFileName,
+                    'chunkNumber' => $i,
+                    'totalSize' => $totalSize
+                ];
 
                 if (!$in = @fopen($val, "rb")) {
                     Log::write(date('Y-m-d H:i:s').'_权限_'.json_encode($val),'info');
                     $mergeFileStatus = 2; // 文件没有权限
+                    $data["mergeFileStatus"] = $mergeFileStatus;
                     $this->websocket->to($room_id)->emit($callbackEvent,
-                        [
-                            "mergeNum" =>  $i,
-                            "mergeFileStatus" => $mergeFileStatus,
-                            'identifier'  =>$md5,
-                            "newFileName"  => $newFileName,
-                            'chunkNumber' => $i,
-                            'totalSize' => $totalSize
-                        ]
+                         ImJson::outData(10000,'成功',$data )
                     );
                     break;
 
@@ -247,28 +265,18 @@ class WebsocketEvent
                     fwrite($out, $buff);
                 }
                 @fclose($in);
-                $upload_status = 2;
+                $upload_status = $this->upload::SENDING;
                 if ($totalChunks ==  $i) {
-                    $upload_status =  3;
+                    $upload_status =  $this->upload::SEND_SUCCESS;
                 }
                 @unlink($val); //删除分片
+                $data["uploadStatus"] = $upload_status;
+                $data["totalChunks"] = $totalChunks;
                 $this->websocket->to($room_id)->emit($callbackEvent,
-                    [
-                        "mergeNum" =>  $i,
-                        "uploadStatus" => $upload_status,
-                        'identifier'  =>$md5,
-                        "newFileName"  => $newFileName,
-                        "totalChunks"  => $totalChunks,
-                        'chunkNumber' => $i,
-                        'totalSize' => $totalSize
-
-                    ]
+                    ImJson::outData(10000,'成功', $data)
                 );
             }
-
             flock($out, LOCK_UN); // 释放锁
-
-
         }
         @fclose($out);
 
@@ -277,7 +285,6 @@ class WebsocketEvent
 
     /**
      * 修改消息
-     * @return
      */
     public function updateMsgStatus($event)
     {
@@ -301,6 +308,15 @@ class WebsocketEvent
         $updateData = [
             "upload_status" => $uploadStatus
         ];
+
+        if ($uploadStatus == 1) {
+            $updateData['chunk_number'] = $chunkNumber;
+        }
+
+        if ($uploadStatus == 2) {
+            $updateData['merge_number'] = $chunkNumber;
+        }
+
         $data = [
             "room_id"      => $room_id,
             "identifier"   => $md5,
@@ -308,9 +324,10 @@ class WebsocketEvent
             "uploadStatus" => $uploadStatus,
             "totalChunks"  => $totalChunks,
             "chunkNumber"  => $chunkNumber,
+            "mergeNumber"  => $chunkNumber,
             "totalSize"    => $totalSize
         ];
-        if ($totalChunks > $chunkNumber)  return  $this->setSender($callbackEvent,ImJson::outData(20018,"",$data));
+        if ($totalChunks < $chunkNumber)  return  $this->setSender($callbackEvent,ImJson::outData(20018,"",$data));
         $messageBusiness = app()->make(MessageBusiness::class);
         $save =  $messageBusiness->save($where,$updateData);
         if (!$save)  return  $this->setSender($callbackEvent,ImJson::outData(20017,"",$data));
@@ -321,7 +338,8 @@ class WebsocketEvent
     }
 
 
-    function unicodeToChn($str){
+    function unicodeToChn($str): array|string|null
+    {
         $pattern = '/\\\\u([0-9a-f]{4})/i';
         $result = preg_replace_callback($pattern, function($matches){
             return iconv('UCS-2', 'UTF-8', hex2bin($matches[1]));
@@ -329,16 +347,11 @@ class WebsocketEvent
         return $result;
     }
 
-
-
-
-    public function setSender($event,$data)
+    public function setSender($event,$data): bool
     {
         $fd =  $this->websocket->getSender();
         return $this->websocket->setSender($fd)->emit($event,$data);
     }
-
-
 
 
     /**
