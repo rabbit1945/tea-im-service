@@ -30,8 +30,8 @@ return [
             'discard_timeout_request'=> false,
             'websocket_compression'  => true,
             //配置SSL证书和密钥路径
-            'ssl_cert_file' => "../.docker/nginx/conf.d/cert/scs1695721843916_xiaogongtx.com_server.crt",
-            'ssl_key_file'  => "../.docker/nginx/conf.d/cert/scs1695721843916_xiaogongtx.com_server.key",
+            'ssl_cert_file' => "../.docker/nginx/conf.d/cert/teaim.cn_nginx/teaim.cn_bundle.crt",
+            'ssl_key_file'  => "../.docker/nginx/conf.d/cert/eaim.cn_nginx/teaim.cn.key",
 
 
         ],
@@ -40,8 +40,8 @@ return [
         'enable'        => true,
         'handler'       => Handler::class,
         'parser'        => Parser::class,
-        'ping_interval' => 25000,
-        'ping_timeout'  => 60000,
+        'ping_interval' => 250000,
+        'ping_timeout'  => 600000,
         'room'          => [
             'type'  => 'redis',
             'table' => [

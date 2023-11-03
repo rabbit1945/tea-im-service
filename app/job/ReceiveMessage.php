@@ -32,14 +32,7 @@ class ReceiveMessage
         }
 
         $data = json_decode($data,true);
-        $type = $data['type'] ?? "add";
-        if ($type == "add") {
-            $isJobDone = $this->receiveMsg($data);
-        } else {
-            $isJobDone = $this->updateMsg($data);
-
-        }
-
+        $isJobDone = $this->receiveMsg($data);
         if ($isJobDone === true) {
             // 如果任务执行成功， 记得删除任务
             $job->delete();
@@ -93,10 +86,8 @@ class ReceiveMessage
             Log::write(date('Y-m-d H:i:s').'_消费成功');
 
             return true;
-
         } catch (\Exception $e) {
             Log::write(date('Y-m-d H:i:s').'_消费失败_'.$e->getMessage(),'info');
-
             // 回滚事务
             $userSendModel::rollback();
             return false;

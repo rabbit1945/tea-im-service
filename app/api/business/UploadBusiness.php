@@ -80,6 +80,7 @@ class UploadBusiness
         $fileName = $fileName.'.'.$match_result[1];
         $path = $dir.$fileName;
         $upload = file_put_contents($path,base64_decode($match_result[2]));
+
         return [
             "isSuccess" => $upload,
             "fileSize" => $fileSize,

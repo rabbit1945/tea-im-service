@@ -79,9 +79,9 @@ class Upload extends BaseController
 
     /**
      * 上传base64
-     * @return \think\Response
+     * @return
      */
-    public function uploadBase64(): \think\Response
+    public function uploadBase64()
     {
 
         $base64 = Request::post('base64');
@@ -91,16 +91,16 @@ class Upload extends BaseController
         $user_id =static::$user_id;
         $time = time();
         $fileName = "files"."_$user_id"."_$time";
-        $dir = Config::get('filesystem.disks.public.root').'/'.'files/'.$user_id.'/';
+        $dir = Config::get('filesystem.disks.public.root').'/'.'files/';
         $uploadAudio =$this->uploadBusiness->uploadPic($base64,$fileName,$dir);
         $totalSize = $uploadAudio['fileSize'];
         $getUploadMaxSize = $this->uploadBusiness->getUploadMaxSize();
-        if ($totalSize > $getUploadMaxSize) return ImJson::output('20015','',[],['name'=>300]);
+        if ($totalSize > $getUploadMaxSize) return ImJson::output(20015,'',[],['name'=>300]);
         if (!$uploadAudio['isSuccess']) {
-            if (empty($list))  return ImJson::output('20001');
+            if (empty($list))  return ImJson::output(20001);
         }
 
-        return ImJson::output(10000,'成功',['fileName' => $fileName,'fileSize' => $totalSize,'file' => "files/$user_id/".$uploadAudio['fileName']]);
+        return ImJson::output(10000,'成功',['fileName' => $fileName,'fileSize' => $totalSize,'file' => "files/".$uploadAudio['fileName']]);
     }
 
     /**
@@ -115,7 +115,7 @@ class Upload extends BaseController
         }
         $fileName    = Request::post('fileName');
         $newFileName = $user_id."_".$fileName;
-        $dir ='files/'.$user_id."/";
+        $dir ='files';
         $path =$dir.$newFileName;
 
         if (!$this->uploadBusiness->uploadFile($files,$path)) return ImJson::outData(20001);
@@ -137,7 +137,7 @@ class Upload extends BaseController
         $totalChunks = Request::post('totalChunks'); // 分片总数量
         $totalSize = Request::post('totalChunks'); // 分片大小
         if (!$md5 || !$filename || !$totalChunks) return ImJson::output('20003');
-        $location = $this->app->make(MessageSendBusiness::class)->getSequence();  // 给文件添加唯一标识
+        $getSequence = $this->app->make(MessageSendBusiness::class)->getSequence();  // 给文件添加唯一标识
         $getUploadMaxSize = $this->uploadBusiness->getUploadMaxSize();
         if ($totalSize > $getUploadMaxSize) return ImJson::output('20015','',[],['name'=>300]);
         $uploadStatus = $this->app->make(\app\common\utils\Upload::class);
@@ -149,9 +149,9 @@ class Upload extends BaseController
             ],
             'file_path',"id desc"
         );
-        $newFileName = $location.'_'.$user_id.'_'.$filename;
+        $newFileName = $getSequence.'_'.$user_id.'_'.$filename;
         $dir = "/files/$user_id/";
-
+        $type = 0;
         if ($find) {
             $type = 1;
             $mergeFilePath = $find['file_path'];
@@ -161,10 +161,9 @@ class Upload extends BaseController
         }
 
         if(!Filesystem::has($mergeFilePath)) {
-            $type = 0;
-            Filesystem::createDir($dir."$md5");
             $mergeFilePath ="$dir".$newFileName;
         }
+
 
         $data = [
             "mergePath"        => $mergeFilePath,

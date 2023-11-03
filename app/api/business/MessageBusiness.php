@@ -93,28 +93,36 @@ class MessageBusiness
 
     public function update($id,$data,$key = null)
     {
-       return $this->dao->update($id,$data,$key);
+        if (!$data || !$id) return false;
+        return $this->dao->update($id,$data,$key);
 
     }
 
 
     /**
      * 修改消息
-     * @param $file_name
+     * @param $seq
      * @param $uploadStatus
      * @return bool|void
      */
-    public function updateMsgStatus($file_name,$uploadStatus)
+    public function updateMsgStatus($seq,$uploadStatus)
     {
 
         $where = [
-            "file_name" => $file_name
+            "seq" => $seq
         ];
         $data = [
             "upload_status" => $uploadStatus
         ];
         return $this->save($where,$data);
 
+
+    }
+
+    public function count($where)
+    {
+        if (!$where) return false;
+        return $this->dao->count($where);
 
     }
 
