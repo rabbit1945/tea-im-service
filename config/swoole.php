@@ -56,6 +56,7 @@ return [
                 'port'          => 6379,
                 'max_active'    => 6,
                 'max_wait_time' => 10,
+                'prefix'     => 'teaIm:',
             ],
         ],
         'listen'      => [
@@ -79,7 +80,7 @@ return [
         ],
     ],
     'hot_update' => [
-        'enable'  => env('APP_DEBUG', false),
+        'enable'  => env('APP_DEBUG', true),
         'name'    => ['*.php'],
         'include' => [app_path()],
         'exclude' => [],

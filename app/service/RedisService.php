@@ -1,8 +1,12 @@
 <?php
 namespace app\service;
+use Swoole\Runtime;
 use think\App;
 use think\facade\Cache;
-
+use Swoole\Coroutine;
+use Swoole\Database\RedisConfig;
+use Swoole\Database\RedisPool;
+;
 /**
  * redis 服务
  * Class Redis
@@ -10,9 +14,13 @@ use think\facade\Cache;
  */
 class RedisService
 {
-    public static $redis;
-    public $app;
+    /**
+     * @var string
+     */
+    protected string $prefix = 'teaIm:';
+
     public function __construct() {}
+
 
     /**
      * 通过句柄，获取高级方法
@@ -58,6 +66,18 @@ class RedisService
     public function exists($key)
     {
         return $this->handler()->EXISTS($key);
+    }
+
+
+    /**
+     * 获取key
+     * @param string $key
+     * @param string $table
+     * @return string
+     */
+    public function getKey(string $key, string $table): string
+    {
+        return "{$this->prefix}{$table}:{$key}";
     }
 
 
