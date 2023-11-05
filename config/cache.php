@@ -42,7 +42,7 @@ return [
             'expire'     => 0,
 
             //缓存前缀（默认为空）
-            'prefix'     => 'api_',
+            'prefix'     => 'teaIm:',
 
             'tag_prefix' => 'tag:',
 

@@ -30,6 +30,7 @@ return [
             'select'     => 0,
             'timeout'    => 0,
             'persistent' => false,
+            'prefix'     => 'teaIm:',
         ],
     ],
     'failed'      => [

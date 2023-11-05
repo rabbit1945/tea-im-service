@@ -13,7 +13,6 @@ use app\service\AiService;
 use app\service\JsonService;
 use app\service\RedisService;
 use think\App;
-use think\facade\Cache;
 use think\facade\Config;
 use think\facade\Log;
 use think\swoole\Websocket;
@@ -203,10 +202,8 @@ class WebsocketEvent
             $uploadStatus =  upload::UPLOAD_SUCCESS; // 1
 
         }
-
         // 缓存已经上传的文件数量
-        $key = $seq.'_'.$md5.'_chunkNumber';
-        $incr = $this->incr($key);
+        $incr = $this->incr($seq,'chunkNumber');
         Log::write(date('Y-m-d H:i:s').'_chunkFile_分片_'.json_encode($incr),'info');
 
        $this->websocket->to($room_id)->emit($callbackEvent,
@@ -232,9 +229,11 @@ class WebsocketEvent
     }
 
 
-    public function incr($key)
+    public function incr(string $key, string $table)
     {
-        $redisService = $this->app->make(RedisService::class);
+
+        $redisService = $this->app->make( RedisService::class);
+        $key = $redisService->getKey($key,$table);
         $num = 0;
         if ($redisService->exists($key)) {
             $num = $redisService->get($key);
@@ -273,7 +272,6 @@ class WebsocketEvent
         $mergePath =  Config::get('filesystem.disks.public.root').'/files/'.$user_id."/".$newFileName; // 合并文件
 
         // 缓存key
-        $key = $seq.'_'.$md5.'_mergeNumber';
         if (!$out = @fopen($mergePath, "wb")) {
             return true;
         }
@@ -316,7 +314,7 @@ class WebsocketEvent
                 }
                 @unlink($val); //删除分片
                 // 缓存
-                $this->incr($key);
+                $this->incr($seq,'mergeNumber');
                 $data["uploadStatus"] = $uploadStatus;
                 $this->websocket->to($room_id)->emit($callbackEvent,
                     ImJson::outData(10000,'成功', $data)
@@ -339,7 +337,6 @@ class WebsocketEvent
     {
             $callbackEvent = "updateMsgStatusCallback";
             $sendContext = $event['data'][0];
-
             if (!$sendContext) return  $this->setSender($callbackEvent,ImJson::outData(20003));
             $redisService = $this->app->make(RedisService::class);
             $totalChunks = (int)$sendContext['totalChunks'] ?? 0; // 分片总数量
@@ -351,10 +348,10 @@ class WebsocketEvent
             $room_id = $sendContext['room_id'];
             $md5 = $sendContext['identifier'];  // md5
             $seq =  $sendContext['seq'];  // seq
-           $chunkKey = $seq.'_'.$md5.'_chunkNumber';
-           $chunkNumber     = (int)$redisService->get($chunkKey) ?? $chunkNumber;
-           $mergeKey = $seq.'_'.$md5.'_mergeNumber';
-           $mergeNumber     = (int)$redisService->get($mergeKey) ?? $mergeNumber;
+            $chunkKey = $redisService->getKey($seq,'chunkNumber');
+            $chunkNumber     = (int)$redisService->get($chunkKey) ?? $chunkNumber;
+            $mergeKey =  $redisService->getKey($seq,'mergeNumber');
+            $mergeNumber     = (int)$redisService->get($mergeKey) ?? $mergeNumber;
            Log::write(date('Y-m-d H:i:s').'_updateMsgStatus_参数'.json_encode($chunkNumber),'info');
             $where = [
                 "seq"       => $seq,
