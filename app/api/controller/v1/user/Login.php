@@ -58,11 +58,8 @@ class Login
         $password   = Request::post('password');
         $createUser = static::$business->login($loginName,$password);
         if ($createUser){
-
            return ImJson::output(10000, '',$createUser,['name'=>'登录']);
         }
-
-
        return ImJson::output(20001, '',[],['name' => '登录']);
     }
 
@@ -96,7 +93,8 @@ class Login
             // 获取token
             $getAccessToken = [];
             if (Cache::has($oauthToken)){
-                $getAccessToken =  Cache::get($oauthToken);
+                $key = "authToken:".$oauthToken;
+                $getAccessToken =  Cache::get($key);
             }
 
             if ($getAccessToken) {

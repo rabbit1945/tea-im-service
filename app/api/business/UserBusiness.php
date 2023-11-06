@@ -16,7 +16,6 @@ use think\Event;
 use think\exception\ValidateException;
 use app\model\RoomUserModel;
 use think\facade\Cache;
-use think\facade\Log;
 use think\facade\Request;
 use think\Response;
 
@@ -189,7 +188,8 @@ class UserBusiness
         //  设置缓存
         $accessToken = $getAccessToken['access_token'] ?? "";
         if ($accessToken) {
-            Cache::set($accessToken,$getAccessToken,86000);
+            $key = "authToken:".$accessToken;
+            Cache::set($key,$getAccessToken,86000);
         }
         return $getAccessToken;
 
@@ -288,7 +288,7 @@ class UserBusiness
     public function addUserLoginLogs($user_id): bool
     {
         //  检测缓存是否过有效期
-        $key = 'getAddLoginLogs_'.$user_id; //获取登录用户的日志信息
+        $key = 'getLoginLogs:'.$user_id; //获取登录用户的日志信息
         if (Cache::has($key)) {
             return true;
         }
@@ -322,7 +322,7 @@ class UserBusiness
         $time = time()+60;
         $restToken = JwToken::getAccessToken($user_id,$time);
         if (empty($restToken)) return false;
-        $key = 'login_token_'.$user_id;
+        $key = 'loginToken:'.$user_id;
         if (!$this->setCacheToken($key,$restToken)) return false;
         // 更改用户状态
         $update = app()->make(UserDao::class)->update($user_id,['is_online' => 'offline']);

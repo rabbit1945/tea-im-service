@@ -23,6 +23,23 @@ class RedisService
 
 
     /**
+     * @param string $prefix
+     */
+    public function setPrefix(string $prefix): void
+    {
+        $this->prefix = $prefix;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPrefix(): string
+    {
+        return $this->prefix;
+    }
+
+
+    /**
      * 通过句柄，获取高级方法
      * @return object|null
      */

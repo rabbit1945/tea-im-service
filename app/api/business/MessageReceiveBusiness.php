@@ -189,8 +189,9 @@ class MessageReceiveBusiness
         $redis = $this->app->make(RedisService::class);
 
         if ($this->dao->update($user_id,$data,'msg_to')) {
-            if ($redis->exists($room_msg_key) == false) return true;
-            if ($redis->del($room_msg_key) >0) return true;
+            $key = $redis->getPrefix().$room_msg_key;
+            if (!$redis->exists($key)) return true;
+            if ($redis->del($key) >0) return true;
 
         }
 

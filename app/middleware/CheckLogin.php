@@ -59,7 +59,7 @@ class CheckLogin
             }
             $verify = JwToken::verifyToken($tokens);
             // 判断token是否一致
-            $cacheToken = Cache::get('login_token_'.$verify['user_id']);
+            $cacheToken = Cache::get('loginToken:'.$verify['user_id']);
 
             if ($tokens !== $cacheToken){
                 $data['code'] = 20401;

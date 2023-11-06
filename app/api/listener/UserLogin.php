@@ -44,7 +44,7 @@ class UserLogin
             // 设置缓存
             if (!$this->setCache($user_id,$data)) return false;
             // 缓存token
-            if (!app()->make(UserBusiness::class)->setCacheToken('login_token_'.$user_id,$getToken)) return false;
+            if (!app()->make(UserBusiness::class)->setCacheToken('loginToken:'.$user_id,$getToken)) return false;
             // 更改用户状态
             $update = app()->make(UserDao::class)->update($user_id,['is_online' => 'online']);
             if (!$update) return false;

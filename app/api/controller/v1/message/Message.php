@@ -32,7 +32,7 @@ class Message extends BaseController
         $list = $this->business->getOffLineMessage($room_id,$user_id);
         if (empty($list)) return ImJson::output('20006');
         // 用户请求，获取到数据，离线消息送达。更改离线状态
-        $room_msg_key = "room_$room_id"."_".$user_id;
+        $room_msg_key = "room:$room_id:$user_id";
         if (!$this->business->updateDeliveredStatus($user_id,['delivered'=>1],$room_msg_key)) ImJson::output('20006');
 
         return ImJson::output(10000,'成功',$list);
@@ -69,7 +69,7 @@ class Message extends BaseController
 
         ];
         if (!empty($offList)) {
-            $room_msg_key = "room_$room_id"."_".$user_id;
+            $room_msg_key = "room:$room_id:$user_id";
             if (!$this->business->updateDeliveredStatus($user_id,['delivered'=>1],$room_msg_key)) return ImJson::output('20006');
         }
 

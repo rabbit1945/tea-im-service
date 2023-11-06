@@ -245,7 +245,7 @@ class WebsocketEvent
 
     public function update($where,$data)
     {
-        $messageBusiness = app()->make(MessageBusiness::class);
+        $messageBusiness = $this->app->make(MessageBusiness::class);
         $save = $messageBusiness->save($where,$data);
         Log::write(date('Y-m-d H:i:s').'_updateMsgStatus'.json_encode($save),'info');
 
@@ -335,65 +335,72 @@ class WebsocketEvent
      */
     public function updateMsgStatus($event)
     {
-            $callbackEvent = "updateMsgStatusCallback";
-            $sendContext = $event['data'][0];
-            if (!$sendContext) return  $this->setSender($callbackEvent,ImJson::outData(20003));
-            $redisService = $this->app->make(RedisService::class);
-            $totalChunks = (int)$sendContext['totalChunks'] ?? 0; // 分片总数量
-            $chunkNumber = $sendContext['chunkNumber'] ?? 0;// 当前分片数量
-            $mergeNumber =   $sendContext['mergeNumber'] ?? 0;// 合并分片数量
-            $totalSize    = $sendContext['totalSize'];
-            $uploadStatus = $sendContext['uploadStatus'];
-            $newFileName =  $sendContext['newFileName']; // 文件名称
-            $room_id = $sendContext['room_id'];
-            $md5 = $sendContext['identifier'];  // md5
-            $seq =  $sendContext['seq'];  // seq
-            $chunkKey = $redisService->getKey($seq,'chunkNumber');
-            $chunkNumber     = (int)$redisService->get($chunkKey) ?? $chunkNumber;
-            $mergeKey =  $redisService->getKey($seq,'mergeNumber');
-            $mergeNumber     = (int)$redisService->get($mergeKey) ?? $mergeNumber;
-           Log::write(date('Y-m-d H:i:s').'_updateMsgStatus_参数'.json_encode($chunkNumber),'info');
-            $where = [
-                "seq"       => $seq,
+        $callbackEvent = "updateMsgStatusCallback";
+        $sendContext = $event['data'][0];
+        if (!$sendContext) return  $this->setSender($callbackEvent,ImJson::outData(20003));
+        $redisService = $this->app->make(RedisService::class);
+        $totalChunks = (int)$sendContext['totalChunks'] ?? 0; // 分片总数量
+        $chunkNumber = $sendContext['chunkNumber'] ?? 0;// 当前分片数量
+        $mergeNumber =   $sendContext['mergeNumber'] ?? 0;// 合并分片数量
+        $totalSize    = $sendContext['totalSize'];
+        $uploadStatus = $sendContext['uploadStatus'];
+        $newFileName =  $sendContext['newFileName']; // 文件名称
+        $room_id = $sendContext['room_id'];
+        $md5 = $sendContext['identifier'];  // md5
+        $seq =  $sendContext['seq'];  // seq
+        $chunkKey = $redisService->getKey($seq,'chunkNumber');
+        $chunkNumber     = (int)$redisService->get($chunkKey) ?? $chunkNumber;
+        $mergeKey =  $redisService->getKey($seq,'mergeNumber');
+        $mergeNumber     = (int)$redisService->get($mergeKey) ?? $mergeNumber;
+        Log::write(date('Y-m-d H:i:s').'_updateMsgStatus_参数'.json_encode($chunkNumber),'info');
+        $where = [
+            "seq"       => $seq,
+        ];
 
-            ];
+        $data = [
+            "room_id"      => $room_id,
+            "identifier"   => $md5,
+            "newFileName"  => $newFileName,
+            "uploadStatus" => $uploadStatus,
+            "totalChunks"  => $totalChunks,
+            "chunkNumber"  => $chunkNumber,
+            "mergeNumber"  => $mergeNumber,
+            "totalSize"    => $totalSize,
+            "seq"          => $seq
+        ];
 
-            $data = [
-                "room_id"      => $room_id,
-                "identifier"   => $md5,
-                "newFileName"  => $newFileName,
-                "uploadStatus" => $uploadStatus,
-                "totalChunks"  => $totalChunks,
-                "chunkNumber"  => $chunkNumber,
-                "mergeNumber"  => $mergeNumber,
-                "totalSize"    => $totalSize,
-                "seq"          => $seq
-            ];
-
-            $updateData = [
-                "upload_status" => $uploadStatus,
-                "chunk_number"  => $chunkNumber,
-                "merge_number"  => $mergeNumber
-            ];
-
+        $updateData = [
+            "upload_status" => $uploadStatus,
+            "chunk_number"  => $chunkNumber,
+            "merge_number"  => $mergeNumber
+        ];
 
 
-            $save = $this->update($where,$updateData);
 
-            if (!$save) return  $this->setSender($callbackEvent,ImJson::outData(20001,'失败',$data));
-            Log::write(date('Y-m-d H:i:s').'_updateMsgStatus_'.json_encode($data),'info');
-            return $this->websocket->to($room_id)->emit($callbackEvent,ImJson::outData(10000,'成功',$data));
+        $save = $this->update($where,$updateData);
+
+        if (!$save) return  $this->setSender($callbackEvent,ImJson::outData(20001,'失败',$data));
+        $messageBusiness = $this->app->make(MessageBusiness::class);
+        // 删除
+        if ($chunkNumber && $messageBusiness->exist($chunkKey) ) {
+            $messageBusiness->del($chunkKey);
+        }
+
+        if ($mergeNumber && $messageBusiness->exist($mergeKey)) {
+            $messageBusiness->del($mergeKey);
+        }
+
+        return $this->websocket->to($room_id)->emit($callbackEvent,ImJson::outData(10000,'成功',$data));
 
     }
 
 
-    function unicodeToChn($str): array|string|null
+    protected function unicodeToChn($str): array|string|null
     {
         $pattern = '/\\\\u([0-9a-f]{4})/i';
-        $result = preg_replace_callback($pattern, function($matches){
+        return preg_replace_callback($pattern, function($matches){
             return iconv('UCS-2', 'UTF-8', hex2bin($matches[1]));
         }, $str);
-        return $result;
     }
 
     public function setSender($event,$data): bool
