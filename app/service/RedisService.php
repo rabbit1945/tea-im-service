@@ -19,7 +19,12 @@ class RedisService
      */
     protected string $prefix = 'teaIm:';
 
-    public function __construct() {}
+    public function __construct() {
+
+    }
+
+
+
 
 
     /**
@@ -39,6 +44,7 @@ class RedisService
     }
 
 
+
     /**
      * 通过句柄，获取高级方法
      * @return object|null
@@ -46,6 +52,11 @@ class RedisService
     public function handler(): ?object
     {
         return Cache::store('redis')->handler();
+    }
+
+    public function set($key,$val)
+    {
+        return $this->handler()->set($key,$val);
     }
 
     /**
@@ -80,7 +91,7 @@ class RedisService
      * @param $key
      * @return mixed
      */
-    public function exists($key)
+    public function exists($key): mixed
     {
         return $this->handler()->EXISTS($key);
     }
@@ -102,14 +113,6 @@ class RedisService
     {
         return $this->handler()->$method(...$parameters);
     }
-
-
-
-
-
-
-
-
 
 
 
