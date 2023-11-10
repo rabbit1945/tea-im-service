@@ -3,23 +3,25 @@ declare (strict_types = 1);
 
 namespace app\api\listener;
 
+use app\common\utils\JwToken;
+use app\service\WebSocketService;
+use Swoole\Server;
 use think\Container;
 
 use think\swoole\Websocket;
 
-class WebsocketMessage
+class WebsocketMessage extends WebSocketService
 {
-    Public $websocket = null;
 
 
     /**
-     * @var false|mixed
+     * @return false|mixed
      */
 
 
-    public function __construct(Container $container)
+    public function __construct(Server $server,Websocket $websocket,JwToken $jwToken)
     {
-        $this->websocket = $container->make(Websocket::class);
+        parent::__construct( $server, $websocket,$jwToken);
     }
 
     /**
@@ -39,9 +41,4 @@ class WebsocketMessage
 
     }
 
-    public function getUserState()
-    {
-        echo "用户状态";
-
-    }
 }

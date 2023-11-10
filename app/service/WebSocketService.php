@@ -16,16 +16,16 @@ class WebSocketService
      */
     public  $user_id;
 
-    public $server;
-    public $websocket;
-    public $jwToken;
+    public Server $server;
+    public Websocket $websocket;
+    public JwToken $jwToken;
 
-    public function __construct(Server $server,Websocket $websocket,Container $container)
+    public function __construct(Server $server,Websocket $websocket,JwToken $jwToken)
     {
         //启用压缩
         $this->server = $server;
         $this->websocket = $websocket;
-        $this->jwToken = $container->make(JwToken::class);
+        $this->jwToken = $jwToken;
 
     }
 

@@ -18,7 +18,7 @@ return [
             // Normally this value should be 1~4 times larger according to your cpu cores.
             'reactor_num'           => swoole_cpu_num()*4,// 线程数
             'worker_num'            => swoole_cpu_num()*4,// 进程数
-            'task_worker_num'       => swoole_cpu_num(),// 任务进程
+            'task_worker_num'       => swoole_cpu_num()*4,// 任务进程
             'enable_static_handler' => true,
             'document_root'         => root_path('public'),
             'package_max_length'    => 30 * 1024 * 1024, // 3M  最大数据包 默认 2M

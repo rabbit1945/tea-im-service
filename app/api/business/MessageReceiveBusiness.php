@@ -11,7 +11,7 @@ use app\service\RedisService;
 use think\App;
 use think\Event;
 
-class MessageReceiveBusiness
+class MessageReceiveBusiness extends Business
 {
     /**
      * @var App
@@ -29,6 +29,7 @@ class MessageReceiveBusiness
     private JsonService $json;
 
     public function __construct(App $app,MessageReceiveDao $dao,Event $event,RedisService $redis,JsonService $json) {
+        parent::__construct($app);
         $this->dao = $dao;
         $this->app = $app;
         $this->event = $event;
@@ -49,7 +50,6 @@ class MessageReceiveBusiness
     {
         $getKey =  $this->redis->getKey("$room_id:$user_id:$page:$limit",'isMsgNull');
         if ($this->redis->exists($getKey)) return [];
-
         $getPrefix = $this->redis->getPrefix();
         $key = "message:$room_id:".$user_id;
         $start = ($page -1) * 20;
@@ -172,33 +172,11 @@ class MessageReceiveBusiness
         $val['photo'] = !empty($user_info['photo']) ?$user_info['photo']: '/static/images/微信头像.jpeg';
         $val['send_time'] = date('Y-m-d H:i:s', floor($val['send_time'] / 1000));
         $val['msg_content'] = $sensitiveWord->addWords(false)->filter(urldecode($val['msg_content']), '*', 2);
+        $val['nick_name'] = $user_info['nick_name'];
         return $val;
     }
 
-    /**
-     * @param string $key
-     * @return array|false
-     */
-    public function getMsgCacheList(string $key,$start = 0,$end = -1): array|false
-    {
-        $key = $this->redis->getPrefix().$key;
-        if ($this->redis->exists($key)) {
-            $json = $this->json;
-            $list = [];
-            $cacheList = $this->redis->zrevrange($key, $start, $end);
-            if (!empty($cacheList)) {
-                foreach ($cacheList as $key => $val) {
-                    $val = $json->jsonDecode($val);
-                    $info = $this->getMsg($val);
-                    $list[$key] = $info;
-                }
-            }
-            return $list;
-        }
 
-        return false;
-
-    }
 
 
 }

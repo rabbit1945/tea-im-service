@@ -7,20 +7,22 @@ use app\api\business\UploadBusiness;
 use app\common\utils\ImJson;
 use app\api\business\MessageSendBusiness;
 use app\api\business\UserBusiness;
+use app\common\utils\JwToken;
 use app\common\utils\Upload;
 use app\job\SendMessage;
 use app\service\AiService;
 use app\service\JsonService;
 use app\service\RedisService;
+use app\service\WebSocketService;
+use Swoole\Server;
 use think\App;
+use think\Container;
 use think\facade\Config;
 use think\facade\Log;
 use think\swoole\Websocket;
 
-class WebsocketEvent
+class WebsocketEvent  extends WebSocketService
 {
-    public ?Websocket $websocket = null;
-
     public array|JsonService $jsonToArray = [];
 
 
@@ -40,14 +42,11 @@ class WebsocketEvent
      * @param Websocket $websocket
      * @param JsonService $jsonService
      */
-    public function __construct(App $app,Upload $upload,Websocket $websocket,JsonService $jsonService)
+    public function __construct(Server $server,JwToken $jwToken,App $app,Upload $upload,Websocket $websocket,JsonService $jsonService)
     {
+        parent::__construct($server, $websocket,$jwToken);
         $this->app = $app;
-
-        $this->websocket = $websocket;
-
         $this->jsonToArray = $jsonService;
-
         $this->upload = $upload;
     }
 
@@ -170,6 +169,7 @@ class WebsocketEvent
 
 
     /**
+     * 大文件分片上传
      * @param $event
      * @return
      */
@@ -228,8 +228,13 @@ class WebsocketEvent
 
     }
 
-
-    public function incr(string $key, string $table)
+    /**
+     * redis 加一
+     * @param string|int $key
+     * @param string $table
+     * @return mixed
+     */
+    public function incr(string|int $key, string $table): mixed
     {
 
         $redisService = $this->app->make( RedisService::class);
@@ -243,16 +248,14 @@ class WebsocketEvent
 
     }
 
-    public function update($where,$data)
-    {
-        $messageBusiness = $this->app->make(MessageBusiness::class);
-        $save = $messageBusiness->save($where,$data);
-        Log::write(date('Y-m-d H:i:s').'_updateMsgStatus'.json_encode($save),'info');
-
-        return $save;
-    }
 
 
+
+    /**
+     * 合并大文件
+     * @param $event
+     * @return bool|void
+     */
     public function mergeFile($event)
     {
         $callbackEvent = "mergeFileCallback";
@@ -380,33 +383,88 @@ class WebsocketEvent
         $save = $this->update($where,$updateData);
 
         if (!$save) return  $this->setSender($callbackEvent,ImJson::outData(20001,'失败',$data));
-        $messageBusiness = $this->app->make(MessageBusiness::class);
+
         // 删除
-        if ($chunkNumber && $messageBusiness->exist($chunkKey) ) {
-            $messageBusiness->del($chunkKey);
+        if ($chunkNumber && $redisService->exists($chunkKey) ) {
+            $redisService->del($chunkKey);
         }
 
-        if ($mergeNumber && $messageBusiness->exist($mergeKey)) {
-            $messageBusiness->del($mergeKey);
+        if ($mergeNumber && $redisService->exists($mergeKey)) {
+            $redisService->del($mergeKey);
         }
 
         return $this->websocket->to($room_id)->emit($callbackEvent,ImJson::outData(10000,'成功',$data));
 
     }
 
-
-    protected function unicodeToChn($str): array|string|null
+    /**
+     * 撤回消息
+     * @param $event
+     * @return bool
+     */
+    public function revokeMsg($event): bool
     {
-        $pattern = '/\\\\u([0-9a-f]{4})/i';
-        return preg_replace_callback($pattern, function($matches){
-            return iconv('UCS-2', 'UTF-8', hex2bin($matches[1]));
-        }, $str);
+
+        $callbackEvent = "revokeMsgCallback";
+        $sendContext = $event['data'][0];
+        if (!$sendContext) return  $this->setSender($callbackEvent,ImJson::outData(20003,'1'));
+        $seq = (int)$sendContext["seq"] ?? 0;
+        $room_id = $sendContext["room_id"] ?? 0;
+        $token =  $sendContext["token"] ?? "";
+        $index  =  $sendContext["index"] ?? 0;
+        if (!$seq || !$room_id || !$token || !$index) return  $this->setSender($callbackEvent,ImJson::outData(20003,"2"));
+        if (!$this->socketVerifyToken($token)) return $this->setSender($callbackEvent,ImJson::outData(20003,"3"));
+        $user_id = $this->getUserId();
+        $is_revoke = 1;
+        $where = [
+            "seq" => $seq
+        ];
+        $data  = [
+            "is_revoke" => $is_revoke
+        ];
+        $save = $this->update($where,$data);
+        if (!$save) return  $this->setSender($callbackEvent,ImJson::outData(20006));
+        $redis = $this->app->make(RedisService::class);
+        $key = $redis->getPrefix()."message:$room_id:".$user_id;
+        if ($redis->exists($key)) {
+            $list = $redis->ZREVRANGEBYSCORE($key,$seq,$seq);
+            if ($list) {
+                $jsonToArray = $this->jsonToArray->jsonDecode($list[0]);
+                $jsonToArray['is_revoke'] = $is_revoke;
+                Log::write(date('Y-m-d H:i:s').'_jsonToArrayRevokeMsg_'.$this->jsonToArray->jsonEncode($jsonToArray),'info');
+                if ($redis->ZREMRANGEBYSCORE($key,$seq,$seq)) {
+                    $redis->zadd($key,$seq,$this->jsonToArray->jsonEncode($jsonToArray));
+                }
+            }
+
+        }
+
+        return $this->websocket->to($room_id)->emit($callbackEvent,ImJson::outData(10000,'成功',[
+            "seq" => $seq,
+            "is_revoke" => 1,
+            "index" => $index
+        ]));
+
     }
 
-    public function setSender($event,$data): bool
+    protected function setSender($event,$data): bool
     {
         $fd =  $this->websocket->getSender();
         return $this->websocket->setSender($fd)->emit($event,$data);
+    }
+
+    /**
+     * 更新消息信息
+     * @param $where
+     * @param $data
+     * @return false
+     */
+    public function update($where,$data)
+    {
+        $messageBusiness = $this->app->make(MessageBusiness::class);
+        $save = $messageBusiness->save($where,$data);
+        Log::write(date('Y-m-d H:i:s').'_updateMsgStatus'.json_encode($save),'info');
+        return $save;
     }
 
 

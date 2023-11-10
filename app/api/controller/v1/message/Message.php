@@ -16,7 +16,6 @@ class Message extends BaseController
     {
         parent::__construct($app);
         $this->business = $business;
-
     }
 
     /**

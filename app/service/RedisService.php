@@ -23,10 +23,6 @@ class RedisService
 
     }
 
-
-
-
-
     /**
      * @param string $prefix
      */
@@ -108,13 +104,8 @@ class RedisService
         return "{$this->prefix}{$table}:{$key}";
     }
 
-
     public function __call($method, $parameters)
     {
         return $this->handler()->$method(...$parameters);
     }
-
-
-
-
 }

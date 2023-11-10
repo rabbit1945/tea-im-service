@@ -3,6 +3,7 @@ declare (strict_types = 1);
 
 namespace app\api\listener;
 
+use app\common\utils\JwToken;
 use app\service\WebSocketService;
 use Swoole\Server;
 use think\Container;
@@ -14,12 +15,12 @@ class WebsocketClose  extends WebSocketService
 
 
     /**
-     * @var false|mixed
+     * @return void
      */
 
-    public function __construct(Server $server,Websocket $websocket,Container $container)
+    public function __construct(Server $server,Websocket $websocket,JwToken $jwToken)
     {
-        parent::__construct( $server, $websocket, $container);
+        parent::__construct( $server, $websocket,$jwToken);
     }
 
     /**

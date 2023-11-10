@@ -4,6 +4,7 @@ declare (strict_types = 1);
 namespace app\api\listener;
 
 use app\common\utils\ImJson;
+use app\common\utils\JwToken;
 use app\service\WebSocketService;
 use Swoole\Server;
 use think\Container;
@@ -17,12 +18,11 @@ class WebsocketOpen extends WebSocketService
      *
      * @param Server $server
      * @param Websocket $websocket
-     * @param Container $container
      */
 
-    public function __construct(Server $server,Websocket $websocket,Container $container)
+    public function __construct(Server $server,Websocket $websocket,JwToken $jwToken)
     {
-        parent::__construct( $server, $websocket,$container);
+        parent::__construct( $server, $websocket,$jwToken);
     }
 
     /**
