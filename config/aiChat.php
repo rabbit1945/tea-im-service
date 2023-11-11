@@ -9,5 +9,4 @@ return [
         'chatglm2_6b_32k' => 'rpc/2.0/ai_custom/v1/wenxinworkshop/chat/chatglm2_6b_32k?access_token='
     ]
 
-
 ];
