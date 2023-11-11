@@ -1,12 +1,8 @@
 <?php
 namespace app\service;
-use Swoole\Runtime;
 use think\App;
 use think\facade\Cache;
-use Swoole\Coroutine;
-use Swoole\Database\RedisConfig;
-use Swoole\Database\RedisPool;
-;
+
 /**
  * redis 服务
  * Class Redis

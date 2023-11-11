@@ -5,7 +5,9 @@ namespace app\service\login;
 
 
 use app\service\JsonService;
+use Exception;
 use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 use think\facade\Config;
 use think\facade\Log;
 
@@ -54,7 +56,7 @@ class Github implements OauthInterface
     /**
      * @param $code
      * @return mixed
-     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws GuzzleException
      */
     public function getAccessToken($code): mixed
     {
@@ -71,14 +73,14 @@ class Github implements OauthInterface
             $jsonService = app()->make(JsonService::class);
             $data = $client->request('POST', $url, [
                 'headers' => [
-                    'Accept'        => "application/json"
+                    'Accept' => "application/json"
                 ],
                 'json' => $query,
             ])->getBody()->getContents();
-            Log::write(date('Y-m-d H:i:s').'.github_'.$data,'info');
+            Log::write(date('Y-m-d H:i:s') . '.github_' . $data, 'info');
             return $jsonService->jsonDecode($data);
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $e->getMessage();
         }
 
@@ -88,7 +90,7 @@ class Github implements OauthInterface
     /**
      * @param $access_token
      * @return mixed
-     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws GuzzleException
      */
     public function getUserInfo($access_token): mixed
     {
@@ -110,7 +112,7 @@ class Github implements OauthInterface
      * 获取邮箱
      * @param $access_token
      * @return mixed
-     * @throws \GuzzleHttp\Exception\GuzzleException
+     * @throws GuzzleException
      */
     public function getEmailInfo($access_token)
     {

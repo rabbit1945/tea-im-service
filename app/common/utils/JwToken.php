@@ -12,6 +12,7 @@
 
 namespace app\common\utils;
 
+use Exception;
 use Firebase\JWT\JWT;
 use think\facade\Config;
 
@@ -105,16 +106,12 @@ class JwToken extends JWT
 
         try {
             $privateKey = file_get_contents($key);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $e->getMessage();
         }
 
         return $privateKey;
     }
-
-
-
-
 
 
 }

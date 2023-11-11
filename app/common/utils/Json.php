@@ -13,6 +13,7 @@
 namespace app\common\utils;
 
 use think\facade\Lang;
+use function header;
 
 /**
  * 自定义json工具
@@ -43,7 +44,7 @@ class Json
             'data' =>  $data,
         ];
 
-        \header('Content-Type:application/json; charset=utf-8', false, 200);
+        header('Content-Type:application/json; charset=utf-8', false, 200);
         exit(json_encode($getData, JSON_UNESCAPED_UNICODE));
 
 

@@ -5,8 +5,8 @@ namespace app\middleware;
 
 use app\common\utils\ImJson;
 use app\common\utils\JwToken;
-use app\service\JsonService;
 use Closure;
+use Exception;
 use think\facade\Cache;
 use think\facade\Request;
 
@@ -67,14 +67,14 @@ class CheckLogin
                 return $data;
             }
 
-            if (empty($verify))  {
+            if (empty($verify)) {
                 $data['code'] = 20401;
                 $data['httpCode'] = 401;
                 return $data;
-            };
+            }
 
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $data['code'] = 20500;
             $data['data'] = [$e->getMessage()];
             $data['httpCode'] = 500;

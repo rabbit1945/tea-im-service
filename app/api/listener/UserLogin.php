@@ -2,13 +2,15 @@
 declare (strict_types = 1);
 
 namespace app\api\listener;
-use app\common\utils\JwToken;
+use app\api\business\UserBusiness;
 use app\api\dao\user\UserDao;
+use app\common\utils\JwToken;
+use app\model\UserLogsModel;
+use DateTime;
 use Exception;
 use think\facade\Cache;
 use think\facade\Config;
-use app\model\UserLogsModel;
-use app\api\business\UserBusiness;
+
 /**
  * 用户登录一系列动作处理
  * Class UserLogin
@@ -29,7 +31,7 @@ class UserLogin
      * 事件监听处理
      * @param $data
      * @return array|false
-     * @throws \Exception
+     * @throws Exception
      */
     public function handle($data)
     {
@@ -59,10 +61,9 @@ class UserLogin
     }
 
 
-
     /**
      * 设置缓存
-     * @throws \Exception
+     * @throws Exception
      */
     public function setCache($key,$find): bool
     {
@@ -76,7 +77,7 @@ class UserLogin
                     'sex' => $find['sex'],
                     'photo' => $find['photo']
                 ],
-                new \DateTime(date('Y-m-d h:i:s', Config::get('jwt.exp')))
+               new DateTime(date('Y-m-d h:i:s', Config::get('jwt.exp')))
             );
 
         }

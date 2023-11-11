@@ -2,12 +2,12 @@
 
 
 namespace app\common\utils;
+use app\service\RedisService;
+use Exception;
 use Godruoyi\Snowflake\RedisSequenceResolver;
 use Godruoyi\Snowflake\Sonyflake;
 use think\facade\App;
-use app\service\RedisService;
 use think\facade\Cache;
-use Exception;
 
 /**
  * 生成id
@@ -33,7 +33,7 @@ class IdRedisGenerator
      * 生成器
      * @param  $datacenterId
      * @param  $time
-     * @throws \Exception
+     * @throws Exception
      */
     public function generator( $datacenterId, $time): Sonyflake
     {

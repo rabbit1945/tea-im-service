@@ -5,10 +5,13 @@ namespace app\common\utils;
 /*
  * 使用curl扩展发出http的get或post请求
  */
+
+use Exception;
+
 class Curl
 {
 
-    public static function send( $url = "" , $data = "",$header = [],$type = "get")
+    public static function send($url = "", $data = "", $header = [], $type = "get")
     {
 
         try {
@@ -38,8 +41,8 @@ class Curl
             $result = curl_exec($ch);
             curl_close($ch);
             return $result;
-        } catch (\Exception $e) {
-           return $e->getMessage();
+        } catch (Exception $e) {
+            return $e->getMessage();
         }
 
 

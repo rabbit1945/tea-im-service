@@ -4,10 +4,11 @@
 namespace app\job;
 
 
+use app\api\business\MessageBusiness;
 use app\api\business\MessageReceiveBusiness;
 use app\api\business\MessageSendBusiness;
 use app\model\UserSendModel;
-use app\api\business\MessageBusiness;
+use Exception;
 use think\facade\Log;
 use think\queue\Job;
 
@@ -83,11 +84,11 @@ class ReceiveMessage
 
             // 提交事务
             $userSendModel::commit();
-            Log::write(date('Y-m-d H:i:s').'_消费成功');
+            Log::write(date('Y-m-d H:i:s') . '_消费成功');
 
             return true;
-        } catch (\Exception $e) {
-            Log::write(date('Y-m-d H:i:s').'_消费失败_'.$e->getMessage(),'info');
+        } catch (Exception $e) {
+            Log::write(date('Y-m-d H:i:s') . '_消费失败_' . $e->getMessage(), 'info');
             // 回滚事务
             $userSendModel::rollback();
             return false;

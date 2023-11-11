@@ -8,6 +8,7 @@ use app\api\dao\user\UserDao;
 use app\common\utils\SensitiveWord;
 use app\service\JsonService;
 use app\service\RedisService;
+use Exception;
 use think\App;
 use think\Event;
 
@@ -126,14 +127,14 @@ class MessageReceiveBusiness extends Business
             if ($list) {
                 // 用户维度进行有序集合
                 foreach ($list as $val) {
-                    $key = $redis->getPrefix()."message:$room_id:".$val['msg_to'];
+                    $key = $redis->getPrefix() . "message:$room_id:" . $val['msg_to'];
                     $jsonEncode = $json->jsonEncode($val);
-                    $redis->zadd($key,$val['seq'],$jsonEncode);
+                    $redis->zadd($key, $val['seq'], $jsonEncode);
                 }
 
             }
             return $list;
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             echo $e;
         }
     }

@@ -3,6 +3,8 @@
 
 namespace app\common\utils;
 
+use Exception;
+
 /**
  * 获取IP地址工具
  * Class Ip
@@ -16,7 +18,7 @@ class Ip
     public static function getIp() {
         try {
             return Curl::send('http://ip.42.pl/raw');
-        } catch (\Exception $ex) {
+        } catch (Exception $ex) {
             return false;
 
         }
@@ -35,15 +37,15 @@ class Ip
             if ($ip) {
                 $info = Curl::send("https://opendata.baidu.com/api.php?query=$ip&co=&resource_id=6006&oe=utf8");
 
-                $info = json_decode($info,true);
+                $info = json_decode($info, true);
 
                 if ($info['status'] === "0") {
                     return $info['data'];
 
                 }
             }
-            return  false;
-        } catch (\Exception $ex) {
+            return false;
+        } catch (Exception $ex) {
             return false;
 
         }

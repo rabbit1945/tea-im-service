@@ -5,6 +5,7 @@ use app\api\business\UserBusiness;
 use app\common\utils\ImJson;
 use app\service\JsonService;
 use app\service\login\AuthLogin;
+use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use think\App;
 use think\facade\Cache;
@@ -30,17 +31,17 @@ class Login
      * 创建用户
      */
 
-    public function register(): \think\Response
+    public function register(): Response
     {
 
-        $nickName  =  Request::param('nick_name');
+        $nickName = Request::param('nick_name');
         $registerName = Request::post('login');
 
-        if (static::$business->isLoginName($registerName))  ImJson::output(10001);
-        $password   = Request::post('password');
+        if (static::$business->isLoginName($registerName)) ImJson::output(10001);
+        $password = Request::post('password');
         $confirmPassword = Request::post('confirm_password');
-        $registerUser = static::$business->createUser($nickName,$registerName,$password,$confirmPassword);
-        if ($registerUser !== true)  return ImJson::output(20001, $registerUser,[],['name' => '注册']);
+        $registerUser = static::$business->createUser($nickName, $registerName, $password, $confirmPassword);
+        if ($registerUser !== true) return ImJson::output(20001, $registerUser, [], ['name' => '注册']);
 
         return ImJson::output(10000, '',[],['name'=>'注册']);
 
@@ -49,18 +50,18 @@ class Login
 
     /**
      * 登录
-     * @throws \Exception
+     * @throws Exception
      */
-    public function login(): \think\Response
+    public function login(): Response
     {
 
         $loginName = Request::post('login');
-        $password   = Request::post('password');
-        $createUser = static::$business->login($loginName,$password);
-        if ($createUser){
-           return ImJson::output(10000, '',$createUser,['name'=>'登录']);
+        $password = Request::post('password');
+        $createUser = static::$business->login($loginName, $password);
+        if ($createUser) {
+            return ImJson::output(10000, '', $createUser, ['name' => '登录']);
         }
-       return ImJson::output(20001, '',[],['name' => '登录']);
+        return ImJson::output(20001, '', [], ['name' => '登录']);
     }
 
     /**
@@ -81,12 +82,12 @@ class Login
      * gitee 授权
      * @throws GuzzleException
      */
-    public function getAuth(): \think\Response
+    public function getAuth(): Response
     {
-        $origin =  Request::get('origin');
-        $oauthToken =  Request::get('oauthToken');
+        $origin = Request::get('origin');
+        $oauthToken = Request::get('oauthToken');
         if (empty($origin)) {
-            return ImJson::output(20006, '',[]);
+            return ImJson::output(20006, '', []);
         }
 
         if ($oauthToken) {

@@ -2,19 +2,20 @@
 
 
 namespace app\api\business;
-use app\common\utils\Ip;
-use app\common\utils\JwToken;
+use app\api\dao\user\ThirdPartyLoginUserDao;
 use app\api\dao\user\UserDao;
 use app\api\dao\user\UserLogsDao;
-use app\api\dao\user\ThirdPartyLoginUserDao;
+use app\common\utils\Ip;
+use app\common\utils\JwToken;
 use app\model\RoomModel;
+use app\model\RoomUserModel;
 use app\model\UserModel;
 use app\service\login\AuthLogin;
 use app\validate\UserValidate;
+use Exception;
 use GuzzleHttp\Exception\GuzzleException;
 use think\Event;
 use think\exception\ValidateException;
-use app\model\RoomUserModel;
 use think\facade\Cache;
 use think\facade\Request;
 use think\Response;
@@ -225,13 +226,12 @@ class UserBusiness
     }
 
 
-
     /**
      * 登录
      * @param $login_name
      * @param $password
      * @return mixed
-     * @throws \Exception
+     * @throws Exception
      */
     public function login($login_name,$password): mixed
     {

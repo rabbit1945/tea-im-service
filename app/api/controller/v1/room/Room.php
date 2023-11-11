@@ -6,6 +6,7 @@ use app\BaseController;
 use app\common\utils\ImJson;
 use think\App;
 use think\facade\Request;
+use think\Response;
 
 class Room extends BaseController
 {
@@ -22,14 +23,14 @@ class Room extends BaseController
     /**
      * 聊天室中的基本信息
      */
-    public function roomInfo(): \think\Response
+    public function roomInfo(): Response
     {
         $id = Request::param('id');
         if (!$id) return ImJson::output(20006);
         $groupUserBusiness = $this->app->make(RoomUserBusiness::class);
         // 获取房间信息
         $groupUser = $groupUserBusiness->find($id);
-        $user_id =static::$user_id;
+        $user_id = static::$user_id;
         // 用户信息
         $user = static::$business->find($user_id);
         //统计在线人数
@@ -54,13 +55,13 @@ class Room extends BaseController
     /**
      * 获取聊天室中用户的列表
      */
-    public function roomUserList(): \think\Response
+    public function roomUserList(): Response
     {
-        $pages = Request::param('pages',1);
-        $size = Request::param('size',20);
-        $nickName = Request::param('nickName',"");
-        $room_id = Request::param('room_id',"");
-        if (!$room_id)  return ImJson::output(20006);
+        $pages = Request::param('pages', 1);
+        $size = Request::param('size', 20);
+        $nickName = Request::param('nickName', "");
+        $room_id = Request::param('room_id', "");
+        if (!$room_id) return ImJson::output(20006);
         // 聊天室名称
         $groupUserBusiness = $this->app->make(RoomUserBusiness::class);
 
@@ -75,14 +76,14 @@ class Room extends BaseController
     /**
      * 添加用户登录日志
      */
-    public function userLoginLogs(): \think\Response
+    public function userLoginLogs(): Response
     {
-        $user_id =static::$user_id;
+        $user_id = static::$user_id;
         $groupUserBusiness = static::$business->addUserLoginLogs($user_id);
 
         if ($groupUserBusiness) return ImJson::output(10000, '成功');
 
-        return ImJson::output(20001, '失败',[],["name","添加用户日志"]);
+        return ImJson::output(20001, '失败', [], ["name", "添加用户日志"]);
 
     }
 }

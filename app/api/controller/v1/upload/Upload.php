@@ -5,12 +5,12 @@ use app\api\business\MessageSendBusiness;
 use app\api\business\UploadBusiness;
 use app\BaseController;
 use app\common\utils\ImJson;
+use app\common\utils\Upload as utilsUpload;
 use think\App;
 use think\facade\Config;
 use think\facade\Filesystem;
 use think\facade\Request;
 use think\Response;
-use app\common\utils\Upload as utilsUpload;
 
 class Upload extends BaseController
 {
@@ -55,11 +55,11 @@ class Upload extends BaseController
 
     /**
      * 上传文件
-     * @return \think\Response
+     * @return Response
      */
-    public function uploadFiles(): \think\Response
+    public function uploadFiles(): Response
     {
-        $user_id =static::$user_id;
+        $user_id = static::$user_id;
         $files = Request::file('file');
         if (!$files) {
             return ImJson::output(20006);
@@ -140,7 +140,7 @@ class Upload extends BaseController
         $getSequence = $this->app->make(MessageSendBusiness::class)->getSequence();  // 给文件添加唯一标识
         $getUploadMaxSize = $this->uploadBusiness->getUploadMaxSize();
         if ($totalSize > $getUploadMaxSize) return ImJson::output('20015','',[],['name'=>300]);
-        $uploadStatus = $this->app->make(\app\common\utils\Upload::class);
+        $uploadStatus = $this->app->make(utilsUpload::class);
         // 查询是否有相同的文件
         $find = $this->business->find(
             [

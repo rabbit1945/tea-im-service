@@ -6,6 +6,7 @@ use app\common\utils\ImJson;
 use app\validate\MessageValidate;
 use think\App;
 use think\facade\Request;
+use think\Response;
 
 class Message extends BaseController
 {
@@ -21,16 +22,16 @@ class Message extends BaseController
     /**
      * 获取所有消息记录
      */
-    public function getMessageList(): \think\Response
+    public function getMessageList(): Response
     {
-        $user_id =static::$user_id;
+        $user_id = static::$user_id;
         $room_id = Request::param('room_id');
-        $page = Request::param('page')??1;
-        $limit = Request::param('limit')??20;
+        $page = Request::param('page') ?? 1;
+        $limit = Request::param('limit') ?? 20;
         $validate = validate(MessageValidate::class);
         $result = $validate->check(['room_id' => $room_id]);
-        if(!$result){
-            return ImJson::output('20006',$validate->getError());
+        if (!$result) {
+            return ImJson::output('20006', $validate->getError());
         }
         $list = $this->business->getMessage($room_id,$user_id,$page,$limit);
 

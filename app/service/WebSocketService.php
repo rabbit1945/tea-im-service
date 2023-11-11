@@ -2,11 +2,11 @@
 
 
 namespace app\service;
-use think\Container;
-use think\exception\ValidateException;
-use think\swoole\Websocket;
-use Swoole\Server;
 use app\common\utils\JwToken;
+use Exception;
+use Swoole\Server;
+use think\swoole\Websocket;
+
 class WebSocketService
 {
 
@@ -41,7 +41,7 @@ class WebSocketService
             $this->user_id = $verify['user_id'];
             return true;
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return false;
         }
 
@@ -55,8 +55,6 @@ class WebSocketService
         return $this->user_id;
 
     }
-
-
 
 
     /**

@@ -12,9 +12,11 @@
 
 namespace app\common\utils;
 
+use Exception;
 use think\facade\Lang;
 use think\facade\Request;
 use think\Response;
+
 class  ImJson
 {
 
@@ -52,22 +54,21 @@ class  ImJson
             }
             // 1.调用整个数组
             $getData = [
-                'code' =>  $code,
-                'msg'  => $msg,
-                'data' =>  $data,
+                'code' => $code,
+                'msg' => $msg,
+                'data' => $data,
             ];
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $getData = [
-                'code' =>  '20001',
-                'msg'  => $e->getMessage(),
-                'data' =>  [],
+                'code' => '20001',
+                'msg' => $e->getMessage(),
+                'data' => [],
             ];
         }
 
         return $getData;
 
     }
-
 
 
 }

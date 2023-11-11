@@ -6,7 +6,7 @@ namespace app\service\ai;
 
 use app\common\utils\Curl;
 use app\service\JsonService;
-use \Exception;
+use Exception;
 use think\facade\Cache;
 use think\facade\Config;
 
