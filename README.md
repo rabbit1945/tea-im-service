@@ -1,7 +1,5 @@
 lightning-server 1.0
 ===============
-
-
 > 运行环境要求PHP8.0.3 swoole 4.0  topthink/think-swoole 3.0  swoole 5.1.0
 > 
 > 手册
