@@ -15,14 +15,18 @@ class Ip
     /**
      * 获取IP详情
      */
-    public static function getIp() {
-        try {
-            return Curl::send('http://ip.42.pl/raw');
-        } catch (Exception $ex) {
-            return false;
 
+    public static function getIP(): bool|array|string
+    {
+
+        if (getenv("HTTP_X_FORWARDED_FOR")){
+            $realIp = getenv("HTTP_X_FORWARDED_FOR");
+        } else if (getenv("HTTP_CLIENT_IP")) {
+            $realIp = getenv("HTTP_CLIENT_IP");
+        } else {
+            $realIp = getenv("REMOTE_ADDR");
         }
-
+        return $realIp;
     }
 
     /**

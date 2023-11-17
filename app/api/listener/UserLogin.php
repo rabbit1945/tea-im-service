@@ -4,6 +4,7 @@ declare (strict_types = 1);
 namespace app\api\listener;
 use app\api\business\UserBusiness;
 use app\api\dao\user\UserDao;
+use app\common\utils\Ip;
 use app\common\utils\JwToken;
 use app\model\UserLogsModel;
 use DateTime;
@@ -43,14 +44,15 @@ class UserLogin
 
             $getToken = JwToken::getAccessToken($user_id,time()+86400*64);
             if (empty($getToken))  return false;
-            // 设置缓存
-            if (!$this->setCache($user_id,$data)) return false;
-            // 缓存token
-            if (!app()->make(UserBusiness::class)->setCacheToken('loginToken:'.$user_id,$getToken)) return false;
             // 更改用户状态
             $update = app()->make(UserDao::class)->update($user_id,['is_online' => 'online']);
             if (!$update) return false;
-
+            // 设置缓存
+            if (!$this->setCache($user_id,$data)) return false;
+            // 缓存token
+            $userBusiness = app()->make(UserBusiness::class);
+            if (!$userBusiness->setCacheToken('loginToken:'.$user_id,$getToken)) return false;
+            $userBusiness->addUserLoginLogs($user_id);
             return [
                 "is_online" => "online",
                 "token" => $getToken

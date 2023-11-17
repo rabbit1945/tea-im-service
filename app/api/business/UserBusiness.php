@@ -17,6 +17,7 @@ use GuzzleHttp\Exception\GuzzleException;
 use think\Event;
 use think\exception\ValidateException;
 use think\facade\Cache;
+use think\facade\Log;
 use think\facade\Request;
 use think\Response;
 
@@ -230,28 +231,38 @@ class UserBusiness
      * 登录
      * @param $login_name
      * @param $password
-     * @return mixed
-     * @throws Exception
+     * @return false|mixed
      */
     public function login($login_name,$password): mixed
     {
-        $data = [
-            'login_name'=> $login_name,
-            'password'  => $password,
-        ];
-        $scene = 'edit';
-        validate(UserValidate::class)
-            ->scene($scene)
-            ->check($data);
-        $where = [
-            ['login_name', '=', $login_name],
-            ['status','=',1],
-            ['password','=',md5($password)]
-        ];
-        $find = static::$model
-            ->where($where)
-            ->find();
-        return $this->extracted($find);
+        $model = static::$model;
+        $model::startTrans();
+        try {
+            $data = [
+                'login_name'=> $login_name,
+                'password'  => $password,
+            ];
+            $scene = 'edit';
+            validate(UserValidate::class)
+                ->scene($scene)
+                ->check($data);
+            $where = [
+                ['login_name', '=', $login_name],
+                ['status','=',1],
+                ['password','=',md5($password)]
+            ];
+            $find = $model
+                ->where($where)
+                ->find();
+           $data =$this->extracted($find);
+           $model::commit();
+           return $data;
+         }catch (Exception $e) {
+            // 回滚事务
+            $model::rollback();
+            return false;
+        }
+
     }
 
     /**
@@ -289,23 +300,19 @@ class UserBusiness
     {
         //  检测缓存是否过有效期
         $key = 'getLoginLogs:'.$user_id; //获取登录用户的日志信息
-        if (Cache::has($key)) {
-            return true;
+        if (!Cache::has($key)) {
+            $ip = Ip::getIp();
+
+            if ($ip) {
+                $data = [
+                    "user_id" => $user_id,
+                    "ip"      => $ip,
+                ];
+                if (!app()->make(UserLogsDao::class)->addUserLogs($data))  return false;
+                Cache::set($key,$data,60);
+            }
         }
-        $ip = Ip::getIp();
-
-        if ($ip) {
-          $data = [
-              "user_id" => $user_id,
-              "ip"      => $ip,
-          ];
-          if (app()->make(UserLogsDao::class)->addUserLogs($data)) {
-              Cache::set($key,$data,60);
-              return true;
-          }
-       }
-        return false;
-
+        return true;
     }
 
     /**

@@ -161,22 +161,4 @@ class Login
         return static::$business->authRedirect($accessToken);
     }
 
-
-//    public function test()
-//    {
-//       $list =  Db::table('webim_user_send')->select();
-//       foreach ($list as $val) {
-//           Db::name('msg_list')->save([
-//               "seq"=>$val['seq'],
-//               "msg_content"=>$val['msg_content'],
-//
-//           ]);
-//       }
-//    }
-
-
-
-
-
-
 }
