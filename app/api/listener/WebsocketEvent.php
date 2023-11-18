@@ -62,7 +62,6 @@ class WebsocketEvent  extends WebSocketService
 
     public function robot($contactList,$sendUser,$msg)
     {
-        echo "=============机器人============";
         $aiService = app()->make(AiService::class);
         $json = app()->make(JsonService::class);
 
@@ -109,7 +108,6 @@ class WebsocketEvent  extends WebSocketService
                             "msg" => $sendUser['msg'],
                         ];
                         $room = (string)$val['room_id'];
-                        Log::write(date('Y-m-d H:i:s').'_机器人_'.$room,'info');
                         $send = $this->websocket->to($room)->emit('roomCallback',
                             $getContext
                         );
@@ -136,8 +134,7 @@ class WebsocketEvent  extends WebSocketService
         Log::write(date('Y-m-d H:i:s').'_event_'.json_encode($event),'info');
         $sendContext = $event['data'][0];
         $msg = $sendContext['msg'];
-        $sendContext["contactList"] = $sendContext['contactList'] ?? [];
-        $contactList = $sendContext["contactList"];
+        $contactList =  $sendContext['contactList'] ?? [];
         if (!empty($contactList)) {
             $content = "";
             foreach ($contactList as $val) {
@@ -163,7 +160,10 @@ class WebsocketEvent  extends WebSocketService
         if ($send) {
             app()->make(SendMessage::class)->send($getContext);
             Log::write(date('Y-m-d H:i:s').'_机器人_'.json_encode($sendContext),'info');
-            $this->robot($contactList,$sendContext,$msg);
+            if ($contactList) {
+                $this->robot($contactList,$sendContext,$msg);
+            }
+
         }
     }
 

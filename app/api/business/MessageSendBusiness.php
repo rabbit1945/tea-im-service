@@ -69,7 +69,6 @@ class MessageSendBusiness
         $time = floor(microtime(true) * 1000)| 0;
         $getContactList = $msgData['contactList'];
         $getContactUsers = $this->getContactList($getContactList);
-        $user_id = $msgData['user_id'];
         $msg = trim($msgData['msg']);
         $seq = $this->getSequence();
         $room = $msgData['room_id'];

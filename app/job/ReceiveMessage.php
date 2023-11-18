@@ -89,6 +89,7 @@ class ReceiveMessage
             return true;
         } catch (Exception $e) {
             Log::write(date('Y-m-d H:i:s') . '_消费失败_' . $e->getMessage(), 'info');
+            Log::write(date('Y-m-d H:i:s') . '_消费失败info_' . json_encode($data,true), 'info');
             // 回滚事务
             $userSendModel::rollback();
             return false;
