@@ -145,13 +145,14 @@ class WebsocketEvent  extends WebSocketService
         } else {
             if (empty($msg)) return false;
         }
-
+        Log::write(date('Y-m-d H:i:s').'_getContext_'.json_encode($sendContext),'info');
         $room = (string)$sendContext['room_id'];
         $sendBus = app()->make(MessageSendBusiness::class);
         $sendContext['file_name'] = $sendContext['file_name'] ?? "";
         $sendContext['file_size'] = $sendContext['file_size'] ?? "";
         $sendContext['md5'] = $sendContext['md5'] ?? "";
         $sendContext['original_file_name'] = $sendContext['original_file_name'] ?? "";
+        Log::write(date('Y-m-d H:i:s').'_getContext1_'.json_encode($sendContext),'info');
         $getContext = $sendBus->getContext($sendContext,$this->websocket->getSender());
 
         $send = $this->websocket->to($room)->emit('roomCallback',

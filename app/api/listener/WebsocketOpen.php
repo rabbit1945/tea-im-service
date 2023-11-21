@@ -3,6 +3,7 @@ declare (strict_types = 1);
 
 namespace app\api\listener;
 
+use app\api\business\RoomUserBusiness;
 use app\common\utils\ImJson;
 use app\common\utils\JwToken;
 use app\service\WebSocketService;
@@ -10,6 +11,7 @@ use Swoole\Server;
 use think\Container;
 use think\exception\ErrorException;
 use think\exception\ValidateException;
+use think\facade\Log;
 use think\swoole\Websocket;
 
 class WebsocketOpen extends WebSocketService
@@ -40,7 +42,6 @@ class WebsocketOpen extends WebSocketService
             // 加入房间
             $this->join($data);
         }
-
 
     }
 
@@ -73,7 +74,7 @@ class WebsocketOpen extends WebSocketService
             $token = $data['token'];
             $verify = $this->socketVerifyToken($token);
 
-            if (!$verify) {
+            if ($verify === false) {
                 $this->server->close($fd);
                 return false;
             }
@@ -89,16 +90,28 @@ class WebsocketOpen extends WebSocketService
 
     }
 
-
     /**
      * 加入房间
      * @param $data
-     * @return Websocket
+     * @return void
      */
-    public function join($data): Websocket
+    public function join($data): void
     {
+        $token = $data['token'];
+        $verify = $this->jwToken->verifyToken($token);
 
-        echo "加入房间:".$data['room'];
-        return $this->websocket->join($data['room']);
+        $user_id = $verify['user_id'];
+        $roomUserBusiness = app()->make(RoomUserBusiness::class);
+        $roomList = $roomUserBusiness->getRoomList($user_id);
+        if ($roomList) {
+
+            Log::write(date('Y-m-d H:i:s').'$roomList'.json_encode($roomList),'info');
+            foreach ($roomList as $val) {
+                $room_id = $val['room_id'];
+                $this->websocket->join($room_id);
+            }
+
+        }
+
     }
 }

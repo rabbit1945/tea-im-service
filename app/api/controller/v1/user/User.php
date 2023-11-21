@@ -6,6 +6,7 @@ use app\api\business\UserBusiness;
 use app\BaseController;
 use app\common\utils\ImJson;
 use think\App;
+use think\Response;
 
 class User extends BaseController
 {
@@ -17,6 +18,21 @@ class User extends BaseController
     {
         parent::__construct($app);
         static::$business = $business;
+
+    }
+
+
+    /**
+     * 添加用户登录日志
+     */
+    public function userLoginLogs(): Response
+    {
+        $user_id = static::$user_id;
+        $groupUserBusiness = static::$business->addUserLoginLogs($user_id);
+
+        if ($groupUserBusiness) return ImJson::output(10000, '成功');
+
+        return ImJson::output(20001, '失败', [], ["name", "添加用户日志"]);
 
     }
 

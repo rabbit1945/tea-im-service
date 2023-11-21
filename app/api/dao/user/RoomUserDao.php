@@ -18,6 +18,22 @@ class RoomUserDao extends BaseDao
     }
 
     /**
+     * 获取当前用户加入的聊天室
+     * @param $user_id
+     * @return mixed
+     */
+    public function getRoomList($user_id)
+    {
+        $roomUserModel = $this->getModel();
+        return $roomUserModel
+            ->field('RoomModel.id as room_id,name')
+            ->hasWhere('room',['deleted_at' => 0])
+            ->where('user_id','=',$user_id)
+            ->order('id desc')
+            ->select();
+    }
+
+    /**
      * 房间用户列表
      * @param $room_id
      * @param int $pages

@@ -15,6 +15,16 @@ class RoomUserBusiness
         $this->app = $app;
     }
 
+    /**
+     * 获取当前用户的房间列表
+     * @param $user_id
+     * @return mixed
+     */
+    public function getRoomList($user_id): mixed
+    {
+       return $this->dao->getRoomList($user_id);
+    }
+
 
     /**
      * 查询房间信息

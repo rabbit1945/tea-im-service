@@ -11,8 +11,10 @@
 use think\facade\Route;
 
 Route::group('room',function () {
+    // 聊天室聊表
+    Route::get("<v>/room/index",':v.room.Room/index');
     // 聊天室信息
-    Route::get("<v>/room/info/<id>",':v.room.Room/roomInfo');
+    Route::get("<v>/room/info/<id>",':v.room.Room/show');
     // 聊天室的用户列表
     Route::get('<v>/room/user/list/<room_id>/<pages?>/<size?>/<nickName?>',':v.room.Room/roomUserList');
 

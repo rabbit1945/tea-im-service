@@ -1,5 +1,6 @@
 <?php
 namespace app\api\controller\v1\room;
+use app\api\business\RoomBusiness;
 use app\api\business\RoomUserBusiness;
 use app\api\business\UserBusiness;
 use app\BaseController;
@@ -11,28 +12,42 @@ use think\Response;
 class Room extends BaseController
 {
 
-    private static $business;
+    private RoomBusiness $business;
+    private RoomUserBusiness $roomUserBusiness;
 
-    public function __construct(App $app,UserBusiness $business)
+    public function __construct(App $app,RoomBusiness $business,RoomUserBusiness $roomUserBusiness)
     {
         parent::__construct($app);
-        static::$business = $business;
+        $this->business = $business;
+        $this->roomUserBusiness = $roomUserBusiness;
+
+    }
+
+    public function index()
+    {
+
+        $user_id = static::$user_id;
+        $list = $this->roomUserBusiness->getRoomList($user_id);
+        if (!$list) return ImJson::output(20006);
+        return ImJson::output(10000, '成功',[
+            'list' => $list
+        ]);
 
     }
 
     /**
      * 聊天室中的基本信息
      */
-    public function roomInfo(): Response
+    public function show(): Response
     {
         $id = Request::param('id');
         if (!$id) return ImJson::output(20006);
-        $groupUserBusiness = $this->app->make(RoomUserBusiness::class);
+        $groupUserBusiness = $this->roomUserBusiness;
         // 获取房间信息
         $groupUser = $groupUserBusiness->find($id);
         $user_id = static::$user_id;
         // 用户信息
-        $user = static::$business->find($user_id);
+        $user = $this->app->make(UserBusiness::class)->find($user_id);
         //统计在线人数
         $countOnline = $groupUserBusiness->getRoomUserIsOnlineCount($groupUser['room_id']);
         $groupUser['countOnline'] = $countOnline;
@@ -63,7 +78,7 @@ class Room extends BaseController
         $room_id = Request::param('room_id', "");
         if (!$room_id) return ImJson::output(20006);
         // 聊天室名称
-        $groupUserBusiness = $this->app->make(RoomUserBusiness::class);
+        $groupUserBusiness = $this->roomUserBusiness;
 
         // 用户列表
         $list = $groupUserBusiness->list($room_id,$pages,$size,$nickName);
@@ -73,17 +88,4 @@ class Room extends BaseController
          ]);
     }
 
-    /**
-     * 添加用户登录日志
-     */
-    public function userLoginLogs(): Response
-    {
-        $user_id = static::$user_id;
-        $groupUserBusiness = static::$business->addUserLoginLogs($user_id);
-
-        if ($groupUserBusiness) return ImJson::output(10000, '成功');
-
-        return ImJson::output(20001, '失败', [], ["name", "添加用户日志"]);
-
-    }
 }

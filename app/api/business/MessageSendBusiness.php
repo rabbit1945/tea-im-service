@@ -67,8 +67,12 @@ class MessageSendBusiness
     {
 
         $time = floor(microtime(true) * 1000)| 0;
-        $getContactList = $msgData['contactList'];
-        $getContactUsers = $this->getContactList($getContactList);
+        $getContactList = $msgData['contactList'] ??[];
+        $getContactUsers = [];
+        if ($getContactList) {
+            $getContactUsers = $this->getContactList($getContactList);
+        }
+
         $msg = trim($msgData['msg']);
         $seq = $this->getSequence();
         $room = $msgData['room_id'];
@@ -77,14 +81,13 @@ class MessageSendBusiness
             $msg_type = 2;
 
         }
-
         $msgData['seq'] = $seq;
         $msgData['sender'] = $sender;
         $msgData['msg'] = $msg;
         $msgData['msg_type'] = $msg_type;
         $msgData['send_timestamp'] = $time;
         $msgData['send_time'] = date("Y-m-d H:i:s",time());
-        $msgData['contactList'] =implode(",",$getContactUsers);
+        $msgData['contactList'] = $getContactUsers ? implode(",",$getContactUsers) :[];
         // 屏蔽敏感词
         $sensitiveWord = app()->make(SensitiveWord::class);
         $sensitiveWord->addWords(false);
