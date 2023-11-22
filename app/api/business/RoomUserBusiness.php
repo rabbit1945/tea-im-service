@@ -26,6 +26,8 @@ class RoomUserBusiness
     }
 
 
+
+
     /**
      * 查询房间信息
      * @param $id

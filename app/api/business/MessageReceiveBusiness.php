@@ -100,8 +100,9 @@ class MessageReceiveBusiness extends Business
             $where[]= ['delivered','=',$delivered];
         }
 
-        return $this->dao->count((array)$where);
+        return $this->dao->count($where);
     }
+
 
     /***
      * 保存某个用户收到哪些信息。使用场景离线消息。
@@ -145,20 +146,11 @@ class MessageReceiveBusiness extends Business
      * @param $room_msg_key
      * @return bool
      */
-    public function updateDeliveredStatus($user_id,array $data,$room_msg_key): bool
+    public function updateDeliveredStatus($user_id,array $data): bool
     {
         if (!$user_id || empty($data)) return false;
-        $redis = $this->app->make(RedisService::class);
-
-        if ($this->dao->update($user_id,$data,'msg_to')) {
-            $key = $redis->getPrefix().$room_msg_key;
-            if (!$redis->exists($key)) return true;
-            if ($redis->del($key) >0) return true;
-
-        }
-
-        return false;
-
+        if (!$this->dao->update($user_id,$data,'msg_to'))  return false;
+        return true;
     }
 
     /**

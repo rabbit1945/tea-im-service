@@ -1,5 +1,6 @@
 <?php
 namespace app\api\controller\v1\room;
+use app\api\business\MessageReceiveBusiness;
 use app\api\business\RoomBusiness;
 use app\api\business\RoomUserBusiness;
 use app\api\business\UserBusiness;
@@ -27,7 +28,13 @@ class Room extends BaseController
     {
 
         $user_id = static::$user_id;
+        $messageReceiveBusiness = $this->app->make(MessageReceiveBusiness::class);
         $list = $this->roomUserBusiness->getRoomList($user_id);
+        foreach ($list as $val) {
+            $room_id = $val['room_id'];
+            $offDeliveredCount = $messageReceiveBusiness->receiveCount($room_id,$user_id,0);
+            $val['off_delivered_count'] = $offDeliveredCount;
+        }
         if (!$list) return ImJson::output(20006);
         return ImJson::output(10000, '成功',[
             'list' => $list

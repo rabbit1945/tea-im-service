@@ -36,16 +36,17 @@ class Message extends BaseController
         $list = $this->business->getMessage($room_id,$user_id,$page,$limit);
 
         if (empty($list))  return ImJson::output('20006');
+        // 获取消息总数
         $total = $this->business->receiveCount($room_id,$user_id);
+        //  获取离线消息总数
+        $offTotal = $this->business->receiveCount($room_id,$user_id,0);
         $data = [
             "list" => $list,
             "total"=> $total,
             "offTotal" => $offTotal ?? 0
-
         ];
-        if (!empty($offList)) {
-            $room_msg_key = "room:$room_id:$user_id";
-            if (!$this->business->updateDeliveredStatus($user_id,['delivered'=>1],$room_msg_key)) return ImJson::output('20006');
+        if (!empty($offTotal)) {
+            if (!$this->business->updateDeliveredStatus($user_id,['delivered'=>1])) return ImJson::output('20006');
         }
 
         return ImJson::output(10000,'成功',$data);
