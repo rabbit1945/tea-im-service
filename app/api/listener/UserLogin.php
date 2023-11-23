@@ -4,7 +4,6 @@ declare (strict_types = 1);
 namespace app\api\listener;
 use app\api\business\UserBusiness;
 use app\api\dao\user\UserDao;
-use app\common\utils\Ip;
 use app\common\utils\JwToken;
 use app\model\UserLogsModel;
 use DateTime;
@@ -20,38 +19,58 @@ use think\facade\Config;
 class UserLogin
 {
 
-    public $user;
+    public UserLogsModel $user;
+
+    protected int|float $exp = 86400 * 64;
 
     public function __construct(UserLogsModel $user)
     {
         $this->user = $user;
     }
 
+    /**
+     * @return float|int
+     */
+    public function getExp(): float|int
+    {
+        return $this->exp;
+    }
+
+    /**
+     * @param float|int $exp
+     */
+    public function setExp(float|int $exp): void
+    {
+        $this->exp = $exp;
+    }
+
 
     /**
      * 事件监听处理
      * @param $data
-     * @return array|false
+     * @return string|array|bool
      * @throws Exception
      */
-    public function handle($data)
+    public function handle($data): string|array|bool
     {
-
         try {
-
             // 获取token
             $user_id = (string)$data['id'];
-
-            $getToken = JwToken::getAccessToken($user_id,time()+86400*64);
-            if (empty($getToken))  return false;
+            $getExp = $this->getExp();
+            $key = 'loginToken:' . $user_id;
+            $getToken = Cache::get($key) ?? JwToken::getAccessToken($user_id, time() + $getExp);
+            if (empty($getToken)) return false;
             // 更改用户状态
-            $update = app()->make(UserDao::class)->update($user_id,['is_online' => 'online']);
+            $update = app()->make(UserDao::class)->update($user_id, ['is_online' => 'online']);
             if (!$update) return false;
             // 设置缓存
-            if (!$this->setCache($user_id,$data)) return false;
-            // 缓存token
+            if (!$this->setCache($user_id, $data)) return false;
             $userBusiness = app()->make(UserBusiness::class);
-            if (!$userBusiness->setCacheToken('loginToken:'.$user_id,$getToken)) return false;
+            // 缓存token
+            if (!Cache::has($key)) {
+                if (!$userBusiness->setCacheToken($key, $getToken, $getExp - 1000)) return false;
+            }
+
             $userBusiness->addUserLoginLogs($user_id);
             return [
                 "is_online" => "online",

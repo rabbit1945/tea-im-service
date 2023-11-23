@@ -2,9 +2,10 @@
 
 
 namespace app\api\business;
-use app\api\dao\user\RoomUserDao;
 use app\api\dao\room\RoomDao;
+use app\api\dao\user\RoomUserDao;
 use think\App;
+
 class RoomUserBusiness
 {
     protected $app;
@@ -64,9 +65,9 @@ class RoomUserBusiness
 
         $list =$this->dao->roomUserList($room_id,$pages,$size,$user_ids);
         foreach ($list as $key => $val) {
-
-            $list[$key]['photo']     = $val['photo']?$val['photo']:'/static/images/微信头像.jpeg';
-            $list[$key]['is_online'] = !empty($val['is_online']) ?$val['is_online']:"offline";
+            $list[$key]['photo'] = '/static/images/微信头像.jpeg';
+//            $list[$key]['photo']     = $val['photo']?$val['photo']:'/static/images/微信头像.jpeg';
+            $list[$key]['is_online'] = !empty($val['is_online']) ? $val['is_online'] : "offline";
         }
 
         return [

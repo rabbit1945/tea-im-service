@@ -17,7 +17,6 @@ use GuzzleHttp\Exception\GuzzleException;
 use think\Event;
 use think\exception\ValidateException;
 use think\facade\Cache;
-use think\facade\Log;
 use think\facade\Request;
 use think\Response;
 
@@ -286,9 +285,10 @@ class UserBusiness
      */
     public function find($id) {
 
-        $find = static::$model->field('id,nick_name,photo,is_online,is_robot')->where('id','=',$id)->order('is_online desc')->find();
+        $find = static::$model->field('id,nick_name,photo,is_online,is_robot')->where('id', '=', $id)->order('is_online desc')->find();
         if (!$find) return false;
-        $find->photo = $find->photo ?$find->photo:'/static/images/微信头像.jpeg';
+        $find->photo = '/static/images/微信头像.jpeg';
+//        $find->photo = $find->photo ?$find->photo:'/static/images/微信头像.jpeg';
         return $find;
     }
 
@@ -360,9 +360,9 @@ class UserBusiness
 
     /**
      * @param $find
-     * @return false|mixed
+     * @return array|bool
      */
-    public function extracted($find): mixed
+    public function extracted($find): array|bool
     {
         if (!$find) return false;
         $find = $find->toArray();

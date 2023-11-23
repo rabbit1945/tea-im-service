@@ -103,16 +103,12 @@ abstract class BaseDao
      */
     public function update($id, array $data, ?string $key = null)
     {
-
         if (is_array($id)) {
             $where = $id;
         } else {
             $where = [is_null($key) ? $this->getPk() : $key => $id];
         }
-
         return $this->getModel()::update($data, $where)->toArray();
-
-
     }
 
     public function count(array $where)

@@ -162,7 +162,9 @@ class MessageReceiveBusiness extends Business
         $userDo = $this->app->make(UserDao::class);
         $sensitiveWord = $this->app->make(SensitiveWord::class);
         $user_info = $userDo->userInfo($val['msg_form']);
-        $val['photo'] = !empty($user_info['photo']) ?$user_info['photo']: '/static/images/微信头像.jpeg';
+        $val['photo'] = '/static/images/微信头像.jpeg';
+
+//        $val['photo'] = !empty($user_info['photo']) ?$user_info['photo']: '/static/images/微信头像.jpeg';
         $val['send_time'] = date('Y-m-d H:i:s', floor($val['send_time'] / 1000));
         $val['msg_content'] = $sensitiveWord->addWords(false)->filter(urldecode($val['msg_content']), '*', 2);
         $val['nick_name'] = $user_info['nick_name'];
