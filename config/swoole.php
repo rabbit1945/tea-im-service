@@ -5,20 +5,20 @@ use think\swoole\websocket\socketio\Parser;
 
 return [
     'server'     => [
-        'host'      => env('SWOOLE_HOST', '192.168.1.12'), // 监听地址
-        'port'      => env('SWOOLE_PORT', 9502), // 监听端口
-        'mode'      => SWOOLE_PROCESS, // 运行模式 默认为SWOOLE_PROCESS
-        'sock_type' => SWOOLE_SOCK_TCP| SWOOLE_SSL, // sock type 默认为SWOOLE_SOCK_TCP，SWOOLE_SSL 支持 https
+        'host' => env('SWOOLE_HOST', '192.168.1.12'), // 监听地址
+        'port' => env('SWOOLE_PORT', 9502), // 监听端口
+        'mode' => SWOOLE_PROCESS, // 运行模式 默认为SWOOLE_PROCESS
+        'sock_type' => SWOOLE_SOCK_TCP | SWOOLE_SSL, // sock type 默认为SWOOLE_SOCK_TCP，SWOOLE_SSL 支持 https
 
         // 参数
-        'options'   => [
-            'pid_file'              => runtime_path() . 'swoole.pid',
-            'log_file'              => runtime_path() . 'swoole.log',
-            'daemonize'             => true,  // 开启守护进程
+        'options' => [
+            'pid_file' => runtime_path() . 'swoole.pid',
+            'log_file' => runtime_path() . 'swoole.log',
+            'daemonize' => true,  // 开启守护进程
             // Normally this value should be 1~4 times larger according to your cpu cores.
-            'reactor_num'           => swoole_cpu_num()*4,// 线程数
-            'worker_num'            => swoole_cpu_num()*4,// 进程数
-            'task_worker_num'       => swoole_cpu_num()*4,// 任务进程
+            'reactor_num' => swoole_cpu_num() * 4,// 线程数
+            'worker_num' => swoole_cpu_num() * 4,// 进程数
+            'task_worker_num' => swoole_cpu_num() * 4,// 任务进程
             'enable_static_handler' => true,
             'document_root' => root_path('public'),
             'package_max_length' => 30 * 1024 * 1024, // 3M  最大数据包 默认 2M
@@ -30,8 +30,8 @@ return [
             'discard_timeout_request' => false,
             'websocket_compression' => true,
             //配置SSL证书和密钥路径
-            'ssl_cert_file' => "../../.teaIm/nginx/conf.d/cert/teaim.cn_nginx/teaim.cn_bundle.crt",
-            'ssl_key_file' => "../../.teaIm/nginx/conf.d/cert/teaim.cn_nginx/teaim.cn.key",
+            'ssl_cert_file' => "/etc/nginx/conf.d/cert/teaim.cn_nginx/teaim.cn_bundle.crt",
+            'ssl_key_file' => "/etc/nginx/conf.d/cert/teaim.cn_nginx/teaim.cn.key",
 
 
         ],
