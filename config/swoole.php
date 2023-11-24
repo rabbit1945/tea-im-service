@@ -20,18 +20,18 @@ return [
             'worker_num'            => swoole_cpu_num()*4,// 进程数
             'task_worker_num'       => swoole_cpu_num()*4,// 任务进程
             'enable_static_handler' => true,
-            'document_root'         => root_path('public'),
-            'package_max_length'    => 30 * 1024 * 1024, // 3M  最大数据包 默认 2M
-            'buffer_output_size'    => 512 * 1024 * 1024, // 32M 配置发送输出缓存区内存尺寸【默认值：2M】
-            'socket_buffer_size'    => 512* 1024 * 1024,  // 128M 配置客户端连接的缓存区长度。【默认值：2M】
+            'document_root' => root_path('public'),
+            'package_max_length' => 30 * 1024 * 1024, // 3M  最大数据包 默认 2M
+            'buffer_output_size' => 512 * 1024 * 1024, // 32M 配置发送输出缓存区内存尺寸【默认值：2M】
+            'socket_buffer_size' => 512 * 1024 * 1024,  // 128M 配置客户端连接的缓存区长度。【默认值：2M】
             'compression_min_length' => 20,
             'open_eof_split' => true,
             'package_eof' => "\r\n",
-            'discard_timeout_request'=> false,
-            'websocket_compression'  => true,
+            'discard_timeout_request' => false,
+            'websocket_compression' => true,
             //配置SSL证书和密钥路径
-            'ssl_cert_file' => "../.docker/nginx/conf.d/cert/teaim.cn_nginx/teaim.cn_bundle.crt",
-            'ssl_key_file'  => "../.docker/nginx/conf.d/cert/eaim.cn_nginx/teaim.cn.key",
+            'ssl_cert_file' => "../../.teaIm/nginx/conf.d/cert/teaim.cn_nginx/teaim.cn_bundle.crt",
+            'ssl_key_file' => "../../.teaIm/nginx/conf.d/cert/teaim.cn_nginx/teaim.cn.key",
 
 
         ],
