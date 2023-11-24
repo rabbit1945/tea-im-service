@@ -16,7 +16,6 @@ use app\service\RedisService;
 use app\service\WebSocketService;
 use Swoole\Server;
 use think\App;
-use think\Container;
 use think\facade\Config;
 use think\facade\Log;
 use think\swoole\Websocket;

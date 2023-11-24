@@ -55,8 +55,8 @@ class MessageReceiveBusiness extends Business
         $key = "message:$room_id:".$user_id;
         $start = ($page -1) * 20;
         $end   = $start+$limit-1;
-        $list = $this->getMsgCacheList($key,$start,$end);
-        if ($list) return $list;
+//        $list = $this->getMsgCacheList($key,$start,$end);
+//        if ($list) return $list;
         $where = [
             ['UserReceiveModel.room_id','=',$room_id],
             ['UserReceiveModel.msg_to','=',$user_id]
