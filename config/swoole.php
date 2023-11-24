@@ -37,21 +37,21 @@ return [
         ],
     ],
     'websocket'  => [
-        'enable'        => true,
-        'handler'       => Handler::class,
-        'parser'        => Parser::class,
-        'ping_interval' => 250000,
-        'ping_timeout'  => 600000,
-        'room'          => [
-            'type'  => 'redis',
+        'enable' => true,
+        'handler' => Handler::class,
+        'parser' => Parser::class,
+        'ping_interval' => 25000,
+        'ping_timeout' => 60000,
+        'room' => [
+            'type' => 'redis',
             'table' => [
-                'room_rows'   => 4096,
-                'room_size'   => 2048,
+                'room_rows' => 4096,
+                'room_size' => 2048,
                 'client_rows' => 8192,
                 'client_size' => 2048,
             ],
             'redis' => [
-                'host'          => '192.168.1.11',
+                'host' => '192.168.1.11',
                 'password'   => '123456',
                 'port'          => 6379,
                 'max_active'    => 6,
