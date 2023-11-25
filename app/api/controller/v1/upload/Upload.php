@@ -50,7 +50,7 @@ class Upload extends BaseController
             if (empty($list)) return ImJson::output('20001');
 
         }
-        return ImJson::output(10000, '成功', ['file' => 'storage' . $uploadAudio]);
+        return ImJson::output(10000, '成功', ['file' => 'storage/' . $uploadAudio]);
     }
 
     /**
