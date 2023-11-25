@@ -12,7 +12,7 @@ use think\exception\ValidateException;
 
 class Upload
 {
-    private int|float $maxsize = 300*1024*1024;
+    private int|float $maxsize = 100*1024*1024;
 
     const UPLOADING = 0; // 上传中
 

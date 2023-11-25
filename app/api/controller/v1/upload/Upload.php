@@ -95,7 +95,7 @@ class Upload extends BaseController
         $uploadAudio =$this->uploadBusiness->uploadPic($base64,$fileName,$dir);
         $totalSize = $uploadAudio['fileSize'];
         $getUploadMaxSize = $this->uploadBusiness->getUploadMaxSize();
-        if ($totalSize > $getUploadMaxSize) return ImJson::output(20015,'',[],['name'=>300]);
+        if ($totalSize > $getUploadMaxSize) return ImJson::output(20015,'',[],['name'=>100]);
         if (!$uploadAudio['isSuccess']) {
             if (empty($list))  return ImJson::output(20001);
         }
@@ -138,7 +138,7 @@ class Upload extends BaseController
         if (!$md5 || !$filename || !$totalChunks) return ImJson::output('20003');
         $getSequence = $this->app->make(MessageSendBusiness::class)->getSequence();  // 给文件添加唯一标识
         $getUploadMaxSize = $this->uploadBusiness->getUploadMaxSize();
-        if ($totalSize > $getUploadMaxSize) return ImJson::output('20015','',[],['name'=>300]);
+        if ($totalSize > $getUploadMaxSize) return ImJson::output('20015','',[],['name'=>100]);
         $uploadStatus = $this->app->make(utilsUpload::class);
         // 查询是否有相同的文件
         $find = $this->business->find(
