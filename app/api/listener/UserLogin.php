@@ -58,8 +58,16 @@ class UserLogin
             $user_id = (string)$data['id'];
             $getExp = $this->getExp();
             $key = 'loginToken:' . $user_id;
-            $getToken = Cache::get($key) ?? JwToken::getAccessToken($user_id, time() + $getExp);
-            if (empty($getToken)) return false;
+            $isToken = Cache::has($key);
+            if ($isToken) {
+                $getToken = Cache::get($key);
+                if (!isset(JwToken::verifyToken($getToken)['user_id'])) {
+                    $getToken =  JwToken::getAccessToken($user_id, time() + $getExp);
+                }
+            } else {
+                $getToken =  JwToken::getAccessToken($user_id, time() + $getExp);
+            }
+
             // 更改用户状态
             $update = app()->make(UserDao::class)->update($user_id, ['is_online' => 'online']);
             if (!$update) return false;
