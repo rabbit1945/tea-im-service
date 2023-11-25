@@ -23,7 +23,7 @@ use think\Response;
 class UserBusiness
 {
     protected static $model;
-    protected $dao;
+    protected UserDao $dao;
     /** @var Event */
     protected $event;
     public function __construct(UserModel $model, UserDao $dao, Event $event) {
@@ -38,9 +38,11 @@ class UserBusiness
      * @param $login_name
      * @param string $password
      * @param string $confirm_password
-     * @return array|string
+     * @param array|string $thirdPartyData
+     * @return bool|array|string
      */
-    public function createUser($nick_name, $login_name, string $password = "", string $confirm_password = "", $thirdPartyData = []) {
+    public function createUser($nick_name, $login_name, string $password = "", string $confirm_password = "", array|string $thirdPartyData = []): bool|array|string
+    {
 
         try {
             // 检测字段
@@ -292,9 +294,16 @@ class UserBusiness
         return $find;
     }
 
+    public function save($where,$data)
+    {
+        if (!$data || !$where) return false;
+        return $this->dao->save($where,$data);
+    }
+
     /**
      * 添加用户登录日志
      * @param $user_id
+     * @return bool
      */
     public function addUserLoginLogs($user_id): bool
     {

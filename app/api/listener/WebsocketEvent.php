@@ -379,8 +379,8 @@ class WebsocketEvent  extends WebSocketService
         ];
 
 
-
-        $save = $this->update($where,$updateData);
+        $messageBusiness = $this->app->make(MessageBusiness::class);
+        $save = $messageBusiness->save($where,$updateData);
 
         if (!$save) return  $this->setSender($callbackEvent,ImJson::outData(20001,'失败',$data));
 
@@ -407,13 +407,13 @@ class WebsocketEvent  extends WebSocketService
 
         $callbackEvent = "revokeMsgCallback";
         $sendContext = $event['data'][0];
-        if (!$sendContext) return  $this->setSender($callbackEvent,ImJson::outData(20003,'1'));
+        if (!$sendContext) return  $this->setSender($callbackEvent,ImJson::outData(20003));
         $seq = (int)$sendContext["seq"] ?? 0;
         $room_id = $sendContext["room_id"] ?? 0;
         $token =  $sendContext["token"] ?? "";
         $index  =  $sendContext["index"] ?? 0;
-        if (!$seq || !$room_id || !$token || !$index) return  $this->setSender($callbackEvent,ImJson::outData(20003,"2"));
-        if (!$this->socketVerifyToken($token)) return $this->setSender($callbackEvent,ImJson::outData(20003,"3"));
+        if (!$seq || !$room_id || !$token || !$index) return  $this->setSender($callbackEvent,ImJson::outData(20003));
+        if (!$this->socketVerifyToken($token)) return $this->setSender($callbackEvent,ImJson::outData(20003));
         $user_id = $this->getUserId();
         $is_revoke = 1;
         $where = [
@@ -422,7 +422,8 @@ class WebsocketEvent  extends WebSocketService
         $data  = [
             "is_revoke" => $is_revoke
         ];
-        $save = $this->update($where,$data);
+        $messageBusiness = $this->app->make(MessageBusiness::class);
+        $save = $messageBusiness->save($where,$data);
         if (!$save) return  $this->setSender($callbackEvent,ImJson::outData(20006));
         $redis = $this->app->make(RedisService::class);
         $key = $redis->getPrefix()."message:$room_id:".$user_id;
@@ -453,19 +454,7 @@ class WebsocketEvent  extends WebSocketService
         return $this->websocket->setSender($fd)->emit($event,$data);
     }
 
-    /**
-     * 更新消息信息
-     * @param $where
-     * @param $data
-     * @return false
-     */
-    public function update($where,$data)
-    {
-        $messageBusiness = $this->app->make(MessageBusiness::class);
-        $save = $messageBusiness->save($where,$data);
-        Log::write(date('Y-m-d H:i:s').'_updateMsgStatus'.json_encode($save),'info');
-        return $save;
-    }
+
 
 
     /**
