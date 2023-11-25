@@ -59,10 +59,6 @@ class UserLogin
             $getExp = $this->getExp();
             $key = 'loginToken:' . $user_id;
 
-            $getToken = Cache::get($key);
-            if (!$getToken) {
-                $getToken =  JwToken::getAccessToken($user_id, time() + $getExp);
-            }
             // 更改用户状态
             $update = app()->make(UserDao::class)->update($user_id, ['is_online' => 'online']);
             if (!$update) return false;
@@ -71,9 +67,8 @@ class UserLogin
 
             $userBusiness = app()->make(UserBusiness::class);
             // 缓存token
-            if (!Cache::has($key)) {
-                if (!$userBusiness->setCacheToken($key, $getToken, $getExp - 1000)) return false;
-            }
+            $getToken =  JwToken::getAccessToken($user_id, time() + $getExp);
+            if (!$userBusiness->setCacheToken($key, $getToken, $getExp - 1000)) return false;
 
             $userBusiness->addUserLoginLogs($user_id);
 
