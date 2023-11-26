@@ -3,10 +3,10 @@ declare (strict_types = 1);
 
 namespace app\api\listener;
 use app\api\business\MessageBusiness;
-use app\api\business\UploadBusiness;
-use app\common\utils\ImJson;
 use app\api\business\MessageSendBusiness;
+use app\api\business\UploadBusiness;
 use app\api\business\UserBusiness;
+use app\common\utils\ImJson;
 use app\common\utils\JwToken;
 use app\common\utils\Upload;
 use app\job\SendMessage;
@@ -221,7 +221,6 @@ class WebsocketEvent  extends WebSocketService
                 "newFileName" => $newFileName,
                 "user_id"  => $user_id,
                 "seq"      => $seq
-
             ])
         );
 

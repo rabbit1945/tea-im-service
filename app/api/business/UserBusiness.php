@@ -343,7 +343,6 @@ class UserBusiness
         // 更改用户状态
         $update = app()->make(UserDao::class)->update($user_id,['is_online' => 'offline']);
         if (!$update) return false;
-
         return true;
     }
 
