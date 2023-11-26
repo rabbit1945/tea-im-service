@@ -29,11 +29,11 @@ return [
             // 驱动方式
             'type'   => 'redis',
             // 服务器地址
-            'host'       => '192.168.1.11',
+            'host'       => env('redis.host', '127.0.0.1'),
             //密码
-            'password'   => '123456',
+            'password'   => env('redis.password', ''),
             //端口
-            'port'       => 6379,
+            'port'       => env('redis.port', 6379),
             //数据库
             'select'     => 0,
             //超时时间

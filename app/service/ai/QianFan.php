@@ -58,7 +58,7 @@ class QianFan implements AiChat
 
 
     public function __construct() {
-        $this->domain = Config::get('aiChat.qian_fan.domain');
+        $this->domain = Config::get('aichat.qian_fan.domain');
 
         $this->accessToken = $this->getAccessToken();
 
@@ -74,7 +74,7 @@ class QianFan implements AiChat
 
         $this->model = $model;
 
-        $this->parameter =  Config::get('aiChat.qian_fan.'.$model);
+        $this->parameter =  Config::get('aichat.qian_fan.'.$model);
         return $this;
     }
 
@@ -84,7 +84,7 @@ class QianFan implements AiChat
      */
     public function getClientId(): static
     {
-        $this->clientId = Config::get('aiChat.qian_fan.client_id');
+        $this->clientId = Config::get('aichat.qian_fan.client_id');
         return $this;
     }
 
@@ -93,7 +93,7 @@ class QianFan implements AiChat
      */
     public function getClientSecret(): static
     {
-        $this->clientSecret = Config::get('aiChat.qian_fan.client_secret');
+        $this->clientSecret = Config::get('aichat.qian_fan.client_secret');
         return $this;
     }
 
@@ -102,7 +102,7 @@ class QianFan implements AiChat
      */
     public function getGrantType(): static
     {
-        $this->grantType = Config::get('aiChat.qian_fan.grant_type');
+        $this->grantType = Config::get('aichat.qian_fan.grant_type');
         return $this;
 
     }
@@ -127,7 +127,7 @@ class QianFan implements AiChat
         $clientId =  $this->getClientId()->clientId;
         $clientSecret = $this->getClientSecret()->clientSecret;
         $grantType = $this->getGrantType()->grantType;
-        $oauth = Config::get('aiChat.qian_fan.oauth');
+        $oauth = Config::get('aichat.qian_fan.oauth');
         $parameter = "{$oauth}client_id={$clientId}&client_secret={$clientSecret}&grant_type={$grantType}";
 
         $url =  $this->domain.$parameter;

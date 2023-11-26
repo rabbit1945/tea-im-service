@@ -51,9 +51,9 @@ return [
                 'client_size' => 2048,
             ],
             'redis' => [
-                'host' => '192.168.1.11',
-                'password'   => '123456',
-                'port'          => 6379,
+                'host'          => env('redis.host', '127.0.0.1'),
+                'password'      => env('redis.password', ''),
+                'port'          => env('redis.port', 6379),
                 'max_active'    => 6,
                 'max_wait_time' => 10,
                 'prefix'     => 'teaIm:',
