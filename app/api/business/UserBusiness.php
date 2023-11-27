@@ -275,6 +275,7 @@ class UserBusiness
     public function isLoginName($login_name): bool
     {
         $count = static::$model->where('login_name', '=', $login_name)->count();
+
         if ($count > 0) {
             return true;
         }

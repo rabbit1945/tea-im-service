@@ -34,16 +34,16 @@ class Login
     public function register(): Response
     {
 
-        $nickName = Request::param('nick_name');
-        $registerName = Request::post('login');
+        $nickName = trim(Request::param('nick_name'));
+        $registerName = trim(Request::post('login'));
 
-        if (static::$business->isLoginName($registerName)) ImJson::output(10001);
+        if (static::$business->isLoginName($registerName)) return ImJson::output(10001);
         $password = Request::post('password');
         $confirmPassword = Request::post('confirm_password');
         $registerUser = static::$business->createUser($nickName, $registerName, $password, $confirmPassword);
         if ($registerUser !== true) return ImJson::output(20001, $registerUser, [], ['name' => '注册']);
 
-        return ImJson::output(10000, '',[],['name'=>'注册']);
+        return ImJson::output(10000, '', [], ['name' => '注册']);
 
     }
 
