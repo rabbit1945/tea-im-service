@@ -37,7 +37,7 @@ class WebsocketOpen extends WebSocketService
             // 检测用户状态
             $this->getUserState($data);
             // 加入房间
-//            $this->join($data);
+            $this->join($data);
         }
 
     }
@@ -70,8 +70,7 @@ class WebsocketOpen extends WebSocketService
 
             $token = $data['token'];
             $verify = $this->socketVerifyToken($token);
-            Log::write(date('Y-m-d H:i:s') . '_用户参数' . $this->user_id, 'info');
-            if (!$this->join($this->user_id)) return $this->server->close($fd);
+
             if ($verify === false) {
                 $this->server->close($fd);
                 return false;
@@ -90,15 +89,15 @@ class WebsocketOpen extends WebSocketService
 
     /**
      * 加入房间
-     * @param $user_id
-     * @return bool
+     * @param $data
+     * @return void
      */
-    public function join($user_id): bool
+    public function join($data): void
     {
-//        $token = $data['token'];
-//        $verify = $this->jwToken->verifyToken($token);
-//        $fd = $this->websocket->getSender();
-//        $user_id = $verify['user_id'];
+        $token = $data['token'];
+        $verify = $this->jwToken->verifyToken($token);
+
+        $user_id = $verify['user_id'];
         $roomUserBusiness = app()->make(RoomUserBusiness::class);
         $roomList = $roomUserBusiness->getRoomList($user_id);
         if ($roomList) {
@@ -109,11 +108,7 @@ class WebsocketOpen extends WebSocketService
                 $this->websocket->join($room_id);
             }
 
-        } else {
-            return false;
         }
-        return true;
-
 
     }
 }
