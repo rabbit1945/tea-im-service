@@ -2,9 +2,8 @@
 
 
 namespace app\api\dao\user;
-use app\model\RoomUserModel;
-use app\model\UserModel;
 use app\api\dao\BaseDao;
+use app\model\RoomUserModel;
 use PhpParser\Node\Stmt\Echo_;
 
 class RoomUserDao extends BaseDao
@@ -27,10 +26,10 @@ class RoomUserDao extends BaseDao
         $roomUserModel = $this->getModel();
         return $roomUserModel
             ->field('RoomModel.id as room_id,name')
-            ->hasWhere('room',['deleted_at' => 0])
-            ->where('user_id','=',$user_id)
+            ->hasWhere('room', ['deleted_at' => 0])
+            ->where('user_id', '=', $user_id)
             ->order('id desc')
-            ->select();
+            ->select()->toArray();
     }
 
     /**

@@ -31,13 +31,16 @@ class WebsocketOpen extends WebSocketService
      */
     public function handle($request)
     {
+        $fd = $this->websocket->getSender();
         $data = $request->param();
         // 鉴权
-        if ($this->checkToken($data)){
+        if ($this->checkToken($data)) {
             // 检测用户状态
             $this->getUserState($data);
             // 加入房间
 //            $this->join($data);
+        } else {
+            $this->server->close($fd);
         }
 
     }
@@ -65,22 +68,16 @@ class WebsocketOpen extends WebSocketService
      */
     public function checkToken($data): bool
     {
-        $fd = $this->websocket->getSender();
-        try {
 
+        try {
             $token = $data['token'];
             $verify = $this->socketVerifyToken($token);
             Log::write(date('Y-m-d H:i:s') . '_用户参数' . $this->user_id, 'info');
-            if (!$this->join($this->user_id)) return $this->server->close($fd);
-            if ($verify === false) {
-                $this->server->close($fd);
-                return false;
-            }
+            if ($verify === false) return false;
+            if (!$this->join($this->user_id)) return false;
 
         } catch (ErrorException $e) {
-            $this->server->close($fd);
             return false;
-
         }
 
         return true;
@@ -95,14 +92,24 @@ class WebsocketOpen extends WebSocketService
      */
     public function join($user_id): bool
     {
+//        $token = $data['token'];
+//        $verify = $this->jwToken->verifyToken($token);
+//        $fd = $this->websocket->getSender();
+//        $user_id = $verify['user_id'];
         $roomUserBusiness = app()->make(RoomUserBusiness::class);
         $roomList = $roomUserBusiness->getRoomList($user_id);
-        if (!$roomList) return false;
-        Log::write(date('Y-m-d H:i:s') . '$roomList' . json_encode($roomList), 'info');
-        foreach ($roomList as $val) {
-            $room_id = $val['room_id'];
-            $this->websocket->join($room_id);
+        if ($roomList) {
+
+            Log::write(date('Y-m-d H:i:s') . '$roomList' . json_encode($roomList), 'info');
+            foreach ($roomList as $val) {
+                $room_id = $val['room_id'];
+                $this->websocket->join($room_id);
+            }
+            return true;
+
         }
-        return true;
+        return false;
+
+
     }
 }
