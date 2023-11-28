@@ -335,7 +335,7 @@ class WebsocketEvent  extends WebSocketService
     /**
      * 修改消息
      */
-    public function updateMsgStatus($event)
+    public function updateMsgStatus($event): bool
     {
         $callbackEvent = "updateMsgStatusCallback";
         $sendContext = $event['data'][0];

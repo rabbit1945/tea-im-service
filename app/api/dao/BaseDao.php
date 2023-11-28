@@ -35,11 +35,11 @@ abstract class BaseDao
      * @param string $field
      * @return array
      */
-    public function find(array $where,string $field = "*",$order = null): array
+    public function find(array $where,string $field = "*"): array
     {
         if (empty($where)) return [];
 
-        $find = $this->getModel()::where($where)->field($field)->order($order)->find();
+        $find = $this->getModel()::where($where)->field($field)->find();
         if ($find) {
             return  $find->toArray();
         }

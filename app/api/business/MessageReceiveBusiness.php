@@ -55,8 +55,9 @@ class MessageReceiveBusiness extends Business
         $key = "message:$room_id:".$user_id;
         $start = ($page -1) * 20;
         $end   = $start+$limit-1;
-//        $list = $this->getMsgCacheList($key,$start,$end);
-//        if ($list) return $list;
+        $list = $this->getMsgCacheList($key,$start,$end);
+
+        if ($list) return $list;
         $where = [
             ['UserReceiveModel.room_id','=',$room_id],
             ['UserReceiveModel.msg_to','=',$user_id]
@@ -168,7 +169,45 @@ class MessageReceiveBusiness extends Business
         $val['send_time'] = date('Y-m-d H:i:s', floor($val['send_time'] / 1000));
         $val['msg_content'] = $sensitiveWord->addWords(false)->filter(urldecode($val['msg_content']), '*', 2);
         $val['nick_name'] = $user_info['nick_name'];
+
+        if ($val['content_type'] != 0) {
+            $getMessageUploadStatus = $this->getMessageUploadStatus($val['seq'],$val['upload_status']);
+            if ($getMessageUploadStatus) {
+                $val['upload_status'] = $getMessageUploadStatus['upload_status'];
+            }
+        }
+
         return $val;
+    }
+
+    /**
+     * 获取消息中的上传状态
+     * @param $seq
+     * @param int $status
+     * @return bool|array
+     */
+    public function getMessageUploadStatus($seq, int $status = 0): bool|array
+    {
+        $messageBusiness = $this->app->make(MessageBusiness::class);
+        $where = [
+            ['seq','=',$seq],
+            ['upload_status','=',$status],
+        ];
+
+        $count = $messageBusiness->count($where);
+        if ($count > 0) return false;
+        $find = $messageBusiness->find(
+            [
+                ['seq','=',$seq]
+            ],
+            'upload_status'
+        );
+
+        if (!$find) return false;
+        return [
+            "upload_status" => $find['upload_status']
+        ];
+
     }
 
 

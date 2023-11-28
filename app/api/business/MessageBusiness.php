@@ -52,7 +52,7 @@ class MessageBusiness
     public function find($data,string $field = "*",$order = null): bool|array
     {
         if (!$data) return false;
-        return $this->dao->find($data,$field,$order);
+        return $this->dao->find($data,$field);
     }
 
     public function save($where,$data)
