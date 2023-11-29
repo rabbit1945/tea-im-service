@@ -11,7 +11,7 @@ use Exception;
 class Curl
 {
 
-    public static function send($url = "", $data = "", $header = [], $type = "get")
+    public static function send($url = "", $data = "", $header = [], $type = "get"): bool|string
     {
 
         try {

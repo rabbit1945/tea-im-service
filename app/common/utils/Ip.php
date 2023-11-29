@@ -35,7 +35,8 @@ class Ip
      * @return bool|string
      */
 
-    public static function getIpInfo($ip) {
+    public static function getIpInfo($ip): bool|string
+    {
         try {
 
             if ($ip) {

@@ -14,10 +14,15 @@ use think\facade\Log;
 class AiService
 {
 
-    public function run($msg) {
+    /**
+     * @param $msg
+     * @return bool|string
+     * @throws \Exception
+     */
+    public function run($msg): bool|string
+    {
         $qianFan = app()->make(QianFan::class);
-        $data = $qianFan->getModel('chatglm2_6b_32k')->run($msg);
-        return $data;
+        return $qianFan->getModel('chatglm2_6b_32k')->run($msg);
     }
 
 }

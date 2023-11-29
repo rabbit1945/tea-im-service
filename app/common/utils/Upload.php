@@ -2,6 +2,7 @@
 
 
 namespace app\common\utils;
+use think\App;
 use  think\facade\Filesystem;
 use think\exception\ValidateException;
 /**
@@ -40,7 +41,15 @@ class Upload
         $this->maxsize = $maxsize;
     }
 
-    public function fileUpload($dir,$file,$name)
+    /**
+     * 本地文件上传
+     * @param $dir
+     * @param $file
+     * @param $name
+     * @return bool|string
+     */
+
+    public function fileUpload($dir,$file,$name): bool|string
     {
         try {
             if (empty($file) || empty($dir) || empty($name)) return false;

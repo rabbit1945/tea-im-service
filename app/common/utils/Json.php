@@ -29,7 +29,7 @@ class Json
      * @param array $vars  // 动态变量
      */
 
-    public static function json(string $code = '10000',  string $msg = '',  array $data = [], array $vars = [])
+    public static function json(string $code = '10000',  string $msg = '',  array $data = [], array $vars = []): void
     {
         if (empty($msg)) {
             //获取配置文件

@@ -15,17 +15,17 @@ use think\facade\Config;
 class SensitiveWord
 {
 
-    private  $dict = []; //字典
+    private array $dict = []; //字典
 
     /**
      * 缓存key
      * @var string
      */
-    private  $cacheKey = "imSensitiveWord";
+    private string $cacheKey = "imSensitiveWord";
     /**
      * @var mixed
      */
-    private $sensitiveWord;
+    private mixed $sensitiveWord;
 
 
     public function __construct()
@@ -40,7 +40,7 @@ class SensitiveWord
      * @param bool $cache
      * @return $this
      */
-    public function addWords($cache = true)
+    public function addWords(bool $cache = true): static
     {
 
         $cacheKey = $this->cacheKey;
@@ -73,7 +73,7 @@ class SensitiveWord
      * @param $word  // 屏蔽词组
      * @return void
      */
-    public function createTrie($word)
+    public function createTrie($word): void
     {
         $wordArr = $this->splitStr($word); // 把字符串分割成数组
         $curNode = &$this->dict;

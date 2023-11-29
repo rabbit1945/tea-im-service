@@ -9,16 +9,10 @@ use think\swoole\Websocket;
 
 class WebSocketService
 {
-
-    /**
-     * 用户ID
-     * @var
-     */
-    public  $user_id;
-
     public Server $server;
     public Websocket $websocket;
     public JwToken $jwToken;
+    public mixed $user_id;
 
     public function __construct(Server $server,Websocket $websocket,JwToken $jwToken)
     {

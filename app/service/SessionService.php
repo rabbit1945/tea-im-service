@@ -8,7 +8,6 @@ use think\facade\Session;
 class SessionService
 {
     /**
-     * session设置
      * @param $name
      * @param $value
      * @return bool

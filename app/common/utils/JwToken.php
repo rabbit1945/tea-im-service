@@ -27,9 +27,10 @@ class JwToken extends JWT
     /**
      * 获取登录凭证
      * @param  $user_id
+     * @param string|int $exp
      * @return string
      */
-    public static function getAccessToken($user_id,$exp = "" ): string
+    public static function getAccessToken($user_id, string|int $exp = "" ): string
     {
 
 
@@ -101,7 +102,7 @@ class JwToken extends JWT
      * @param $key
      * @return false|string
      */
-    public static function getKey($key)
+    public static function getKey($key): bool|string
     {
 
         try {

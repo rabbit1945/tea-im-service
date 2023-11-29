@@ -22,11 +22,13 @@ class  ImJson
 
 
     /**
-     * @param $code // code
+     * @param int $code // code
      * @param string $msg // 说明
-     * @param  $data // 数据
+     * @param array|null $data // 数据
      * @param array $vars // 动态变量
      * @param int $httpCode
+     * @param string $type
+     * @return Response
      */
 
     public static function output(int $code = 10000, string $msg = '', ?array $data = [], array $vars = [], int $httpCode = 200,$type = 'json' ): Response

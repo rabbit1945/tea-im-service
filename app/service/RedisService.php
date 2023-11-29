@@ -60,7 +60,7 @@ class RedisService
      * @return mixed        // 指定区间内，带有分数值(可选)的有序集成员的列表。
      */
 
-    public function zrange(string $key, int $start, int $stop, string $cores = "")
+    public function zrange(string $key, int $start, int $stop, string $cores = ""): mixed
     {
        return $this->handler()->ZRANGE($key,$start,$stop,$cores);
     }
@@ -73,7 +73,7 @@ class RedisService
      * @param string $data  // 数据
      * @return mixed
      */
-    public function zadd(string $key,int $cores,string $data)
+    public function zadd(string $key,int $cores,string $data): mixed
     {
         return $this->handler()->ZADD($key,$cores,$data);
     }

@@ -16,45 +16,42 @@ use think\facade\Cache;
  */
 class IdRedisGenerator
 {
+    public mixed $sequence;
+    private Sonyflake $sonyflake;
 
-    public $sonyflake;
-    public $sequence;
     public function __construct(Sonyflake $snowflake)
     {
         $this->sonyflake = $snowflake;
 
     }
 
-
-
-
-
     /**
      * 生成器
      * @param  $datacenterId
      * @param  $time
-     * @throws Exception
+     * @return Sonyflake|string
      */
-    public function generator( $datacenterId, $time): Sonyflake
+    public function generator( $datacenterId, $time): Sonyflake|string
     {
-        $snowflake = new sonyflake ($datacenterId);
-        $snowflake->setStartTimeStamp($time);
-
-        $snowflake->setSequenceResolver(
-            new RedisSequenceResolver(App::make(RedisService::class)->handler())
-        );
-
-        $this->sequence = $snowflake->id();
-        $this->clockDiff();
-        return $snowflake;
-
+        try {
+            $snowflake = new sonyflake ($datacenterId);
+            $snowflake->setStartTimeStamp($time);
+            $snowflake->setSequenceResolver(
+                new RedisSequenceResolver(App::make(RedisService::class)->handler())
+            );
+            $this->sequence = $snowflake->id();
+            $this->clockDiff();
+            return $snowflake;
+        } catch (Exception $e) {
+            return $e->getMessage();
+        }
     }
 
     /**
      * 获取序列号
      * @return mixed
      */
-    public function getSequence()
+    public function getSequence(): mixed
     {
 
         return $this->sequence;
