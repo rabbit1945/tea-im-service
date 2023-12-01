@@ -5,6 +5,8 @@ namespace app\common\utils;
 use think\App;
 use  think\facade\Filesystem;
 use think\exception\ValidateException;
+use  Qcloud\Cos\Client;
+use  \app\common\utils\upload\src\cos\Upload as cosUpload;
 /**
  * 上传工具
  * Class Upload
@@ -23,6 +25,14 @@ class Upload
 
     const SEND_SUCCESS = 3; // 发送成功
 
+    private App $app;
+    public mixed $model;
+
+    public function __construct(App $app)
+    {
+        $this->app = $app;
+
+    }
 
 
     /**
@@ -39,6 +49,36 @@ class Upload
     public function setMaxSize(float|int $maxsize): void
     {
         $this->maxsize = $maxsize;
+    }
+
+    /**
+     * 设置模型
+     * @param mixed $model
+
+     */
+    public function setModel( string $model)
+    {
+        return $this->model = $model;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getModel(): mixed
+    {
+        return $this->model;
+    }
+
+    /**
+     * 简单上传
+     * @param string $key
+     * @param string $body
+     * @param bool $is_file
+     * @return mixed
+     */
+    public function putUpload(string $key, string $body, bool $is_file = true): mixed
+    {
+        return $this->app->make($this->getModel())->putUpload($key,  $body,  $is_file);
     }
 
     /**
@@ -60,7 +100,6 @@ class Upload
             return $e->getMessage();
 
         }
-
 
     }
 

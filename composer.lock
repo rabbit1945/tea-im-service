@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "281678e885a4433181db3bccbad14f3c",
+    "content-hash": "1ae775864dc10d1f10ee08f5f5df93d6",
     "packages": [
         {
             "name": "firebase/php-jwt",
@@ -1949,6 +1949,64 @@
             "time": "2023-11-07T07:15:40+00:00"
         },
         {
+            "name": "qcloud_sts/qcloud-sts-sdk",
+            "version": "3.0.10",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/tencentyun/qcloud-cos-sts-php-sdk.git",
+                "reference": "f0110234f0c3694ebf67d2084e0d7e32ee89fe66"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/tencentyun/qcloud-cos-sts-php-sdk/zipball/f0110234f0c3694ebf67d2084e0d7e32ee89fe66",
+                "reference": "f0110234f0c3694ebf67d2084e0d7e32ee89fe66",
+                "shasum": "",
+                "mirrors": [
+                    {
+                        "url": "https://mirrors.aliyun.com/composer/dists/%package%/%reference%.%type%",
+                        "preferred": true
+                    }
+                ]
+            },
+            "require": {
+                "ext-curl": "*",
+                "php": ">=5.3.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "QCloud\\COSSTS\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "qcloudterminal",
+                    "email": "qcloudterminal@gmail.com"
+                },
+                {
+                    "name": "tuunalai",
+                    "email": "550566181@qq.com"
+                }
+            ],
+            "description": "PHP SDK for QCloud STS",
+            "homepage": "https://github.com/tencentyun/qcloud-cos-sts-sdk",
+            "keywords": [
+                "cos",
+                "php",
+                "qcloud",
+                "sts"
+            ],
+            "support": {
+                "issues": "https://github.com/tencentyun/qcloud-cos-sts-php-sdk/issues",
+                "source": "https://github.com/tencentyun/qcloud-cos-sts-php-sdk/tree/3.0.10"
+            },
+            "time": "2023-06-16T09:19:56+00:00"
+        },
+        {
             "name": "ralouphie/getallheaders",
             "version": "3.0.3",
             "source": {
@@ -2656,6 +2714,105 @@
                 }
             ],
             "time": "2022-06-27T17:10:44+00:00"
+        },
+        {
+            "name": "tencentcloud/common",
+            "version": "3.0.1034",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/tencentcloud-sdk-php/common.git",
+                "reference": "7e34e03a04e19ca0a746bcf54d322a7640143f42"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/tencentcloud-sdk-php/common/zipball/7e34e03a04e19ca0a746bcf54d322a7640143f42",
+                "reference": "7e34e03a04e19ca0a746bcf54d322a7640143f42",
+                "shasum": "",
+                "mirrors": [
+                    {
+                        "url": "https://mirrors.aliyun.com/composer/dists/%package%/%reference%.%type%",
+                        "preferred": true
+                    }
+                ]
+            },
+            "require": {
+                "guzzlehttp/guzzle": "^6.3||^7.0",
+                "php": ">=5.6.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "TencentCloud\\": "./src/TencentCloud"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "tencentcloudapi",
+                    "email": "tencentcloudapi@tencent.com",
+                    "homepage": "https://cloud.tencent.com/document/sdk/PHP",
+                    "role": "Developer"
+                }
+            ],
+            "description": "TencentCloudApi php sdk",
+            "homepage": "https://github.com/tencentcloud-sdk-php/common",
+            "support": {
+                "issues": "https://github.com/tencentcloud-sdk-php/common/issues",
+                "source": "https://github.com/tencentcloud-sdk-php/common/tree/3.0.1034"
+            },
+            "time": "2023-11-30T03:25:59+00:00"
+        },
+        {
+            "name": "tencentcloud/sts",
+            "version": "3.0.1034",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/tencentcloud-sdk-php/sts.git",
+                "reference": "188ff7b1623de08b0241a1b1c6f03fe23e14d0f4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/tencentcloud-sdk-php/sts/zipball/188ff7b1623de08b0241a1b1c6f03fe23e14d0f4",
+                "reference": "188ff7b1623de08b0241a1b1c6f03fe23e14d0f4",
+                "shasum": "",
+                "mirrors": [
+                    {
+                        "url": "https://mirrors.aliyun.com/composer/dists/%package%/%reference%.%type%",
+                        "preferred": true
+                    }
+                ]
+            },
+            "require": {
+                "tencentcloud/common": "3.0.1034"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "TencentCloud\\": "./src/TencentCloud"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "tencentcloudapi",
+                    "email": "tencentcloudapi@tencent.com",
+                    "homepage": "https://github.com/tencentcloud-sdk-php/sts",
+                    "role": "Developer"
+                }
+            ],
+            "description": "TencentCloudApi php sdk sts",
+            "homepage": "https://github.com/tencentcloud-sdk-php/sts",
+            "support": {
+                "issues": "https://github.com/tencentcloud-sdk-php/sts/issues",
+                "source": "https://github.com/tencentcloud-sdk-php/sts/tree/3.0.1034"
+            },
+            "time": "2023-11-30T03:51:01+00:00"
         },
         {
             "name": "textalk/websocket",

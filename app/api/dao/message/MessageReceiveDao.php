@@ -34,7 +34,7 @@ class MessageReceiveDao extends BaseDao
                 MessageListModel.content_type,MessageListModel.file_name,MessageListModel.file_size,
                 MessageListModel.original_file_name,MessageListModel.md5,MessageListModel.total_chunks,
                 MessageListModel.upload_status,MessageListModel.chunk_number,MessageListModel.merge_number,
-                MessageListModel.is_revoke'
+                MessageListModel.is_revoke,MessageListModel.file_path'
             )
             ->hasWhere('userReceive')
             ->when($page && $limit ,function ($query) use ($page,$limit) {

@@ -6,6 +6,7 @@ use app\api\business\UploadBusiness;
 use app\BaseController;
 use app\common\utils\ImJson;
 use app\common\utils\Upload as utilsUpload;
+use League\Flysystem\FileNotFoundException;
 use think\App;
 use think\facade\Config;
 use think\facade\Filesystem;
@@ -33,7 +34,7 @@ class Upload extends BaseController
     /**
      * 上传音频
      */
-    public function uploadAudio()
+    public function uploadAudio(): Response
     {
         $user_id =static::$user_id;
         $file = Request::file('file');
@@ -79,9 +80,9 @@ class Upload extends BaseController
 
     /**
      * 上传base64
-     * @return
+     * @return Response
      */
-    public function uploadBase64()
+    public function uploadBase64(): Response
     {
 
         $base64 = Request::post('base64');
@@ -104,9 +105,11 @@ class Upload extends BaseController
     }
 
     /**
-     * 上传大文件
+     * 流文件上传
+     * @return array|Response
+     * @throws FileNotFoundException
      */
-    public function uploadPut()
+    public function uploadPut(): array|Response
     {
         $user_id =static::$user_id;
         $files = Request::post('file');
@@ -116,11 +119,16 @@ class Upload extends BaseController
         $fileName    = Request::post('fileName');
         $newFileName = $user_id . "_" . $fileName;
         $dir = 'files/';
-        $path = $dir . $newFileName;
-
-        if (!$this->uploadBusiness->uploadFile($files,$path)) return ImJson::outData(20001);
-
-        return ImJson::output(10000, '成功', ['newFileName' => $newFileName, 'path' => 'storage/' . $path]);
+        $localPath = $dir . $newFileName;
+//        if (!$this->uploadBusiness->uploadFile($files,$localPath)) return ImJson::outData(20001);
+        // 上云
+        $info = $this->uploadBusiness->cosPutUpload($files,$newFileName,$user_id,false);
+        if ($info) {
+            $path = $info['url'];
+        } else {
+            $path = 'storage/' . $localPath;
+        }
+        return ImJson::output(10000, '成功', ['newFileName' => $newFileName, 'path' =>$path ]);
 
     }
 
