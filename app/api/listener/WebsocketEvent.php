@@ -107,13 +107,10 @@ class WebsocketEvent  extends WebSocketService
                             "msg" => $sendUser['msg'],
                         ];
                         $room = (string)$val['room_id'];
-                        $send = $this->websocket->to($room)->emit('roomCallback',
+                        $sendMessage->send($getContext);
+                        $this->websocket->to($room)->emit('roomCallback',
                             $getContext
                         );
-                        if ($send) {
-                            $sendMessage->send($getContext);
-
-                        }
 
                     }
 
@@ -127,11 +124,13 @@ class WebsocketEvent  extends WebSocketService
     /**
      * 向房间内的用户发送消息
      * @param $event
+     * @return false|void
      */
     public function room($event)
     {
         Log::write(date('Y-m-d H:i:s').'_event_'.json_encode($event),'info');
         $sendContext = $event['data'][0];
+        $user_id = $sendContext['user_id'];
         $msg = $sendContext['msg'];
         $contactList =  $sendContext['contactList'] ?? [];
         if (!empty($contactList)) {
@@ -153,13 +152,17 @@ class WebsocketEvent  extends WebSocketService
         $sendContext['original_file_name'] = $sendContext['original_file_name'] ?? "";
         Log::write(date('Y-m-d H:i:s').'_getContext1_'.json_encode($sendContext),'info');
         $getContext = $sendBus->getContext($sendContext,$this->websocket->getSender());
-
+        app()->make(SendMessage::class)->send($getContext);
+        if ($sendContext['content_type'] !== 0) {
+            $cosUpload = $this->app->make(Upload::class);
+            $cosUpload->setModel('app\common\utils\upload\src\cos\Upload');
+            $getObjectUrl = $cosUpload->getObjectUrl("$user_id/".$sendContext['file_name']);
+            $getContext['file_path'] = $getObjectUrl ?? "";
+        }
         $send = $this->websocket->to($room)->emit('roomCallback',
             $getContext
         );
         if ($send) {
-            app()->make(SendMessage::class)->send($getContext);
-            Log::write(date('Y-m-d H:i:s').'_机器人_'.json_encode($sendContext),'info');
             if ($contactList) {
                 $this->robot($contactList,$sendContext,$msg);
             }
@@ -171,7 +174,7 @@ class WebsocketEvent  extends WebSocketService
     /**
      * 大文件分片上传
      * @param $event
-     * @return
+     * @return bool|void
      */
     public function chunkFile($event)
     {

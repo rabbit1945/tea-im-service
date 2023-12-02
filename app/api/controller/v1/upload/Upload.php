@@ -107,7 +107,6 @@ class Upload extends BaseController
     /**
      * 流文件上传
      * @return array|Response
-     * @throws FileNotFoundException
      */
     public function uploadPut(): array|Response
     {
@@ -118,17 +117,16 @@ class Upload extends BaseController
         }
         $fileName    = Request::post('fileName');
         $newFileName = $user_id . "_" . $fileName;
-        $dir = 'files/';
-        $localPath = $dir . $newFileName;
+//        $dir = 'files/';
+//        $localPath = $dir . $newFileName;
 //        if (!$this->uploadBusiness->uploadFile($files,$localPath)) return ImJson::outData(20001);
         // 上云
         $info = $this->uploadBusiness->cosPutUpload($files,$newFileName,$user_id,false);
+        $path = "";
         if ($info) {
-            $path = $info['url'];
-        } else {
-            $path = 'storage/' . $localPath;
+            $path = $info['path'];
         }
-        return ImJson::output(10000, '成功', ['newFileName' => $newFileName, 'path' =>$path ]);
+        return ImJson::output(10000, '成功', ['newFileName' => $newFileName, 'path' => $path]);
 
     }
 

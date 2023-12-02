@@ -5,6 +5,7 @@ namespace app\common\utils\upload\src\cos;
 use app\common\utils\upload\src\UploadInterface;
 use think\App;
 use app\common\utils\upload\src\cos\Cos as cosUpload;
+use think\facade\Log;
 
 /**
  * 上传下载接口
@@ -44,9 +45,10 @@ use app\common\utils\upload\src\cos\Cos as cosUpload;
              ];
 
              $putObject = $this->cos->putObject($data);
+
              if ($putObject) {
 
-                 return ['path' => "https://" .$putObject['Location'] ?? "","url" =>  $this->getObjectUrl($key)];
+                 return ['path' => $this->cos->getScheme()."://" .$putObject['Location'] ?? ""];
              }
 
          } catch (\Exception $e) {
@@ -63,9 +65,35 @@ use app\common\utils\upload\src\cos\Cos as cosUpload;
          // TODO: Implement listObjects() method.
      }
 
-     public function download(): mixed
+     /**
+      * 下载到本地文件
+      * @param string $key
+      * @return object|array|bool
+      */
+     public function download(string $key): object|array|bool
      {
-         // TODO: Implement download() method.
+
+         try {
+             $local_path = "./storage/files/$key";
+             return $this->cos->download(
+                 $this->cos->bucket, //存储桶名称，由BucketName-Appid 组成，可以在COS控制台查看 https://console.cloud.tencent.com/cos5/bucket
+                  $key,
+                  $local_path,
+                  array(
+//                     'Progress' => $printbar, //指定进度条
+                     'PartSize' => 10 * 1024 * 1024, //分块大小
+                     'Concurrency' => 5, //并发数
+                     'ResumableDownload' => true, //是否开启断点续传，默认为false
+//                     'ResumableTaskFile' => 'tmp.cosresumabletask' //断点文件信息路径，默认为<localpath>.cosresumabletask
+                 )
+             );
+
+         } catch (\Exception $e) {
+             // 请求失败
+             return ["error" =>$e->getMessage()];
+         }
+
+
      }
 
      public function deleteObject(): mixed
@@ -78,29 +106,63 @@ use app\common\utils\upload\src\cos\Cos as cosUpload;
          // TODO: Implement deleteObjects() method.
      }
 
-     public function doesObjectExist(): mixed
+     /**
+      * 判断对象是否存在
+      * @param string $key
+      * @return bool|array
+      */
+     public function doesObjectExist(string $key): bool|array
      {
-         // TODO: Implement doesObjectExist() method.
+         try {
+             $bucket = $this->cos->bucket;
+             return $this->cos->doesObjectExist(
+                 $bucket,
+                 $key
+             );
+         } catch (\Exception $e) {
+             // 请求失败
+             return ['error' => $e->getMessage()];
+         }
+
      }
 
-     public function headObject(): mixed
+     /**
+      * 判断是否存在和有权限
+      * @param string $key
+      * @return array|bool|object
+      */
+     public function headObject(string $key): array|bool|object
      {
-         // TODO: Implement headObject() method.
+         try {
+             $bucket = $this->cos->bucket;
+             $result =  $this->cos->headObject(
+                [
+                 'Bucket' => $bucket,
+                 'Key'    => $key,
+                ]
+             );
+             if (!isset($result['error'])) return false;
+             return $result['structure']['data'];
+         } catch (\Exception $e) {
+             // 请求失败
+             return ['error' => $e->getMessage()];
+         }
+
      }
 
      /**
       * 获取访问URL
       * @param $key
-      * @return mixed
+      * @return string|bool
       */
-     public function getObjectUrl($key):mixed
+     public function getObjectUrl($key): string|bool
      {
          try {
              $bucket = $this->cos->bucket; //存储桶，格式：BucketName-APPID
 
-             // 请求成功 有效期30天
-             $url =  $this->cos->getObjectUrl($bucket, $key,'+21600 minutes');
-             if (!$url) return  false;
+             // 请求成功 有效期1小时
+             $url =  $this->cos->getObjectUrl($bucket, $key,'+60 minutes');
+             if (!$url) return false;
              return $url;
          } catch (\Exception $e) {
              // 请求失败

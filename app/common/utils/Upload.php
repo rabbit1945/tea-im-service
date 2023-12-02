@@ -7,6 +7,9 @@ use  think\facade\Filesystem;
 use think\exception\ValidateException;
 use  Qcloud\Cos\Client;
 use  \app\common\utils\upload\src\cos\Upload as cosUpload;
+use think\facade\Log;
+use think\swoole\Sandbox;
+
 /**
  * 上传工具
  * Class Upload
@@ -80,6 +83,38 @@ class Upload
     {
         return $this->app->make($this->getModel())->putUpload($key,  $body,  $is_file);
     }
+
+    /**
+     * 获取URL访问权限
+     * @param string $key
+     * @return string|bool
+     */
+    public function getObjectUrl(string $key): string|bool
+    {
+        return $this->app->make($this->getModel())->getObjectUrl($key);
+    }
+
+    /**
+     * 判断是否存在和有权限
+     * @param string $key
+     * @return bool
+     */
+    public function doesObjectExist(string $key): bool
+    {
+        if ($this->app->make($this->getModel())->doesObjectExist($key)) return true;
+        return false;
+    }
+
+    /**
+     * 判断是否存在和有权限
+     * @param string $key
+     * @return mixed
+     */
+    public function headObject(string $key): mixed
+    {
+        return $this->app->make($this->getModel())->headObject($key);
+    }
+
 
     /**
      * 本地文件上传

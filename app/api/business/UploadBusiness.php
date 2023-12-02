@@ -4,6 +4,7 @@
 namespace app\api\business;
 use app\api\dao\message\MessageDao;
 use app\common\utils\Upload;
+use app\service\RedisService;
 use League\Flysystem\FileNotFoundException;
 use think\App;
 use think\facade\Filesystem;
@@ -116,17 +117,42 @@ class UploadBusiness
             $dirPath = $this->app->getRootPath() . 'public/storage/' . $dirPath;
         }
         $cosUpload = $this->app->make(Upload::class);
-
         $cosUpload->setModel('app\common\utils\upload\src\cos\Upload');
-
-        $info = $cosUpload->putUpload($user_id .'/'.$newFileName, $dirPath);
+        $key = $user_id .'/'.$newFileName;
+        $info = $cosUpload->putUpload($key, $dirPath);
         if($info) {
-            // 删除本地图片
-//            Filesystem::delete($dirPath);
             return $info;
         }
         return false;
     }
+
+
+    /**
+     * 获取访问
+     * @param $key
+     * @param string $className
+     * @return bool|string
+     */
+    public function getObjectUrl($key, string $className = "app\common\utils\upload\src\cos\Upload"): bool|string
+    {
+
+        $redis = $this->app->make(RedisService::class);
+        $getKey = $redis->getKey($key,'upload');
+        $url = $redis->get($getKey);
+        if ($url) return $url;
+        $cosUpload = $this->app->make(Upload::class);
+        $cosUpload->setModel($className);
+        $getObjectUrl = $cosUpload->getObjectUrl($key);
+        if ($getObjectUrl) {
+            $redis->set($getKey,$getObjectUrl);
+            $redis->Expire($getKey,3000);
+            $redis->ttl($getKey);
+        }
+        return $getObjectUrl;
+    }
+
+
+
 
 
 }

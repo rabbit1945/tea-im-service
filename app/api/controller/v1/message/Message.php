@@ -1,8 +1,10 @@
 <?php
 namespace app\api\controller\v1\message;
 use app\api\business\MessageReceiveBusiness;
+use app\api\business\UploadBusiness;
 use app\BaseController;
 use app\common\utils\ImJson;
+use app\common\utils\Upload;
 use app\validate\MessageValidate;
 use think\App;
 use think\facade\Request;
@@ -34,7 +36,6 @@ class Message extends BaseController
             return ImJson::output('20006', $validate->getError());
         }
         $list = $this->business->getMessage($room_id,$user_id,$page,$limit);
-
         if (empty($list))  return ImJson::output('20006');
         // 获取消息总数
         $total = $this->business->receiveCount($room_id,$user_id);

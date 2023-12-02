@@ -14,10 +14,10 @@ interface UploadInterface
 
     /**
      * 获取可以访问的URL
-     * @param $key
-     * @return mixed
+     * @param string $key
+     * @returnstring|bool
      */
-    public function getObjectUrl($key): mixed;
+    public function getObjectUrl(string $key): string|bool;
 
 
     /**
@@ -28,9 +28,9 @@ interface UploadInterface
 
     /**
      * 下载
-     * @return mixed
+     * @param string $key
      */
-    public function download(): mixed;
+    public function download(string $key):object|array|bool;
 
 
     /**
@@ -49,15 +49,17 @@ interface UploadInterface
 
     /**
      * 检查存储桶中是否存在某个对象。
-     * @return mixed
+     * @param string $key
+     * @return array|bool
      */
-    public function doesObjectExist(): mixed;
+    public function doesObjectExist(string $key): array|bool;
 
     /**
      * 查询对象信息
-     * @return mixed
+     * @param string $key
+     * @return array|bool|object
      */
-    public function headObject(): mixed;
+    public function headObject(string $key): array|bool|object;
 
 
 

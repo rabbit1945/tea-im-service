@@ -21,9 +21,9 @@ class MessageReceiveDao extends BaseDao
      * @param $user_id
      * @param int $page
      * @param int $limit
-     * @return false
+     * @return array|false
      */
-    public function historyMessageList(array $where, $user_id, int $page = 1, int $limit =  20)
+    public function historyMessageList(array $where, $user_id, int $page = 1, int $limit =  20): array|false
     {
         if (empty($where) || empty($user_id)) return false;
         return $this->getModel()::where($where)

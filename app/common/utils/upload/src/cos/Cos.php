@@ -6,12 +6,7 @@ use app\service\RedisService;
 use Exception;
 use Qcloud\Cos\Client;
 use think\App;
-use TencentCloud\Common\Credential;
-use TencentCloud\Common\Profile\ClientProfile;
-use TencentCloud\Common\Profile\HttpProfile;
 use TencentCloud\Common\Exception\TencentCloudSDKException;
-use TencentCloud\Sts\V20180813\StsClient;
-use TencentCloud\Sts\V20180813\Models\GetFederationTokenRequest;
 use QCloud\COSSTS\Sts;
 
 
@@ -43,7 +38,10 @@ class Cos extends Client
      */
     protected mixed $tmpSecretList;
 
-
+    /**
+     * @param App $app
+     * @throws Exception
+     */
     public function __construct(App $app)
     {
         $this->app = $app;
@@ -124,6 +122,10 @@ class Cos extends Client
         return $this->scheme;
     }
 
+    /**
+     * @return array
+     * @throws Exception
+     */
     public function cosConfig(): array
     {
         $this->getTmpSecretList();
@@ -220,7 +222,6 @@ class Cos extends Client
             return $info;
         }
         catch(TencentCloudSDKException $e) {
-            var_dump($e->getMessage());
             return  $e->getMessage();
         }
     }
