@@ -92,10 +92,6 @@ class WebsocketOpen extends WebSocketService
      */
     public function join($user_id): bool
     {
-//        $token = $data['token'];
-//        $verify = $this->jwToken->verifyToken($token);
-//        $fd = $this->websocket->getSender();
-//        $user_id = $verify['user_id'];
         $roomUserBusiness = app()->make(RoomUserBusiness::class);
         $roomList = $roomUserBusiness->getRoomList($user_id);
         if ($roomList) {

@@ -28,12 +28,12 @@ class WebsocketEvent  extends WebSocketService
     /**
      * @var Upload
      */
-    private $upload;
+    private Upload $upload;
 
     /**
      * @var App
      */
-    private $app;
+    private App $app;
 
     /**
      * @param App $app
@@ -153,12 +153,6 @@ class WebsocketEvent  extends WebSocketService
         Log::write(date('Y-m-d H:i:s').'_getContext1_'.json_encode($sendContext),'info');
         $getContext = $sendBus->getContext($sendContext,$this->websocket->getSender());
         app()->make(SendMessage::class)->send($getContext);
-        if ($sendContext['content_type'] !== 0) {
-            $cosUpload = $this->app->make(Upload::class);
-            $cosUpload->setModel('app\common\utils\upload\src\cos\Upload');
-            $getObjectUrl = $cosUpload->getObjectUrl("$user_id/".$sendContext['file_name']);
-            $getContext['file_path'] = $getObjectUrl ?? "";
-        }
         $send = $this->websocket->to($room)->emit('roomCallback',
             $getContext
         );
@@ -249,10 +243,6 @@ class WebsocketEvent  extends WebSocketService
         return $redisService->incr($key);
 
     }
-
-
-
-
     /**
      * 合并大文件
      * @param $event
@@ -273,9 +263,7 @@ class WebsocketEvent  extends WebSocketService
         $newFileName =  $sendContext['newFileName']; // 文件名称
         $chunkSize = (int)$sendContext['chunkSize'];  // 每一块的大小
         $chunkDir = Config::get('filesystem.disks.public.root').'/files/'.$user_id."/".$seq."/";
-
         $mergePath =  Config::get('filesystem.disks.public.root').'/files/'.$user_id."/".$newFileName; // 合并文件
-
         // 缓存key
         if (!$out = @fopen($mergePath, "wb")) {
             return true;
@@ -316,6 +304,7 @@ class WebsocketEvent  extends WebSocketService
                 $uploadStatus = $this->upload::SENDING;
                 if ($totalChunks ==  $i) {
                     $uploadStatus =  $this->upload::SEND_SUCCESS;
+                    
                 }
                 @unlink($val); //删除分片
                 // 缓存
@@ -327,18 +316,19 @@ class WebsocketEvent  extends WebSocketService
 
             }
             flock($out, LOCK_UN); // 释放锁
+
         }
-
-
         @fclose($out);
-
 
     }
 
+
     /**
      * 修改消息
+     * @param $event
+     * @return bool
      */
-    public function updateMsgStatus($event)
+    public function updateMsgStatus($event): bool
     {
         $callbackEvent = "updateMsgStatusCallback";
         $sendContext = $event['data'][0];

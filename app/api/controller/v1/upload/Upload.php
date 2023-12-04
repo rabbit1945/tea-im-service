@@ -115,20 +115,22 @@ class Upload extends BaseController
         if (!$files) {
             return ImJson::output(20006);
         }
+        $fileSize    = Request::post('fileSize');
         $fileName    = Request::post('fileName');
-        $newFileName = $user_id . "_" . $fileName;
-//        $dir = 'files/';
-//        $localPath = $dir . $newFileName;
-//        if (!$this->uploadBusiness->uploadFile($files,$localPath)) return ImJson::outData(20001);
-        // 上云
-        $info = $this->uploadBusiness->cosPutUpload($files,$newFileName,$user_id,false);
-        $path = "";
-        if ($info) {
-            $path = $info['path'];
+        $newFileName = $user_id."_".$fileName;
+        $dir = 'files/';
+        $localPath = $dir.$newFileName;
+        if (!$this->uploadBusiness->uploadFile($files,$localPath)) return ImJson::outData(20001);
+        // 文件大于50KB，创建缩略图
+        $thumbPath = "";
+        if ($fileSize > 50) {
+            $thumbPath = $this->uploadBusiness->createThumb($localPath,explode('.',$newFileName)) ?? "";
         }
-        return ImJson::output(10000, '成功', ['newFileName' => $newFileName, 'path' => $path]);
+
+        return ImJson::output(10000, '成功', ['newFileName' => $newFileName, 'path' => 'storage/'.$localPath,"thumbPath" => $thumbPath  ]);
 
     }
+
 
     /**
      * 检测文件
@@ -157,9 +159,9 @@ class Upload extends BaseController
         $newFileName = $getSequence . '_' . $user_id . '_' . $filename;
         $dir = "storage/files/$user_id/";
         $type = 0;
-        if ($find) {
+        $mergeFilePath = $find['file_path'];
+        if ($find && Filesystem::has($mergeFilePath)) {
             $type = 1;
-            $mergeFilePath = $find['file_path'];
         } else {
             // 创建合并文件
             $mergeFilePath ="$dir".$newFileName;

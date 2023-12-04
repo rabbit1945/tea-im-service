@@ -37,7 +37,9 @@
         "qcloud/cos-sdk-v5": ">=2.0",
         "tencentcloud/sts": "^3.0",
         "tencentcloud/common": "*",
-        "qcloud_sts/qcloud-sts-sdk": "3.0.*"
+        "qcloud_sts/qcloud-sts-sdk": "3.0.*",
+         "ext-gd": "*",
+        "topthink/think-image": "^1.0"
     },
     "require-dev": {
         "symfony/var-dumper": "^5.4",

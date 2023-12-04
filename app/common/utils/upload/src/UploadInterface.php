@@ -1,6 +1,8 @@
 <?php
 
 namespace app\common\utils\upload\src;
+use think\contract\Arrayable;
+
 /**
  * 定义上次接口
  */
@@ -61,24 +63,13 @@ interface UploadInterface
      */
     public function headObject(string $key): array|bool|object;
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    /**
+     * 创建缩略图
+     * @param string $path
+     * @param string $thumbPath
+     * @param int $width
+     * @param int $height
+     * @return string|array|bool
+     */
+    public function createThumb(string $path, string $thumbPath, int $width = 200, int $height = 200): string|bool;
 }

@@ -170,4 +170,16 @@ use think\facade\Log;
          }
 
      }
+
+     /**
+      * @param string $path
+      * @param string $thumbPath
+      * @param int $width
+      * @param int $height
+      * @return string|bool
+      */
+     public function createThumb(string $path, string $thumbPath, int $width = 200, int $height = 200): string|bool
+     {
+         // TODO: Implement createThumb() method.
+     }
  }

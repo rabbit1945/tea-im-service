@@ -11,7 +11,6 @@
 
 // [ 应用入口文件 ]
 namespace think;
-//echo phpinfo();
 require __DIR__ . '/../vendor/autoload.php';
 header("Access-Control-Allow-Origin:*");
 header('Access-Control-Allow-Methods:*');

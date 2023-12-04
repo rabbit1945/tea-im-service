@@ -55,8 +55,8 @@ class MessageReceiveBusiness extends Business
         $key = "message:$room_id:".$user_id;
         $start = ($page -1) * 20;
         $end   = $start+$limit-1;
-        $list = $this->getMsgCacheList($key,$start,$end);
-        if ($list) return $list;
+//        $list = $this->getMsgCacheList($key,$start,$end);
+//        if ($list) return $list;
         $where = [
             ['UserReceiveModel.room_id','=',$room_id],
             ['UserReceiveModel.msg_to','=',$user_id]
@@ -125,11 +125,11 @@ class MessageReceiveBusiness extends Business
             }
             $list = $this->dao->saveAll($receiveData)->toArray();
             if ($list) {
-                $uploadBusiness = $this->app->make(UploadBusiness::class);
+//                $uploadBusiness = $this->app->make(UploadBusiness::class);
                 // 用户维度进行有序集合
                 foreach ($list as $val) {
                     $key = $redis->getPrefix() . "message:$room_id:" . $val['msg_to'];
-                    $val['file_path'] =  $uploadBusiness->getObjectUrl($val['msg_to'].'/'.$val['file_name']);
+//                    $val['file_path'] =  $uploadBusiness->getObjectUrl($val['msg_to'].'/'.$val['file_name']);
                     $jsonEncode = $json->jsonEncode($val);
                     $redis->zadd($key, $val['seq'], $jsonEncode);
                 }
@@ -168,10 +168,10 @@ class MessageReceiveBusiness extends Business
         $val['send_time'] = date('Y-m-d H:i:s', floor($val['send_time'] / 1000));
         $val['msg_content'] = $sensitiveWord->addWords(false)->filter(urldecode($val['msg_content']), '*', 2);
         $val['nick_name'] = $user_info['nick_name'];
-        $uploadBusiness = $this->app->make(UploadBusiness::class);
-        $key = $val['msg_to'].'/'.$val['file_name'];
-
-        $val['file_path'] = $uploadBusiness->getObjectUrl($key);
+//        $uploadBusiness = $this->app->make(UploadBusiness::class);
+//        $key = $val['msg_to'].'/'.$val['file_name'];
+//
+//        $val['file_path'] = $uploadBusiness->getObjectUrl($key);
         return $val;
     }
 

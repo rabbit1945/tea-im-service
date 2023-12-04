@@ -117,25 +117,19 @@ class Upload
 
 
     /**
-     * 本地文件上传
-     * @param $dir
-     * @param $file
-     * @param $name
-     * @return bool|string
+     * 创建缩略图
+     * @param string $path
+     * @param string $thumbPath
+     * @param int $width
+     * @param int $height
+     * @return string|bool
      */
-
-    public function fileUpload($dir,$file,$name): bool|string
+    public function createThumb(string $path, string $thumbPath,$fileType, int $width = 200, int $height = 200): string|bool
     {
-        try {
-            if (empty($file) || empty($dir) || empty($name)) return false;
 
-            return Filesystem::putFileAs( $dir, $file, $name);
-        } catch ( ValidateException $e) {
-
-            return $e->getMessage();
-
-        }
-
+        return $this->app->make($this->getModel())->createThumb($path,$thumbPath,$fileType,$width,$height);
     }
+
+
 
 }
