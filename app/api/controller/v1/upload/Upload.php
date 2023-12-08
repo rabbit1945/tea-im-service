@@ -154,26 +154,21 @@ class Upload extends BaseController
                 "md5"  => $md5,
                 "upload_status" =>$uploadStatus::SEND_SUCCESS
             ],
-            'file_path',"id desc"
+            'file_path,file_name',"id desc"
         );
         $newFileName = $getSequence . '_' . $user_id . '_' . $filename;
-        $dir = "storage/files/$user_id/";
+        $dir = "/files/$user_id/";
         $type = 0;
-        $mergeFilePath = $find['file_path'];
-        if ($find && Filesystem::has($mergeFilePath)) {
+        $mergeFilePath = $find['file_path'] ?? "";
+        if ($mergeFilePath && Filesystem::has($dir.$find['file_name'])) {
             $type = 1;
         } else {
             // 创建合并文件
             $mergeFilePath ="$dir".$newFileName;
         }
 
-        if(!Filesystem::has($mergeFilePath)) {
-            $mergeFilePath ="$dir".$newFileName;
-        }
-
-
         $data = [
-            "mergePath"        => $mergeFilePath,
+            "mergePath"        => 'storage'.$mergeFilePath,
             "newFileName"      => $newFileName,
             "type"             => $type // 0 普通上传 1 秒传
         ];

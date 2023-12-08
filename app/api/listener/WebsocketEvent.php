@@ -41,7 +41,7 @@ class WebsocketEvent  extends WebSocketService
      * @param Websocket $websocket
      * @param JsonService $jsonService
      */
-    public function __construct(Server $server,JwToken $jwToken,App $app,Upload $upload,Websocket $websocket,JsonService $jsonService)
+    public function __construct(Server $server,JwToken $jwToken,App $app,Upload $upload,Websocket $websocket, JsonService $jsonService)
     {
         parent::__construct($server, $websocket,$jwToken);
         $this->app = $app;
@@ -168,59 +168,79 @@ class WebsocketEvent  extends WebSocketService
     /**
      * 大文件分片上传
      * @param $event
-     * @return bool|void
+     * @return bool
      */
-    public function chunkFile($event)
+    public function chunkFile($event): bool
     {
+
         $callbackEvent = 'chunkFileCallback';  // 回调名称
         $sendContext = $event['data'][0];
         if (!$sendContext) return  $this->setSender($callbackEvent,ImJson::outData(20003));
-        $seq = $sendContext['seq'];
+        $seq = $sendContext['seq']; // 序列号
         $md5 = $sendContext['identifier'];  // md5
+        $user_id = $sendContext['user_id']; // 用户id
+        $chunkNumber = $sendContext['chunkNumber']+1; // 当前分片数量
+        $newFileName = $sendContext['newFileName'];
+        // 分块名称
+        $chunkFileName = $chunkNumber.'_'.$newFileName;
+        // 创建目录
+        $dir ='files/'.$user_id."/".$seq."/";
+        $file = $sendContext['file'];    // 二进制数据流
+
+        // 缓存已经上传的文件数量
+        $incr = $this->incr($sendContext['seq'],'chunkNumber');
+        Log::write(date('Y-m-d H:i:s').'_chunkFile_分片数量'.json_encode($incr),'info');
+
+        // 上传分块
+        $this->upload->setModel( 'app\common\utils\upload\src\local\Upload');
+        $uploadPart = $this->upload->uploadPart([
+            "uploadId" => $seq, // 对象id
+            "partId"   => $chunkNumber, // 分块编号
+            "dir"      => $dir, // 分块地址
+            "key"      => $chunkFileName, // 名称
+            "file"     => $file,  // 数据
+            "totalChunks" => $sendContext['totalChunks']
+        ]);
+        Log::write(date('Y-m-d H:i:s').'$uploadPart::'.json_encode($uploadPart),'info');
+        if (!$uploadPart) return $this->setSender($callbackEvent,ImJson::outData(20003));
+
+        return $this->sendChunk($sendContext,$callbackEvent,$uploadPart);
+
+    }
+
+    /**
+     * 发送分块信息
+     * @param $sendContext
+     * @param $callbackEvent
+     * @param $uploadPart
+     * @return bool
+     */
+    protected function sendChunk($sendContext,$callbackEvent,$uploadPart): bool
+    {
         $room_id = (string)$sendContext['room_id'];
         $filename = $sendContext['filename']; // 文件名称
         $totalChunks = $sendContext['totalChunks']; // 分片总数量
-        $chunkNumber = $sendContext['chunkNumber']+1; // 当前分片数量
         $totalSize = $sendContext['totalSize']; // 总 size
-        $user_id = $sendContext['user_id']; // 用户id
         $uploadProgress = $sendContext['uploadProgress']; // 上传进度
         $chunkSize = $sendContext['chunkSize'];  // 分块size
-        $file = $sendContext['file'];    // 二进制数据流
-        $newFileName =  $sendContext['newFileName']; // 新的文件名称
-        // 创建目录
-        $dir ='files/'.$user_id."/".$seq."/";
-        // 分块名称
-        $chunk_filename = $chunkNumber.'_'.$md5;
-        $proTem =  $dir.$chunk_filename;  //临时文件
-        $uploadBusiness = app()->make(UploadBusiness::class);
-        if (!$uploadBusiness->uploadFile($file,$proTem)) return  $this->setSender($callbackEvent,ImJson::outData(20001));
-        $uploadStatus = upload::UPLOADING;
-        if ($totalChunks == $chunkNumber) {
-            $uploadStatus =  upload::UPLOAD_SUCCESS; // 1
+        $chunkNumber =  $uploadPart['partId'];
 
-        }
-        // 缓存已经上传的文件数量
-        $incr = $this->incr($seq,'chunkNumber');
-        Log::write(date('Y-m-d H:i:s').'_chunkFile_分片_'.json_encode($incr),'info');
-
-       $this->websocket->to($room_id)->emit($callbackEvent,
-
+        return $this->websocket->to($room_id)->emit($callbackEvent,
             ImJson::outData(10000,'成功',[
                 'filename'  => $filename,
                 'totalSize' => $totalSize,
-                'identifier'  =>$md5,
-                'chunkPath' => $proTem,
+                'identifier' => $sendContext['identifier'],
+                'chunkPath' => $uploadPart['path'],
                 'totalChunks' => $totalChunks,
                 'chunkNumber' => $chunkNumber,
-                "uploadStatus" => $uploadStatus,
+                "uploadStatus" => $uploadPart['uploadStatus'],
                 "uploadProgress" => $uploadProgress,
                 "chunkSize"  => $chunkSize,
-                "newFileName" => $newFileName,
-                "user_id"  => $user_id,
-                "seq"      => $seq
+                "newFileName" => $sendContext['newFileName'],
+                "user_id"  => $sendContext['user_id'],
+                "seq"      => $sendContext['seq']
             ])
         );
-
 
     }
 
@@ -250,6 +270,7 @@ class WebsocketEvent  extends WebSocketService
      */
     public function mergeFile($event)
     {
+        return true;
         $callbackEvent = "mergeFileCallback";
         $sendContext = $event['data'][0];
         if (!$sendContext) return  $this->setSender($callbackEvent,ImJson::outData(20003));
@@ -276,7 +297,7 @@ class WebsocketEvent  extends WebSocketService
             Log::write(date('Y-m-d H:i:s').'_mergeFile_参数'.json_encode($sendContext),'info');
             // 分块文件
             for ($i=$mergeNumber; $i<=$totalChunks; $i++) {
-                $val = $chunkDir.$i."_".$md5;
+                $val = $chunkDir.$i."_".$newFileName;
                 $data = [
                     "seq"          => $seq,
                     "chunk_number" => $totalChunks,
@@ -292,7 +313,7 @@ class WebsocketEvent  extends WebSocketService
                     $mergeFileStatus = 2; // 文件没有权限
                     $data["mergeFileStatus"] = $mergeFileStatus;
                     $this->websocket->to($room_id)->emit($callbackEvent,
-                         ImJson::outData(20404,'',$data )
+                        ImJson::outData(20404,'',$data )
                     );
                     break;
                 }
@@ -304,7 +325,7 @@ class WebsocketEvent  extends WebSocketService
                 $uploadStatus = $this->upload::SENDING;
                 if ($totalChunks ==  $i) {
                     $uploadStatus =  $this->upload::SEND_SUCCESS;
-                    
+
                 }
                 @unlink($val); //删除分片
                 // 缓存

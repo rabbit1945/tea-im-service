@@ -6,11 +6,12 @@ use app\common\utils\upload\src\UploadInterface;
 use think\App;
 use app\common\utils\upload\src\cos\Cos as cosUpload;
 use think\facade\Log;
+use think\File;
 
 /**
  * 上传下载接口
  */
- class Upload  implements UploadInterface
+ abstract class Upload  implements UploadInterface
 {
 
      protected Cos $cos;
@@ -25,12 +26,12 @@ use think\facade\Log;
 
      /**
       * 简单上传文件
-      * @param string $key    文件名称目录
-      * @param string $body   文件或二进制流
+      * @param string|array $key 文件名称目录
+      * @param string|File $body 文件或二进制流
       * @param bool $is_file 是否是文件
       * @return array|false
       */
-     public function putUpload(string $key, string $body, bool $is_file = true): array|bool
+     public function putUpload(string|array $key, string|File $body, bool $is_file = true): array|bool
      {
 
          try {
