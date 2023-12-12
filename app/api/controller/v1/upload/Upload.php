@@ -49,7 +49,6 @@ class Upload extends BaseController
         $uploadAudio =$this->uploadBusiness->upload($dir,$file,$name);
         if (!$uploadAudio) {
             if (empty($list)) return ImJson::output('20001');
-
         }
         return ImJson::output(10000, '成功', ['fileName' =>$name ,'file' => 'storage/' . $uploadAudio]);
     }
@@ -162,13 +161,14 @@ class Upload extends BaseController
         $mergeFilePath = $find['file_path'] ?? "";
         if ($mergeFilePath && Filesystem::has($dir.$find['file_name'])) {
             $type = 1;
+
         } else {
             // 创建合并文件
-            $mergeFilePath ="$dir".$newFileName;
+            $mergeFilePath ="storage".$dir.$newFileName;
         }
 
         $data = [
-            "mergePath"        => 'storage'.$mergeFilePath,
+            "mergePath"        => $mergeFilePath,
             "newFileName"      => $newFileName,
             "type"             => $type // 0 普通上传 1 秒传
         ];
