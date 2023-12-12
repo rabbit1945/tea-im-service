@@ -8,6 +8,7 @@ use think\exception\ValidateException;
 use  Qcloud\Cos\Client;
 use  \app\common\utils\upload\src\cos\Upload as cosUpload;
 use think\facade\Log;
+use think\File;
 use think\swoole\Sandbox;
 
 /**
@@ -74,14 +75,14 @@ class Upload
 
     /**
      * 简单上传
-     * @param string $key
-     * @param string $body
+     * @param string|array $key
+     * @param File|string $body
      * @param bool $is_file
-     * @return mixed
+     * @return bool|string
      */
-    public function putUpload(string $key, string $body, bool $is_file = true): mixed
+    public function putUpload(string|array $key, File|string $body, bool $is_file): bool|string
     {
-        return $this->app->make($this->getModel())->putUpload($key,  $body,  $is_file);
+        return $this->app->make($this->getModel())->putUpload($key,$body,$is_file);
     }
 
     /**
@@ -120,14 +121,34 @@ class Upload
      * 创建缩略图
      * @param string $path
      * @param string $thumbPath
+     * @param string $fileType
      * @param int $width
      * @param int $height
      * @return string|bool
      */
-    public function createThumb(string $path, string $thumbPath,$fileType, int $width = 200, int $height = 200): string|bool
+    public function createThumb(string $path, string $thumbPath,string $fileType, int $width = 200, int $height = 200): bool|string
     {
 
         return $this->app->make($this->getModel())->createThumb($path,$thumbPath,$fileType,$width,$height);
+    }
+
+    /**
+     * 上传分块
+     * @param array $args
+     * @return mixed
+     */
+    public function uploadPart(array $args = []): mixed
+    {
+        $uploadPart =  $this->app->make($this->getModel())->uploadPart($args);
+        if (!$uploadPart) return [];
+        $totalChunks = $args['totalChunks'];
+        $chunkNumber = $uploadPart['partId'];
+        $uploadStatus = upload::UPLOADING;
+        if ($totalChunks == $chunkNumber ) {
+            $uploadStatus =  upload::UPLOAD_SUCCESS; // 1
+        }
+        $uploadPart['uploadStatus'] = $uploadStatus;
+        return $uploadPart;
     }
 
 

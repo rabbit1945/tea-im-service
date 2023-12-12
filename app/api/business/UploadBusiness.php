@@ -40,9 +40,14 @@ class UploadBusiness
     /**
      * 上传
      */
-    public function upload($dir,$file,$name): bool|string
+    public function upload($dir,$file,$name,$is_file = true ): bool|string
     {
-        $path = $this->upload->fileUpload($dir,$file,$name);
+        $upload = $this->app->make(Upload::class);
+        $upload->setModel( 'app\common\utils\upload\src\local\Upload');
+        $path =$upload->putUpload([
+            "dir"  => $dir,
+            "name" => $name
+        ],$file,$is_file);
         if (!$path) return false;
         return $path;
 
@@ -58,7 +63,9 @@ class UploadBusiness
     {
         $match_result =  explode(',', $file);
         if (!Filesystem::has( $path)) {
-            return Filesystem::put($path,base64_decode($match_result[1]));
+            $upload = $this->app->make(Upload::class);
+            $upload->setModel( 'app\common\utils\upload\src\local\Upload');
+            return $upload->putUpload($path,base64_decode($match_result[1]),false);
         }
         return true;
     }
@@ -67,6 +74,7 @@ class UploadBusiness
      * 创建缩略图
      * @param $path // 原图地址
      * @param array $newFileInfo
+     * @return bool|string
      */
     public function createThumb($path,array $newFileInfo): bool|string
     {

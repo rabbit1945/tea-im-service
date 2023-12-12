@@ -2,6 +2,7 @@
 
 namespace app\common\utils\upload\src;
 use think\contract\Arrayable;
+use think\File;
 
 /**
  * 定义上次接口
@@ -12,7 +13,7 @@ interface UploadInterface
     /**
      * 简单上传
      */
-    public function putUpload(string $key, string $body, bool $is_file = true): array|bool;
+    public function putUpload(string|array $key, string|File $body, bool $is_file = true):mixed;
 
     /**
      * 获取可以访问的URL
@@ -51,10 +52,10 @@ interface UploadInterface
 
     /**
      * 检查存储桶中是否存在某个对象。
-     * @param string $key
-     * @return array|bool
+     * @param string $key // 路径
+     * @return bool
      */
-    public function doesObjectExist(string $key): array|bool;
+    public function doesObjectExist(string $key): bool;
 
     /**
      * 查询对象信息
@@ -64,12 +65,36 @@ interface UploadInterface
     public function headObject(string $key): array|bool|object;
 
     /**
-     * 创建缩略图
-     * @param string $path
-     * @param string $thumbPath
-     * @param int $width
-     * @param int $height
-     * @return string|array|bool
+     * 初始化分块上传
+     * @param array $args
+     * @return mixed
      */
-    public function createThumb(string $path, string $thumbPath, int $width = 200, int $height = 200): string|bool;
+    public function  createMultipartUpload(array $args = []): mixed;
+
+
+    /**
+     * 分块上传
+     * @param array $args
+     * @return mixed
+     */
+   public function  uploadPart(array $args =[]): mixed;
+
+
+    /**
+     * 完成分块上传
+     * @param array $args
+     * @return mixed
+     */
+   public function completeMultipartUpload(array $args = array()): mixed;
+
+
+    /**
+     * 终止分块上传
+     * @param array $args
+     * @return mixed
+     */
+
+    public function abortMultipartUpload(array $args = array()): mixed;
+
+
 }
