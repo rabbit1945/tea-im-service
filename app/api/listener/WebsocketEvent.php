@@ -270,7 +270,6 @@ class WebsocketEvent  extends WebSocketService
      */
     public function mergeFile($event)
     {
-        return true;
         $callbackEvent = "mergeFileCallback";
         $sendContext = $event['data'][0];
         if (!$sendContext) return  $this->setSender($callbackEvent,ImJson::outData(20003));

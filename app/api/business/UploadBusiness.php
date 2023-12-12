@@ -40,11 +40,14 @@ class UploadBusiness
     /**
      * 上传
      */
-    public function upload($path,$file,$is_file = true ): bool|string
+    public function upload($dir,$file,$name,$is_file = true ): bool|string
     {
         $upload = $this->app->make(Upload::class);
         $upload->setModel( 'app\common\utils\upload\src\local\Upload');
-        $path =$upload->putUpload($path,$file,$is_file);
+        $path =$upload->putUpload([
+            "dir"  => $dir,
+            "name" => $name
+        ],$file,$is_file);
         if (!$path) return false;
         return $path;
 
@@ -62,7 +65,7 @@ class UploadBusiness
         if (!Filesystem::has( $path)) {
             $upload = $this->app->make(Upload::class);
             $upload->setModel( 'app\common\utils\upload\src\local\Upload');
-            return $upload->putUpload($path,$match_result[1],false);
+            return $upload->putUpload($path,base64_decode($match_result[1]),false);
         }
         return true;
     }

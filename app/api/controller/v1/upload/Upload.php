@@ -45,13 +45,13 @@ class Upload extends BaseController
 //        if ($getSize > $this->size) return ImJson::output('20015','',[],['name'=>3]);
         $dir = 'audio';
         $time = time();
-        $name = "audio"."_$user_id"."_$time"."_".".mp3";
+        $name = "audio"."_$user_id"."_$time".".mp3";
         $uploadAudio =$this->uploadBusiness->upload($dir,$file,$name);
         if (!$uploadAudio) {
             if (empty($list)) return ImJson::output('20001');
 
         }
-        return ImJson::output(10000, '成功', ['file' => 'storage/' . $uploadAudio]);
+        return ImJson::output(10000, '成功', ['fileName' =>$name ,'file' => 'storage/' . $uploadAudio]);
     }
 
     /**
