@@ -157,7 +157,7 @@ class MessageReceiveBusiness extends Business
      * @param $val
      * @return array
      */
-    protected function getMsg( $val): array
+    protected function getMsg($val): array
     {
         $userDo = $this->app->make(UserDao::class);
         $sensitiveWord = $this->app->make(SensitiveWord::class);
@@ -168,10 +168,6 @@ class MessageReceiveBusiness extends Business
         $val['send_time'] = date('Y-m-d H:i:s', floor($val['send_time'] / 1000));
         $val['msg_content'] = $sensitiveWord->addWords(false)->filter(urldecode($val['msg_content']), '*', 2);
         $val['nick_name'] = $user_info['nick_name'];
-//        $uploadBusiness = $this->app->make(UploadBusiness::class);
-//        $key = $val['msg_to'].'/'.$val['file_name'];
-//
-//        $val['file_path'] = $uploadBusiness->getObjectUrl($key);
         return $val;
     }
 

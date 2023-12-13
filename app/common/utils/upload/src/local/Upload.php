@@ -40,6 +40,7 @@ use think\File;
      public function createThumb(string $path, string $thumbPath, string $fileType,int $width = 200, int $height = 200): bool|string
      {
          try {
+             if (!file_exists($path)) return false;
              //创建一个真彩色的图像，支持的颜色数较多
              $dst = imagecreatetruecolor($width, $height); //目标图宽高
              switch ($fileType) {

@@ -177,10 +177,4 @@ class Upload extends BaseController
 
     }
 
-
-
-
-
-
-
 }

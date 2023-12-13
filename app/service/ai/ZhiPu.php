@@ -65,14 +65,12 @@ class ZhiPu implements AiChat
     public function run($messages): bool|array
     {
         $model = $this->model;
-
         $meta = [
-            "user_info" => "我是宮先生，是一位软件工程师。",// 用户信息
+            "user_info" => "我是你的小主人",// 用户信息
             "bot_info"  => "苏小小，是阳光快乐的小女孩", // 角色信息
             "bot_name"  => "苏小小",// 角色名称
-            "user_name" => "宮先生",// 用户名称
+            "user_name" => "小主人",// 用户名称
         ];
-
         $prompt = [
              [
                  "role"=> "user",
