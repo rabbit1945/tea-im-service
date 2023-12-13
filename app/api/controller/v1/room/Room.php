@@ -6,6 +6,7 @@ use app\api\business\RoomUserBusiness;
 use app\api\business\UserBusiness;
 use app\BaseController;
 use app\common\utils\ImJson;
+use app\service\ai\zhiPu;
 use think\App;
 use think\facade\Request;
 use think\Response;
@@ -73,7 +74,6 @@ class Room extends BaseController
 
     }
 
-
     /**
      * 获取聊天室中用户的列表
      */
@@ -86,12 +86,11 @@ class Room extends BaseController
         if (!$room_id) return ImJson::output(20006);
         // 聊天室名称
         $groupUserBusiness = $this->roomUserBusiness;
-
         // 用户列表
         $list = $groupUserBusiness->list($room_id,$pages,$size,$nickName);
         if (!$list) return ImJson::output(20006);
         return ImJson::output(10000, '成功',[
-           'userList' => $list['list']
+           'userList' => $list['list'],
          ]);
     }
 

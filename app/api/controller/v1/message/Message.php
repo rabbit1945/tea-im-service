@@ -5,7 +5,9 @@ use app\api\business\UploadBusiness;
 use app\BaseController;
 use app\common\utils\ImJson;
 use app\common\utils\Upload;
+use app\service\ai\zhiPu;
 use app\validate\MessageValidate;
+use GuzzleHttp\Exception\GuzzleException;
 use think\App;
 use think\facade\Request;
 use think\Response;
@@ -51,6 +53,18 @@ class Message extends BaseController
         }
 
         return ImJson::output(10000,'成功',$data);
+
+    }
+
+    /**
+     * @return Response
+     * @throws GuzzleException
+     */
+    public function getZhiPuMsg(): Response
+    {
+        $zhiPu = $this->app->make(zhiPu::class);
+        $run = $zhiPu->run("你好");
+        return ImJson::output(10000,'成功',$run);
 
     }
 

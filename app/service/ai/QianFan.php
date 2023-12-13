@@ -7,8 +7,11 @@ namespace app\service\ai;
 use app\common\utils\Curl;
 use app\service\JsonService;
 use Exception;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 use think\facade\Cache;
 use think\facade\Config;
+use think\facade\Log;
 
 class QianFan implements AiChat
 {
@@ -26,13 +29,8 @@ class QianFan implements AiChat
      * 参数
      * @var
      */
-    public $parameter;
+    public mixed $parameter;
 
-    /**
-     * 模型
-     * @var
-     */
-    public  $model;
 
     /**
      * 应用的API Key
@@ -55,12 +53,13 @@ class QianFan implements AiChat
     public string $cacheName = 'newQianFanToken';
 
 
-
-
+    /**
+     * @throws Exception
+     */
     public function __construct() {
         $this->domain = Config::get('aichat.qian_fan.domain');
-
         $this->accessToken = $this->getAccessToken();
+        $this->parameter   = Config::get('aichat.qian_fan.chatglm2_6b_32k');
 
     }
 
@@ -107,18 +106,35 @@ class QianFan implements AiChat
 
     }
 
-
-
-    public function run($messages)
+    /**
+     * @param $messages
+     * @param string $user_id
+     * @return false|mixed
+     * @throws GuzzleException
+     */
+    public function run($messages, string $user_id = ""): mixed
     {
+        $msgData = [
+            "user_id"=> $user_id,
+            "messages"=> [
+                [
+                    "role" => 'user',
+                    "content"=> $messages
+                ]
+            ]
+        ];
+        $jsonService = app()->make(JsonService::class);
         $url = $this->domain.$this->parameter.$this->accessToken;
-        $curl =  app()->make(Curl::class);
-
-        return $curl->send($url,$messages,array(
-            'Content-Type: application/json'
-        ),'post');
-
-
+        $client =  app()->make(client::class);
+        $data = $client->request('POST', $url, [
+            'headers' => [
+                'Content-Type' => "application/json"
+            ],
+            'json' => $msgData,
+        ])->getBody()->getContents();
+        if (!$data) return false;
+        Log::write(date('Y-m-d H:i:s').'_机器人AiService_'.json_encode($data),'info');
+        return $jsonService->jsonDecode($data);
     }
 
     public function getAccessToken()

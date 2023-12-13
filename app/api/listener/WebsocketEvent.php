@@ -14,6 +14,7 @@ use app\service\AiService;
 use app\service\JsonService;
 use app\service\RedisService;
 use app\service\WebSocketService;
+use Exception;
 use Swoole\Server;
 use think\App;
 use think\facade\Config;
@@ -59,11 +60,11 @@ class WebsocketEvent  extends WebSocketService
         $this->$func($event);
     }
 
-    public function robot($contactList,$sendUser,$msg)
+    /**
+     * @throws Exception
+     */
+    public function robot($contactList, $sendUser, $msg)
     {
-        $aiService = app()->make(AiService::class);
-        $json = app()->make(JsonService::class);
-
         $content = "";
         foreach ($contactList as $val) {
             $search_name = '@'.$val['nick_name'];
@@ -73,22 +74,16 @@ class WebsocketEvent  extends WebSocketService
         $sendBus = app()->make(MessageSendBusiness::class);
         $userBuss = app()->make(UserBusiness::class);
         $sendMessage = app()->make(SendMessage::class);
+        $aiService = app()->make(AiService::class);
+        $aiService->setModel( 'app\service\ai\QianFan');
         foreach ($contactList as $val) {
-
             if ($val['is_robot'] === 1){
 
-                $msgData = [
-                    "user_id"=> (string)$sendUser['user_id'],
-                    "messages"=> [
-                        [
-                            "role" => 'user',
-                            "content"=> $content
-                        ]
-                    ]
-                ];
-                $jsonData =  $aiService->run($json->jsonEncode($msgData));
-                if ($jsonData) {
-                    $data = $json->jsonDecode($jsonData);
+                $data =  $aiService->randomSend($content,$sendUser['user_id']);
+                Log::write(date('Y-m-d H:i:s').'_机器人_'.json_encode($data),'info');
+
+                if ($data) {
+//                    $data = $json->jsonDecode($jsonData);
                     $result = isset($data['result']) ?'@'.$sendUser['nick_name'].' '.$data['result']: '@'.$sendUser['nick_name'].'请稍后重试';
                     if (empty($result)) return false;
                     $val['userLogo'] = $val['photo'];
@@ -367,11 +362,10 @@ class WebsocketEvent  extends WebSocketService
         $chunkNumber     = (int)$redisService->get($chunkKey) ?? $chunkNumber;
         $mergeKey =  $redisService->getKey($seq,'mergeNumber');
         $mergeNumber     = (int)$redisService->get($mergeKey) ?? $mergeNumber;
-        Log::write(date('Y-m-d H:i:s').'_updateMsgStatus_参数'.json_encode($chunkNumber),'info');
+
         $where = [
             "seq"       => $seq,
         ];
-
         $data = [
             "room_id"      => $room_id,
             "identifier"   => $md5,
@@ -383,30 +377,27 @@ class WebsocketEvent  extends WebSocketService
             "totalSize"    => $totalSize,
             "seq"          => $seq
         ];
-
         $updateData = [
             "upload_status" => $uploadStatus,
             "chunk_number"  => $chunkNumber,
             "merge_number"  => $mergeNumber
         ];
 
-
         $messageBusiness = $this->app->make(MessageBusiness::class);
+        $info = $messageBusiness->find($where);
+        if (!$info) return  $this->setSender($callbackEvent,ImJson::outData(20001,'失败',$data));
+
         $save = $messageBusiness->save($where,$updateData);
 
         if (!$save) return  $this->setSender($callbackEvent,ImJson::outData(20001,'失败',$data));
-
         // 删除
-        if ($chunkNumber && $redisService->exists($chunkKey) ) {
+        if ($chunkNumber && $redisService->exists($chunkKey)) {
             $redisService->del($chunkKey);
         }
-
         if ($mergeNumber && $redisService->exists($mergeKey)) {
             $redisService->del($mergeKey);
         }
-
         return $this->websocket->to($room_id)->emit($callbackEvent,ImJson::outData(10000,'成功',$data));
-
     }
 
     /**
@@ -416,7 +407,6 @@ class WebsocketEvent  extends WebSocketService
      */
     public function revokeMsg($event): bool
     {
-
         $callbackEvent = "revokeMsgCallback";
         $sendContext = $event['data'][0];
         if (!$sendContext) return  $this->setSender($callbackEvent,ImJson::outData(20003));
