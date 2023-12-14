@@ -31,7 +31,7 @@ class  ImJson
      * @return Response
      */
 
-    public static function output(int $code = 10000, string $msg = '', ?array $data = [], array $vars = [], int $httpCode = 200,$type = 'json' ): Response
+    public static function output(int $code = 10000, string $msg = '', ?array $data = [], array $vars = [], int $httpCode = 200, string $type = 'json' ): Response
     {
         $method = Request::method();
         if (in_array($method,["POST","PUT","PATCH"])) {
