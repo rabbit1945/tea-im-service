@@ -26,6 +26,8 @@ Route::group('upload',function () {
     Route::post('<v>/chunk',':v.upload.Upload/chunk');
 
     Route::post('<v>/merge',':v.upload.Upload/merge');
+    // 生成缩略图
+    Route::post('<v>/create/thumb',':v.upload.Upload/createThumb');
 
 })->option(['mark' => 'upload','mark_name' => "上传模块"]);
 

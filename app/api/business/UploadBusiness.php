@@ -81,12 +81,12 @@ class UploadBusiness
         $upload = $this->app->make(Upload::class);
         $upload->setModel( 'app\common\utils\upload\src\local\Upload');
         // 原图地址
-        $path = Config::get('filesystem.disks.public.root').'/'.$path;
+//        $path = Config::get('filesystem.disks.public.root').'/'.$path;
         $fileType = array_pop($newFileInfo); // 文件类型
         $FileName = array_shift($newFileInfo);
         $thumbPath ='/files/small_'.$FileName.'.jpg';
         if (!$upload->createThumb($path,$thumbPath,$fileType)) return false;
-        return  'storage'.$thumbPath;
+        return $thumbPath;
     }
 
 

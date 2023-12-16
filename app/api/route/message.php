@@ -15,7 +15,6 @@ Route::group('message',function () {
 //    Route::get(':v/user/offline/msg',':v.message.Message/getOffLineMessageList');
     // 用户消息
     Route::get('<v>/user/msg/<room_id>/<page?>/<size?>',':v.message.Message/getMessageList');
-    Route::post('<v>/user/zhiPuMsg',':v.message.Message/getZhiPuMsg');
 })->option(['mark' => 'message','mark_name' => "消息模块"]);
 
 

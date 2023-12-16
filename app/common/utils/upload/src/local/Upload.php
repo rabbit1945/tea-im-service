@@ -40,6 +40,8 @@ use think\File;
      public function createThumb(string $path, string $thumbPath, string $fileType,int $width = 200, int $height = 200): bool|string
      {
          try {
+             $rootPath =  Config::get("filesystem.disks.public.root");
+             $path = $rootPath.$path;
              if (!file_exists($path)) return false;
              //创建一个真彩色的图像，支持的颜色数较多
              $dst = imagecreatetruecolor($width, $height); //目标图宽高
@@ -64,12 +66,12 @@ use think\File;
              $width = imagesx($src);    //源图的宽度
              $height = imagesy($src);    //源图的高度
              if (!imagecopyresampled($dst,$src,0,0,0,0,200,200,$width,$height)) return false;
+             $thumbPath = $rootPath.$thumbPath;
              // 判断文件是否存在
-             if (!is_dir($thumbPath)) {
+             if (!file_exists($thumbPath)) {
                  //创建空文件
                  Filesystem::write( $thumbPath,"");
              }
-             $thumbPath =Config::get("filesystem.disks.public.root").$thumbPath;
              imagegif($dst,$thumbPath);
 
              //销毁图片资源

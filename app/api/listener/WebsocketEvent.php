@@ -120,6 +120,7 @@ class WebsocketEvent  extends WebSocketService
      * 向房间内的用户发送消息
      * @param $event
      * @return false|void
+     * @throws Exception
      */
     public function room($event)
     {
@@ -245,7 +246,7 @@ class WebsocketEvent  extends WebSocketService
      * @param string $table
      * @return mixed
      */
-    public function incr(string|int $key, string $table): mixed
+    protected function incr(string|int $key, string $table): mixed
     {
 
         $redisService = $this->app->make( RedisService::class);
@@ -386,6 +387,12 @@ class WebsocketEvent  extends WebSocketService
         $messageBusiness = $this->app->make(MessageBusiness::class);
         $info = $messageBusiness->find($where);
         if (!$info) return  $this->setSender($callbackEvent,ImJson::outData(20001,'失败',$data));
+
+        if ($info['content_type'] == 2 && $uploadStatus ==$this->upload::SEND_SUCCESS) {
+            $thumb = $this->app->make(UploadBusiness::class)->createThumb($info['file_path'],explode('.',$newFileName)) ?? "";
+            $updateData['thumb_path'] = $thumb;
+            $data['thumb_path']       = $thumb;
+        }
 
         $save = $messageBusiness->save($where,$updateData);
 

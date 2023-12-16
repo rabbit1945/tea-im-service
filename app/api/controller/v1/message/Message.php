@@ -56,17 +56,5 @@ class Message extends BaseController
 
     }
 
-    /**
-     * @return Response
-     * @throws GuzzleException
-     */
-    public function getZhiPuMsg(): Response
-    {
-        $zhiPu = $this->app->make(zhiPu::class);
-        $run = $zhiPu->run("你好");
-        return ImJson::output(10000,'成功',$run);
-
-    }
-
 
 }

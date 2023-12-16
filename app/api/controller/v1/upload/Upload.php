@@ -50,7 +50,7 @@ class Upload extends BaseController
         if (!$uploadAudio) {
             if (empty($list)) return ImJson::output('20001');
         }
-        return ImJson::output(10000, '成功', ['fileName' =>$name ,'file' => 'storage/' . $uploadAudio]);
+        return ImJson::output(10000, '成功', ['fileName' =>$name ,'file' => $uploadAudio]);
     }
 
     /**
@@ -73,7 +73,7 @@ class Upload extends BaseController
         if (!$uploadAudio) {
             if (empty($list))  return ImJson::output('20001');
         }
-        return ImJson::output(10000, '成功', ['fileName' => $fileName, 'fileSize' => $getSize, 'file' => 'storage/' . $uploadAudio]);
+        return ImJson::output(10000, '成功', ['fileName' => $fileName, 'fileSize' => $getSize, 'file' => $uploadAudio]);
     }
 
 
@@ -100,7 +100,7 @@ class Upload extends BaseController
             if (empty($list))  return ImJson::output(20001);
         }
 
-        return ImJson::output(10000, '成功', ['fileName' => $fileName, 'fileSize' => $totalSize, 'file' => "storage/files/" . $uploadAudio['fileName']]);
+        return ImJson::output(10000, '成功', ['fileName' => $fileName, 'fileSize' => $totalSize, 'file' => "/files/" . $uploadAudio['fileName']]);
     }
 
     /**
@@ -117,20 +117,33 @@ class Upload extends BaseController
         $fileSize    = Request::post('fileSize');
         $fileName    = Request::post('fileName');
         $newFileName = $user_id."_".$fileName;
-        $dir = 'files/';
+        $dir = '/files/';
         $localPath = $dir.$newFileName;
         if (!$this->uploadBusiness->uploadFile($files,$localPath)) return ImJson::outData(20001);
         // 文件大于50KB，创建缩略图
         $thumbPath = "";
-        if ($fileSize > 50) {
+        if ($fileSize > 50*1024*1024) {
             $thumbPath = $this->uploadBusiness->createThumb($localPath,explode('.',$newFileName)) ?? "";
         }
-
-        return ImJson::output(10000, '成功', ['newFileName' => $newFileName, 'path' => 'storage/'.$localPath,"thumbPath" => $thumbPath  ]);
+        return ImJson::output(10000, '成功', ['newFileName' => $newFileName, 'path' => $localPath,"thumbPath" => $thumbPath  ]);
 
     }
 
-
+    /**
+     * 生成缩略图
+     * @return Response
+     */
+    public function createThumb(): Response
+    {
+        $path = Request::post('path');
+        if (!$path) return ImJson::output(20006);
+        $pathArray = explode('/',$path);
+        $fileName  =array_pop($pathArray);
+        var_dump( explode('/',$path,2));
+        $thumbPath = $this->uploadBusiness->createThumb($path,explode('.',$fileName)) ?? "";
+        if (!$thumbPath)  return ImJson::output(20001);
+        return ImJson::output(10000, '成功', ["thumbPath" =>  $thumbPath]);
+    }
     /**
      * 检测文件
      * @return Response
@@ -153,7 +166,7 @@ class Upload extends BaseController
                 "md5"  => $md5,
                 "upload_status" =>$uploadStatus::SEND_SUCCESS
             ],
-            'file_path,file_name',"id desc"
+            'file_path,file_name,thumb_path',"id desc"
         );
         $newFileName = $getSequence . '_' . $user_id . '_' . $filename;
         $dir = "/files/$user_id/";
@@ -164,12 +177,13 @@ class Upload extends BaseController
 
         } else {
             // 创建合并文件
-            $mergeFilePath ="storage".$dir.$newFileName;
+            $mergeFilePath = $dir.$newFileName;
         }
 
         $data = [
             "mergePath"        => $mergeFilePath,
             "newFileName"      => $newFileName,
+            'thumbPath'       => $find['thumb_path'] ?? "",
             "type"             => $type // 0 普通上传 1 秒传
         ];
 
