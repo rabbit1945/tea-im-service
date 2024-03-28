@@ -96,7 +96,6 @@ class WebsocketOpen extends WebSocketService
         $roomList = $roomUserBusiness->getRoomList($user_id);
         if ($roomList) {
 
-            Log::write(date('Y-m-d H:i:s') . '$roomList' . json_encode($roomList), 'info');
             foreach ($roomList as $val) {
                 $room_id = $val['room_id'];
                 $this->websocket->join($room_id);

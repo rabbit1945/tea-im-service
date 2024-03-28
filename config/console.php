@@ -4,4 +4,7 @@
 // +----------------------------------------------------------------------
 return [
     // 指令定义
+    'commands' => [
+        'rabbitmq:message'=>'app\command\ConsumerMessage',
+    ],
 ];

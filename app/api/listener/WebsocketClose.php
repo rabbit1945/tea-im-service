@@ -29,7 +29,6 @@ class WebsocketClose  extends WebSocketService
      */
     public function handle($reactorId)
     {
-        echo "关闭连接:".$reactorId."userid:".$this->getUserId();
         if ($reactorId == -1) {
             $this->server->close($this->websocket->getSender());
 

@@ -5,7 +5,7 @@ use think\swoole\websocket\socketio\Parser;
 
 return [
     'server'     => [
-        'host' => env('SWOOLE_HOST', '192.168.1.12'), // 监听地址
+        'host' => env('SWOOLE_HOST', '0.0.0.0'), // 监听地址
         'port' => env('SWOOLE_PORT', 9502), // 监听端口
         'mode' => SWOOLE_PROCESS, // 运行模式 默认为SWOOLE_PROCESS
         'sock_type' => SWOOLE_SOCK_TCP | SWOOLE_SSL, // sock type 默认为SWOOLE_SOCK_TCP，SWOOLE_SSL 支持 https

@@ -2,8 +2,10 @@
 
 
 namespace app\job;
+use app\service\JsonService;
 use think\facade\Log;
 use think\facade\Queue;
+
 
 class SendMessage
 {
@@ -23,9 +25,7 @@ class SendMessage
         $data['send_time']   = $data['send_timestamp'];
         $data['contact']     = $data['contactList']??"";
         $data['msg_form']    = $data['user_id'];
-        $sendData = json_encode(
-            $data,256
-        );
+        $sendData = app()->make(JsonService::class)->jsonEncode($data);
         // 4.将该任务推送到消息队列，等待对应的消费者去执行
         $isPushed = Queue::push( $jobHandlerClassName ,$sendData, $jobQueueName);
         // database 驱动时，返回值为 1|false  ;   redis 驱动时，返回值为 随机字符串|false

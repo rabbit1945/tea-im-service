@@ -15,12 +15,13 @@ use app\service\JsonService;
 use app\service\RedisService;
 use app\service\WebSocketService;
 use Exception;
+use Illuminate\Contracts\Container\BindingResolutionException as BindingResolutionExceptionAlias;
 use Swoole\Server;
 use think\App;
 use think\facade\Config;
 use think\facade\Log;
 use think\swoole\Websocket;
-
+use app\service\rabbitMq\EmitMq;
 class WebsocketEvent  extends WebSocketService
 {
     public array|JsonService $jsonToArray = [];
@@ -102,7 +103,8 @@ class WebsocketEvent  extends WebSocketService
                             "msg" => $sendUser['msg'],
                         ];
                         $room = (string)$val['room_id'];
-                        $sendMessage->send($getContext);
+                        $sendMsg = $this->sendMsg($getContext);
+                        if (!$sendMsg) return false;
                         $this->websocket->to($room)->emit('roomCallback',
                             $getContext
                         );
@@ -146,9 +148,12 @@ class WebsocketEvent  extends WebSocketService
         $sendContext['file_size'] = $sendContext['file_size'] ?? "";
         $sendContext['md5'] = $sendContext['md5'] ?? "";
         $sendContext['original_file_name'] = $sendContext['original_file_name'] ?? "";
-        Log::write(date('Y-m-d H:i:s').'_getContext1_'.json_encode($sendContext),'info');
         $getContext = $sendBus->getContext($sendContext,$this->websocket->getSender());
-        app()->make(SendMessage::class)->send($getContext);
+        $sendMsg = $this->sendMsg($getContext);
+        Log::write(date('Y-m-d H:i:s').'_发送到rabbitmq:'.$sendMsg,'info');
+
+        if (!$sendMsg) return false;
+//        app()->make(SendMessage::class)->send($getContext);
         $send = $this->websocket->to($room)->emit('roomCallback',
             $getContext
         );
@@ -158,6 +163,16 @@ class WebsocketEvent  extends WebSocketService
             }
 
         }
+    }
+
+    /**
+     * @param $getContext
+     * @return bool
+     * @throws BindingResolutionExceptionAlias
+     */
+    protected function sendMsg($getContext): bool
+    {
+        return $this->app->make(EmitMq::class)->sendMsg($getContext, 'messageExchange','MessageJobQueue','message.info');
     }
 
 

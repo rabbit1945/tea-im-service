@@ -7,10 +7,6 @@ class JsonService
 {
 
 
-    public function __construct() {
-
-    }
-
 
     /**
      * 数组转json

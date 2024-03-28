@@ -62,7 +62,7 @@ class MessageReceiveBusiness extends Business
             ['UserReceiveModel.msg_to','=',$user_id]
         ];
 
-        $messageList = $this->dao->historyMessageList($where,$user_id,$page,$limit);
+        $messageList = $this->dao->getMessageList($where,$user_id,$page,$limit);
         if (!$messageList) {
             $this->redis->set($getKey,true);
             $this->redis->pexpire($getKey,1000);
