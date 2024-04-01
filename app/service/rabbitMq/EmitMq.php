@@ -98,11 +98,7 @@ class EmitMq extends RabbitMqService
             $msg = new AMQPMessage($data, [
                     'delivery_mode' => 2,             // 设置消息持久化
             ]);
-            $msg->set('application_headers', new AMQPTable(['x-delay' => 5000, 'x-retry-max-count' => 3]));
-
             $ch->basic_publish($msg, $exchangeName, $routeKey);
-
-
             Log::write(date('Y-m-d H:i:s') . '_发送成功_'.$data,'info');
             return true;
         } catch (Exception $e) {
