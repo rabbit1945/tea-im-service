@@ -47,6 +47,7 @@ class EmitMq extends RabbitMqService
 
         try {
             $dead_letter_exchange = 'dlx.message.exchange';
+            $dead_message_letter_queue = 'dead_message_letter_queue';
             $dlq_routing_message = 'dlq.routing.message';
             $ch = $this->getChannel();
             /**
@@ -71,9 +72,9 @@ class EmitMq extends RabbitMqService
             // 声明死信交换机
             $this->channel->exchange_declare($dead_letter_exchange, 'direct', false, true, false);
             // 声明死信队列
-            $this->channel->queue_declare('dead_message_letter_queue', false, true, false, false);
+            $this->channel->queue_declare($dead_message_letter_queue, false, true, false, false);
             // 将死信队列绑定到死信交换机
-            $this->channel->queue_bind('dead_message_letter_queue', $dead_letter_exchange, $dlq_routing_message);
+            $this->channel->queue_bind($dead_message_letter_queue, $dead_letter_exchange, $dlq_routing_message);
            // 声明队列
             /**
              * $queue：（字符串）队列名称。如果留空（默认为空字符串），RabbitMQ 将会生成一个唯一的队列名称并返回。

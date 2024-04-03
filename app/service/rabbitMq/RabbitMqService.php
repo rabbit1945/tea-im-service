@@ -7,9 +7,7 @@ use PhpAmqpLib\Exception\AMQPConnectionClosedException;
 use PhpAmqpLib\Exception\AMQPOutOfBoundsException;
 use PhpAmqpLib\Exception\AMQPRuntimeException;
 use PhpAmqpLib\Exception\AMQPTimeoutException;
-use PhpAmqpLib\Message\AMQPMessage;
-use think\facade\Log;
-use PhpAmqpLib\Connection\AMQPConnection;
+
 
 /**
  * rabbitmq服务

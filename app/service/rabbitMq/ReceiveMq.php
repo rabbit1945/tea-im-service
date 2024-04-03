@@ -6,14 +6,14 @@ use app\api\business\MessageReceiveBusiness;
 use app\api\business\MessageSendBusiness;
 use app\model\UserSendModel;
 use app\service\JsonService;
+use Exception;
 use Illuminate\Contracts\Container\BindingResolutionException as BindingResolutionExceptionAlias;
 use PhpAmqpLib\Exception\AMQPConnectionClosedException;
 use PhpAmqpLib\Exception\AMQPOutOfBoundsException;
 use PhpAmqpLib\Exception\AMQPRuntimeException;
 use PhpAmqpLib\Exception\AMQPTimeoutException;
 use think\facade\Log;
-use PhpAmqpLib\Wire\AMQPTable;
-use function PHPUnit\Framework\assertNotTrue;
+
 
 /**
  * 消费者
@@ -48,9 +48,6 @@ class ReceiveMq extends RabbitMqService
      */
     public function consumer()
     {
-        Log::write(date('Y-m-d H:i:s').'_消费者开始消费queueName'.$this->queueName,'info');
-        Log::write(date('Y-m-d H:i:s').'_消费者开始消费exchangeName'.$this->exchangeName,'info');
-        Log::write(date('Y-m-d H:i:s').'_消费者开始消费routeKey'.$this->routeKey,'info');
         try {
             $callback = function ($msg)  {
                 Log::write(date('Y-m-d H:i:s') . '_消费者详情：'.$msg->body,'info');
@@ -60,11 +57,11 @@ class ReceiveMq extends RabbitMqService
                     Log::write(date('Y-m-d H:i:s') . '_消费者成功_'.$jsonService->jsonEncode($data),'info');
                     if (!$this->receiveMsg($data)) {
                         Log::write(date('Y-m-d H:i:s') . '_消费者失败_','info');
-                        throw new \Exception("消费者失败");
+                        throw new Exception("消费者失败");
 
-                    };
+                    }
                     $msg->delivery_info['channel']->basic_ack($msg->delivery_info['delivery_tag']);
-                } catch (\Exception $e) {
+                } catch (Exception $e) {
                     // 获取重试次数
                     $this->retryCount++;
                     // 处理失败，增加重试计数
@@ -94,7 +91,7 @@ class ReceiveMq extends RabbitMqService
             while ($this->channel->is_consuming()) {
                 $this->channel->wait();
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             Log::write(date('Y-m-d H:i:s') . '_消费者失败_'.$e->getMessage(),'info');
             return false;
 
