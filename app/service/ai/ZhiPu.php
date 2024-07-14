@@ -8,6 +8,7 @@ use Firebase\JWT\JWT;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use think\facade\Config;
+use think\facade\Log;
 
 
 class ZhiPu implements AiChat
@@ -94,6 +95,7 @@ class ZhiPu implements AiChat
             'json' => $query,
         ])->getBody()->getContents();
         if (!$data) return false;
+        Log::write(date('Y-m-d H:i:s').'_zhipuAiService_'.json_encode($data),'info');
         $jsonService = app()->make(JsonService::class);
         $info = $jsonService->jsonDecode($data);
         if (!$info['success']) return false;

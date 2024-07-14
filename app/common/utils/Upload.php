@@ -6,7 +6,7 @@ use think\App;
 use  think\facade\Filesystem;
 use think\exception\ValidateException;
 use  Qcloud\Cos\Client;
-use  \app\common\utils\upload\src\cos\Upload as cosUpload;
+use  app\common\utils\upload\src\cos\Upload as cosUpload;
 use think\facade\Log;
 use think\File;
 use think\swoole\Sandbox;

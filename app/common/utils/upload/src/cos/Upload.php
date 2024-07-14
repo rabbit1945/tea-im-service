@@ -3,6 +3,7 @@
 namespace app\common\utils\upload\src\cos;
 
 use app\common\utils\upload\src\UploadInterface;
+use Exception;
 use think\App;
 use app\common\utils\upload\src\cos\Cos as cosUpload;
 use think\facade\Log;
@@ -52,7 +53,7 @@ use think\File;
                  return ['path' => $this->cos->getScheme()."://" .$putObject['Location'] ?? ""];
              }
 
-         } catch (\Exception $e) {
+         } catch (Exception $e) {
              // 请求失败
              return ["error" =>$e->getMessage()];
          }
@@ -89,7 +90,7 @@ use think\File;
                  )
              );
 
-         } catch (\Exception $e) {
+         } catch (Exception $e) {
              // 请求失败
              return ["error" =>$e->getMessage()];
          }
@@ -120,7 +121,7 @@ use think\File;
                  $bucket,
                  $key
              );
-         } catch (\Exception $e) {
+         } catch (Exception $e) {
              // 请求失败
              return ['error' => $e->getMessage()];
          }
@@ -144,7 +145,7 @@ use think\File;
              );
              if (!isset($result['error'])) return false;
              return $result['structure']['data'];
-         } catch (\Exception $e) {
+         } catch (Exception $e) {
              // 请求失败
              return ['error' => $e->getMessage()];
          }
@@ -165,7 +166,7 @@ use think\File;
              $url =  $this->cos->getObjectUrl($bucket, $key,'+60 minutes');
              if (!$url) return false;
              return $url;
-         } catch (\Exception $e) {
+         } catch (Exception $e) {
              // 请求失败
              return false;
          }

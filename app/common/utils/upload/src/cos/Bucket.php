@@ -3,6 +3,7 @@
 namespace app\common\utils\upload\src\cos;
 
 use app\common\utils\upload\src\BucketInterface;
+use Exception;
 use think\App;
 
  class Bucket extends Cos implements BucketInterface
@@ -20,7 +21,7 @@ use think\App;
             return $this->cosClient->createBucket(
                  $args
              );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $e->getMessage();
         }
 
@@ -38,7 +39,7 @@ use think\App;
             return $this->cosClient->deleteBucket(
                 $args
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $e->getMessage();
         }
 
@@ -56,7 +57,7 @@ use think\App;
             return $this->cosClient->headBucket(
                 $args
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return $e->getMessage();
         }
     }

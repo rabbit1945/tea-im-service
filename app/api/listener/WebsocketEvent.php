@@ -74,19 +74,16 @@ class WebsocketEvent  extends WebSocketService
         if (!$content) return false;
         $sendBus = app()->make(MessageSendBusiness::class);
         $userBuss = app()->make(UserBusiness::class);
-        $sendMessage = app()->make(SendMessage::class);
+       // $sendMessage = app()->make(SendMessage::class);
         $aiService = app()->make(AiService::class);
         $aiService->setModel( 'app\service\ai\QianFan');
+        $data =  $aiService->randomSend($content,$sendUser['user_id']);
+        Log::write(date('Y-m-d H:i:s').'_机器人_'.json_encode($data,JSON_UNESCAPED_UNICODE),'info');
+        $result = isset($data['result']) ?'@'.$sendUser['nick_name'].' '.$data['result']: '@'.$sendUser['nick_name'].'请稍后重试';
+        if (empty($result)) return false;
         foreach ($contactList as $val) {
             if ($val['is_robot'] === 1){
-
-                $data =  $aiService->randomSend($content,$sendUser['user_id']);
-                Log::write(date('Y-m-d H:i:s').'_机器人_'.json_encode($data),'info');
-
                 if ($data) {
-//                    $data = $json->jsonDecode($jsonData);
-                    $result = isset($data['result']) ?'@'.$sendUser['nick_name'].' '.$data['result']: '@'.$sendUser['nick_name'].'请稍后重试';
-                    if (empty($result)) return false;
                     $val['userLogo'] = $val['photo'];
                     $val['msg'] =  $result;
                     $val['content_type'] = 0;
@@ -163,6 +160,47 @@ class WebsocketEvent  extends WebSocketService
             }
 
         }
+    }
+
+    /**
+     * @param $event
+     * @return true
+     */
+    public function aiQuestionnaire($event): bool
+    {
+        $sendContext = $event['data'][0];
+
+        // 正则表达式尝试匹配JSON对象或数组
+        $jsonPattern = '/\{(?:[^{}]|(?R))*\}/';
+
+        // 使用preg_match_all来查找所有匹配的JSON对象或数组
+        preg_match_all($jsonPattern, $sendContext, $matches, PREG_SET_ORDER | PREG_OFFSET_CAPTURE);
+        $extractedJsons = [];
+        foreach ($matches as $match) {
+            // 提取匹配的JSON字符串并尝试解码
+            $jsonStr = $match[0][0];
+            if (empty($jsonStr)) continue;
+            $decodedJson = json_decode($jsonStr, true);
+
+            // 检查是否成功解码
+            if (json_last_error() === JSON_ERROR_NONE) {
+                $extractedJsons = $decodedJson;
+            } else {
+                echo "解析错误: " . json_last_error_msg() . " - JSON字符串: " . $jsonStr . "\n";
+                $extractedJsons = json_decode(str_replace("，",",",$jsonStr),true);
+
+            }
+        }
+
+        $extractedJsons = $extractedJsons ? JsonService::jsonDecode($extractedJsons): [];
+        // 显示所有成功提取并解析的JSON数据
+        Log::write(date('Y-m-d H:i:s').'_成功提取并解析的JSON数据_'.json_encode($extractedJsons,JSON_UNESCAPED_UNICODE),'info');
+
+        $send = $this->websocket->emit('aiQuestionnaireCallback',
+            $extractedJsons
+        );
+        if (!$send) return false;
+
     }
 
     /**

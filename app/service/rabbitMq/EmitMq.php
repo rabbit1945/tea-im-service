@@ -87,12 +87,10 @@ class EmitMq extends RabbitMqService
             $ch->queue_declare($queueName, false, true, false, false, false, new AMQPTable($args));
             // 绑定队列
             $ch->queue_bind($queueName, $exchangeName,$routeKey);
-
             $data['msg_content'] =  urlencode($data['msg']);
             $data['send_time']   = $data['send_timestamp'];
             $data['contact']     = $data['contactList']??"";
             $data['msg_form']    = $data['user_id'];
-
             $jsonService = app()->make(JsonService::class);
             $data = $jsonService->jsonEncode($data);
             // 发送消息  delivery_mode 属性设置为 2, 表示消息持久化

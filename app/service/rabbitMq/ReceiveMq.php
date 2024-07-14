@@ -110,6 +110,7 @@ class ReceiveMq extends RabbitMqService
         $userSendModel = app()->make(UserSendModel::class);
         $userSendModel::startTrans();
         try {
+
             //   消息列表
             app()->make(MessageBusiness::class)->addMessage($data);
             // 发送消息列表

@@ -9,6 +9,7 @@ use app\service\JsonService;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
+use Illuminate\Contracts\Container\BindingResolutionException;
 use think\facade\Cache;
 use think\facade\Config;
 use think\facade\Log;
@@ -111,6 +112,7 @@ class QianFan implements AiChat
      * @param string $user_id
      * @return false|mixed
      * @throws GuzzleException
+     * @throws BindingResolutionException
      */
     public function run($messages, string $user_id = ""): mixed
     {
@@ -133,7 +135,7 @@ class QianFan implements AiChat
             'json' => $msgData,
         ])->getBody()->getContents();
         if (!$data) return false;
-        Log::write(date('Y-m-d H:i:s').'_机器人AiService_'.json_encode($data),'info');
+        Log::write(date('Y-m-d H:i:s').'_baiduAiService_'.json_encode($data),'info');
         return $jsonService->jsonDecode($data);
     }
 
