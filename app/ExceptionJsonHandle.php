@@ -2,6 +2,7 @@
 namespace app;
 
 use app\common\utils\ImJson;
+use mysql_xdevapi\BaseResult;
 use ParseError;
 use think\db\exception\DataNotFoundException;
 use think\db\exception\ModelNotFoundException;

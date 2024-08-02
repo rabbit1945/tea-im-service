@@ -33,6 +33,7 @@ class WebsocketOpen extends WebSocketService
     {
         $fd = $this->websocket->getSender();
         $data = $request->param();
+        Log::write(date('Y-m-d H:i:s') . 'open_用户参数' . json_encode($data), 'info');
         // 鉴权
         if ($this->checkToken($data)) {
             // 检测用户状态

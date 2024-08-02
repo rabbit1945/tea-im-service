@@ -68,6 +68,7 @@ class Room extends BaseController
                 'nick_name' => $user->nick_name,
                 'photo'=> $user->photo,
                 'is_online' => $user->is_online,
+                'user_role' => $user->user_role,
             ],
             'roomInfo' => $groupUser,
         ]);

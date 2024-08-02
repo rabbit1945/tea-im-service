@@ -79,7 +79,6 @@ class WebsocketEvent  extends WebSocketService
         $aiService->setModel( 'app\service\ai\QianFan');
         foreach ($contactList as $val) {
             if ($val['is_robot'] === 1){
-
                 $data =  $aiService->randomSend($content,$sendUser['user_id']);
                 Log::write(date('Y-m-d H:i:s').'_机器人_'.json_encode($data),'info');
 
@@ -106,7 +105,8 @@ class WebsocketEvent  extends WebSocketService
                         $sendMsg = $this->sendMsg($getContext);
                         if (!$sendMsg) return false;
                         $this->websocket->to($room)->emit('roomCallback',
-                            $getContext
+                            ImJson::outData(10000,'成功',$getContext)
+
                         );
 
                     }
@@ -129,6 +129,11 @@ class WebsocketEvent  extends WebSocketService
         Log::write(date('Y-m-d H:i:s').'_event_'.json_encode($event),'info');
         $sendContext = $event['data'][0];
         $user_id = $sendContext['user_id'];
+        if (!$user_id) return $this->setSender('roomCallback',ImJson::outData(20003));
+        $userBuss = app()->make(UserBusiness::class);
+        $userInfo = $userBuss->find($user_id);
+        $userRole= $sendContext['userRole'];
+        if ($userInfo->user_role !== $userRole) return $this->setSender('roomCallback',ImJson::outData(20006));
         $msg = $sendContext['msg'];
         $contactList =  $sendContext['contactList'] ?? [];
         if (!empty($contactList)) {
@@ -155,7 +160,7 @@ class WebsocketEvent  extends WebSocketService
         if (!$sendMsg) return false;
 //        app()->make(SendMessage::class)->send($getContext);
         $send = $this->websocket->to($room)->emit('roomCallback',
-            $getContext
+             ImJson::outData(10000,'成功',$getContext)
         );
         if ($send) {
             if ($contactList) {

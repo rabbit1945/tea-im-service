@@ -57,7 +57,8 @@ class Login
 
         $loginName = Request::post('login');
         $password = Request::post('password');
-        $createUser = static::$business->login($loginName, $password);
+        $userRole = Request::post('user_role');
+        $createUser = static::$business->login($loginName, $password,$userRole);
         if ($createUser) {
             return ImJson::output(10000, '', $createUser, ['name' => '登录']);
         }

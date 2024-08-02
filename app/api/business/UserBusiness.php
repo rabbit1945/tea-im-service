@@ -130,7 +130,7 @@ class UserBusiness
             // 查看是否已有此用户
             $userInfo =  $this->dao->find([
                 "login_name" => $login_name
-            ],'id,nick_name,login_name,status,create_time');
+            ],'id,nick_name,login_name,status,user_role,create_time');
             if ($userInfo) {
                 // 用户名加后缀
                 $login_name = $login_name ."_".$userInfo['create_time'];
@@ -234,24 +234,35 @@ class UserBusiness
      * @param $password
      * @return false|mixed
      */
-    public function login($login_name,$password): mixed
+    public function login($login_name,$password,$userRole = 0): mixed
     {
         $model = static::$model;
         $model::startTrans();
         try {
-            $data = [
-                'login_name'=> $login_name,
-                'password'  => $password,
-            ];
-            $scene = 'edit';
-            validate(UserValidate::class)
-                ->scene($scene)
-                ->check($data);
-            $where = [
-                ['login_name', '=', $login_name],
-                ['status','=',1],
-                ['password','=',md5($password)]
-            ];
+            // 游客登录
+            if ($userRole == 1)  {
+
+                $where = [
+                    ['user_role', '=', $userRole],
+                    ['status','=',1]
+                ];
+            } else {
+                $data = [
+                    'login_name'=> $login_name,
+                    'password'  => $password,
+                ];
+                $scene = 'edit';
+                validate(UserValidate::class)
+                    ->scene($scene)
+                    ->check($data);
+                $where = [
+                    ['login_name', '=', $login_name],
+                    ['status','=',1],
+                    ['password','=',md5($password)]
+                ];
+
+            }
+            
             $find = $model
                 ->where($where)
                 ->find();
@@ -288,7 +299,7 @@ class UserBusiness
      */
     public function find($id) {
 
-        $find = static::$model->field('id,nick_name,photo,is_online,is_robot')->where('id', '=', $id)->order('is_online desc')->find();
+        $find = static::$model->field('id,nick_name,photo,is_online,is_robot,user_role')->where('id', '=', $id)->order('is_online desc')->find();
         if (!$find) return false;
         $find->photo = '/static/images/微信头像.jpeg';
 //        $find->photo = $find->photo ?$find->photo:'/static/images/微信头像.jpeg';
@@ -388,6 +399,7 @@ class UserBusiness
             'sex'        => $find['sex'],
             'is_online'  => $find['is_online'],
             'token'      => $find['token'],
+            'user_role'  => $find['user_role'],
         ];
     }
 }
