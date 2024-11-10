@@ -1,0 +1,21 @@
+{
+  "dbType": "mysql",
+  "idleTimeout": 600000,
+  "initSqls": [],
+  "initSqlsGetConnection": true,
+  "instanceType": "READ_WRITE",
+  "logAbandoned": true,
+  "maxCon": 1000000,
+  "maxConnectTimeout": 300000,
+  "maxRetryCount": 5,
+  "minCon": 1,
+  "name": "write1",
+  "password": "lightningAbc123qwe",
+  "queryTimeout": 0,
+  "removeAbandoned": false,
+  "removeAbandonedTimeoutSecond": 180,
+  "type": "JDBC",
+  "url": "jdbc:mysql://192.168.1.10:3306/lightning?useJDBCCompliantTimezoneShift=true&useUnicode=true&serverTimezone=Asia/Shanghai&characterEncoding=UTF-8&autoReconnect=true&useSSL=false",
+  "user": "root",
+  "weight": 0
+}
