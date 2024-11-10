@@ -1,6 +1,7 @@
 /mycat/logs/*
 /mysql/data/*
 /nginx/logs/*
+/nginx/cert/*
 ./php/logs/*
 rabbitmq/data/*
 /rabbitmq/logs/*
