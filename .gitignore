@@ -1,0 +1,9 @@
+/.idea
+/.vscode
+*.log
+.env
+/public/storage
+/runtime
+/vendor
+/config
+.docker
